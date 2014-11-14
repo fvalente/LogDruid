@@ -1,0 +1,53 @@
+project : LogDruid
+
+URL : http://logdruid.sourceforge.net
+
+Display, search, filter and generate graphs from log files
+
+Search Criteria:
+case
+regex
+
+
+Recordings
+type: metrics|incidents/events/errors
+how to process events
+record: duration, nb occurrences, capturer data
+display: parametric graph
+
+point of entry : regex to match line
+data point: name, regexp, delimitator,value type
+
+representation
+aggregation
+
+todo next:
+OK recursive file listing as source
+OK actual check of select value on recordingitem
+OK choice of date format in record item
+OK pattern to select files identified as one source
+manual selection of files
+csv input instead of regex pattenr
+
+reporting: find longest occurences
+in graph: see incidents
+
+
+special features:
+% of file mapping
+records of patterns(regex) to ignore
+errors|incident occurences
+recordings discovery helper (listing of unmapped recordings)  
+OK import / export Recordings
+check Recordings occurences, detect data issue
+edit and mass edit recordings
+Mass Recordings auto discovery
+exporting data to standard formats
+OK multi files analysis
+report builder
+selecting date format (or auto detect?)
+add edition of source matches so to add to recording examples 
+
+statistics (summaries, GC,)
+events (errors, thread dumps, alerts)
+file metadata (file timestamp, data extracted (date, pid))
