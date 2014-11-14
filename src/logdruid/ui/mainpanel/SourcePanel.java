@@ -79,8 +79,9 @@ public class SourcePanel extends JPanel {
 	private Document doc;
 	private MainFrame mainFrame;
 	private boolean recursiveMode = false;
-	JCheckBox chckbxSubfolders=null;
-	JCheckBox chckbxOnlyMatches =null;
+	JCheckBox chckbxSubfolders = null;
+	JCheckBox chckbxOnlyMatches = null;
+
 	/**
 	 * Create the panel.
 	 */
@@ -133,7 +134,7 @@ public class SourcePanel extends JPanel {
 		basePathTextField = new JTextField();
 		basePathTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 			}
 		});
 		GridBagConstraints gbc_textField = new GridBagConstraints();
@@ -272,7 +273,7 @@ public class SourcePanel extends JPanel {
 			}
 		});
 		buttonsPanel.add(chckbxSubfolders);
-		
+
 		chckbxOnlyMatches = new JCheckBox("only matches");
 		chckbxOnlyMatches.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -336,14 +337,15 @@ public class SourcePanel extends JPanel {
 
 			File folder = new File(repository.getBaseSourcePath());
 			try {
-				if (!folder.exists()){
-					if (logger.isEnabledFor(Level.INFO)) logger.info("base path did, not exist defaulting to current: " +System.getProperty("user.dir"));
-					folder=new File(System.getProperty("user.dir"));
+				if (!folder.exists()) {
+					if (logger.isEnabledFor(Level.INFO))
+						logger.info("base path did, not exist defaulting to current: " + System.getProperty("user.dir"));
+					folder = new File(System.getProperty("user.dir"));
 					repository.setBaseSourcePath(System.getProperty("user.dir"));
 					basePathTextField.setText(System.getProperty("user.dir"));
 					repository.setRecursiveMode(false);
 					chckbxSubfolders.setSelected(false);
-					}
+				}
 				if (repository.isRecursiveMode()) {
 					long estimatedTime = 0;
 					long startTime = System.currentTimeMillis();
@@ -372,7 +374,8 @@ public class SourcePanel extends JPanel {
 			for (int i = 0; i < listOfFiles.size(); i++) {
 				fileListMatches[i][0] = 0;
 				if (listOfFiles.get(i).isFile()) {
-					if (logger.isDebugEnabled()) logger.debug("source File " + listOfFiles.get(i).getName());
+					if (logger.isDebugEnabled())
+						logger.debug("source File " + listOfFiles.get(i).getName());
 					if (sourceVector != null) {
 						Iterator<Source> it = sourceVector.iterator();
 						count = 0;
@@ -380,25 +383,31 @@ public class SourcePanel extends JPanel {
 							String s1 = ((Source) it.next()).getSourcePattern();
 							pattern = Pattern.compile(s1);
 							matcher = pattern.matcher(FileListing.getPath(repository, listOfFiles.get(i)));
-							if (logger.isDebugEnabled()) logger.debug("matching with pattern: " + s1);
-							if (logger.isDebugEnabled()) logger.debug("matching file: " + FileListing.getPath(repository, listOfFiles.get(i)));
+							if (logger.isDebugEnabled())
+								logger.debug("matching with pattern: " + s1);
+							if (logger.isDebugEnabled())
+								logger.debug("matching file: " + FileListing.getPath(repository, listOfFiles.get(i)));
 
 							if (matcher.find()) {
-								if (logger.isDebugEnabled()) logger.debug("match" + FileListing.getPath(repository, listOfFiles.get(i)));
+								if (logger.isDebugEnabled())
+									logger.debug("match" + FileListing.getPath(repository, listOfFiles.get(i)));
 								if (count == table.getSelectedRow()) {
 									fileListMatches[i][0] = 1;
 									fileListMatches[i][1] = matcher.start();
 									fileListMatches[i][2] = matcher.end();
-									if (logger.isDebugEnabled()) logger.debug("matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
+									if (logger.isDebugEnabled())
+										logger.debug("matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
 								} else if (fileListMatches[i][0] != 1) {
-									if (logger.isDebugEnabled()) logger.debug("Already matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
+									if (logger.isDebugEnabled())
+										logger.debug("Already matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
 									fileListMatches[i][0] = 2;
 								}
 								fileListMatches[i][1] = matcher.start();
 								fileListMatches[i][2] = matcher.end();
 							} else {
 								// fileListMatches[i][0]=0;
-								if (logger.isDebugEnabled()) logger.debug("not matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
+								if (logger.isDebugEnabled())
+									logger.debug("not matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
 							}
 							count++;
 						}
@@ -420,16 +429,18 @@ public class SourcePanel extends JPanel {
 						txtpnTest.setCaretPosition(0);
 						h.addHighlight(currIndex + fileListMatches[i][1], currIndex + fileListMatches[i][2], new DefaultHighlighter.DefaultHighlightPainter(
 								Color.ORANGE));
-						if (logger.isDebugEnabled()) logger.debug("matched - l: " + i + "file" + FileListing.getPath(repository, listOfFiles.get(i)) + " currIndex : " + currIndex
-								+ ", match start: " + fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
+						if (logger.isDebugEnabled())
+							logger.debug("matched - l: " + i + "file" + FileListing.getPath(repository, listOfFiles.get(i)) + " currIndex : " + currIndex
+									+ ", match start: " + fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
 					} else if (fileListMatches[i][0] == 2) {
 						String fileName = FileListing.getPath(repository, listOfFiles.get(i));
 						doc.insertString(doc.getLength(), fileName + "\n", null);
 						txtpnTest.setCaretPosition(0);
 						h.addHighlight(currIndex + fileListMatches[i][1], currIndex + fileListMatches[i][2], DefaultHighlighter.DefaultPainter);
-						if (logger.isDebugEnabled()) logger.debug("ALREADY matched - l: " + i + "file" + listOfFiles.get(i).getName() + " currIndex : " + currIndex + ", match start: "
-								+ fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
-					} else if (!repository.isOnlyMatches()){
+						if (logger.isDebugEnabled())
+							logger.debug("ALREADY matched - l: " + i + "file" + listOfFiles.get(i).getName() + " currIndex : " + currIndex + ", match start: "
+									+ fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
+					} else if (!repository.isOnlyMatches()) {
 						String fileName = FileListing.getPath(repository, listOfFiles.get(i));
 						doc.insertString(doc.getLength(), fileName + "\n", null);
 						txtpnTest.setCaretPosition(0);

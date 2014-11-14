@@ -75,6 +75,7 @@ public class DateEditor extends JPanel {
 	private JLabel labelPattern;
 	private GridBagConstraints gbc_jPanelDetail;
 	private JTextField textField;
+
 	/**
 	 * Create the panel.
 	 */
@@ -82,15 +83,13 @@ public class DateEditor extends JPanel {
 		repository = rep;
 		model = new MyTableModel2(data, header);
 
-		
-		
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] {15, 550, 15};
-		gridBagLayout.rowHeights = new int[] {152, 300};
-		gridBagLayout.columnWeights = new double[]{0.0, 1.0, 0.0};
-		gridBagLayout.rowWeights = new double[]{0.0, 1.0};
+		gridBagLayout.columnWidths = new int[] { 15, 550, 15 };
+		gridBagLayout.rowHeights = new int[] { 152, 300 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
+		gridBagLayout.rowWeights = new double[] { 0.0, 1.0 };
 		setLayout(gridBagLayout);
-		
+
 		JPanel panel_1 = new JPanel();
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
@@ -99,107 +98,109 @@ public class DateEditor extends JPanel {
 		gbc_panel_1.gridy = 0;
 		add(panel_1, gbc_panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
-		
+
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setBorder(UIManager.getBorder("TextPane.border"));
 		table.setPreferredScrollableViewportSize(new Dimension(0, 0));
 		table.setFillsViewportHeight(true);
-		
-		table.getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
 
-					public void valueChanged(ListSelectionEvent e) {
-						// table.getSelectedRow()
-						// persist repository
-						// display selected row
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-						if (table.getSelectedRow() >= 0) {
-						/*	recEditor = new RecordingEditor(repository
-									.getRecordings().get(table.getSelectedRow()),
-									repository);
-							jPanelDetail.removeAll();*/
-							//jPanelDetail.add(recEditor, gbc_jPanelDetail);
-							DateFormat df= repository.getDateFormat(table.getSelectedRow());
-							if (df!= null){
-							textFieldName.setText((String)df.getName());
-							textFieldPattern.setText((String)df.getPattern());
-							textField.setText((String)df.getDateFormat());
-							}
-						// jPanelDetail.revalidate();
-						//	jPanelDetail.repaint();
-						//	jPanelDetail.setVisible(true);
-						//	reloadTable();		those 2 ********
-			//				jPanelDetail.revalidate();
-						}
+			public void valueChanged(ListSelectionEvent e) {
+				// table.getSelectedRow()
+				// persist repository
+				// display selected row
+
+				if (table.getSelectedRow() >= 0) {
+					/*
+					 * recEditor = new RecordingEditor(repository
+					 * .getRecordings().get(table.getSelectedRow()),
+					 * repository); jPanelDetail.removeAll();
+					 */
+					// jPanelDetail.add(recEditor, gbc_jPanelDetail);
+					DateFormat df = repository.getDateFormat(table.getSelectedRow());
+					if (df != null) {
+						textFieldName.setText((String) df.getName());
+						textFieldPattern.setText((String) df.getPattern());
+						textField.setText((String) df.getDateFormat());
 					}
-				});
-		
+					// jPanelDetail.revalidate();
+					// jPanelDetail.repaint();
+					// jPanelDetail.setVisible(true);
+					// reloadTable(); those 2 ********
+					// jPanelDetail.revalidate();
+				}
+			}
+		});
+
 		JScrollPane scrollPane = new JScrollPane(table);
 		panel_1.add(scrollPane, BorderLayout.CENTER);
 		// Set up column sizes.
 		initColumnSizes(table);
-		
-		
+
 		JPanel panel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
 		flowLayout.setAlignment(FlowLayout.LEFT);
 		flowLayout.setVgap(2);
 		flowLayout.setHgap(2);
 		panel_1.add(panel, BorderLayout.SOUTH);
-		
+
 		JButton btnNew = new JButton("New");
 		panel.add(btnNew);
 		btnNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				DateFormat df=new DateFormat("name","\\w{3}\\s[0-9]{1}/[0-9]{2}/[0-9]{2}\\s\\d\\d:\\d\\d:\\d\\d","EEE. MM/dd/yy HH:mm:ss");
+				DateFormat df = new DateFormat("name", "\\w{3}\\s[0-9]{1}/[0-9]{2}/[0-9]{2}\\s\\d\\d:\\d\\d:\\d\\d", "EEE. MM/dd/yy HH:mm:ss");
 				repository.addDateFormat(df);
-				data.add(new Object[] {df.getName(),df.getPattern(),df.getDateFormat()});
+				data.add(new Object[] { df.getName(), df.getPattern(), df.getDateFormat() });
 				table.repaint();
 			}
 		});
-		
+
 		JButton btnDuplicate = new JButton("Duplicate");
 		btnDuplicate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (table.getSelectedRow()>=0){
-				DateFormat df=repository.getDateFormat(table.getSelectedRow());
-				repository.addDateFormat(df);
-				reloadTable();
-				//data.add(new Object[] { table.getRowCount()+1, df.getName(),df.getDateFormat()});
-				table.repaint();
-			}}
+				if (table.getSelectedRow() >= 0) {
+					DateFormat df = repository.getDateFormat(table.getSelectedRow());
+					repository.addDateFormat(df);
+					reloadTable();
+					// data.add(new Object[] { table.getRowCount()+1,
+					// df.getName(),df.getDateFormat()});
+					table.repaint();
+				}
+			}
 		});
 		panel.add(btnDuplicate);
-		
+
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow=table.getSelectedRow();
-				if (selectedRow>=0){
-				repository.deleteDateFormat(table.getSelectedRow());
-				data.remove(table.getSelectedRow());
-				reloadTable();
-				table.setRowSelectionInterval(selectedRow,selectedRow);
-				table.repaint();
-			}}
+				int selectedRow = table.getSelectedRow();
+				if (selectedRow >= 0) {
+					repository.deleteDateFormat(table.getSelectedRow());
+					data.remove(table.getSelectedRow());
+					reloadTable();
+					table.setRowSelectionInterval(selectedRow, selectedRow);
+					table.repaint();
+				}
+			}
 		});
 		panel.add(btnDelete);
-		
+
 		jPanelDetail = new JPanel();
-	 gbc_jPanelDetail = new GridBagConstraints();
+		gbc_jPanelDetail = new GridBagConstraints();
 		gbc_jPanelDetail.anchor = GridBagConstraints.NORTH;
 		gbc_jPanelDetail.fill = GridBagConstraints.HORIZONTAL;
 		gbc_jPanelDetail.gridx = 1;
 		gbc_jPanelDetail.gridy = 1;
 		add(jPanelDetail, gbc_jPanelDetail);
 		GridBagLayout gbl_jPanelDetail = new GridBagLayout();
-		gbl_jPanelDetail.columnWidths = new int[] {169};
-		gbl_jPanelDetail.rowHeights = new int[] {0, 0, 0, 0, 150, 0};
-		gbl_jPanelDetail.columnWeights = new double[]{1.0, 0.0};
-		gbl_jPanelDetail.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 1.0, 0.0};
+		gbl_jPanelDetail.columnWidths = new int[] { 169 };
+		gbl_jPanelDetail.rowHeights = new int[] { 0, 0, 0, 0, 150, 0 };
+		gbl_jPanelDetail.columnWeights = new double[] { 1.0, 0.0 };
+		gbl_jPanelDetail.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, 1.0, 0.0 };
 		jPanelDetail.setLayout(gbl_jPanelDetail);
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBorder(null);
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
@@ -210,14 +211,14 @@ public class DateEditor extends JPanel {
 		gbc_panel_2.gridy = 0;
 		jPanelDetail.add(panel_2, gbc_panel_2);
 		panel_2.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		
+
 		JLabel label = new JLabel("Name");
 		panel_2.add(label);
-		
+
 		textFieldName = new JTextField();
 		textFieldName.setColumns(20);
 		panel_2.add(textFieldName);
-		
+
 		JPanel panel_3 = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panel_3.getLayout();
 		flowLayout_1.setAlignment(FlowLayout.LEFT);
@@ -229,14 +230,14 @@ public class DateEditor extends JPanel {
 		gbc_panel_3.gridx = 0;
 		gbc_panel_3.gridy = 1;
 		jPanelDetail.add(panel_3, gbc_panel_3);
-		
+
 		labelPattern = new JLabel("Pattern");
 		panel_3.add(labelPattern);
-		
+
 		textFieldPattern = new JTextField();
 		textFieldPattern.setColumns(40);
 		panel_3.add(textFieldPattern);
-		
+
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -245,7 +246,7 @@ public class DateEditor extends JPanel {
 				reloadTable();
 			}
 		});
-		
+
 		JPanel panel_4 = new JPanel();
 		FlowLayout flowLayout_2 = (FlowLayout) panel_4.getLayout();
 		flowLayout_2.setAlignment(FlowLayout.LEFT);
@@ -255,14 +256,14 @@ public class DateEditor extends JPanel {
 		gbc_panel_4.gridx = 0;
 		gbc_panel_4.gridy = 2;
 		jPanelDetail.add(panel_4, gbc_panel_4);
-		
+
 		JLabel lblSimpledateformat = new JLabel("SimpleDateFormat");
 		panel_4.add(lblSimpledateformat);
-		
+
 		textField = new JTextField();
 		panel_4.add(textField);
 		textField.setColumns(30);
-		
+
 		JPanel panel_5 = new JPanel();
 		FlowLayout flowLayout_3 = (FlowLayout) panel_5.getLayout();
 		flowLayout_3.setAlignment(FlowLayout.LEFT);
@@ -272,10 +273,10 @@ public class DateEditor extends JPanel {
 		gbc_panel_5.gridx = 0;
 		gbc_panel_5.gridy = 3;
 		jPanelDetail.add(panel_5, gbc_panel_5);
-		
+
 		JLabel lblSampleLabel = new JLabel("Sample");
 		panel_5.add(lblSampleLabel);
-		
+
 		JPanel panel_6 = new JPanel();
 		panel_6.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		GridBagConstraints gbc_panel_6 = new GridBagConstraints();
@@ -287,7 +288,7 @@ public class DateEditor extends JPanel {
 		gbc_panel_6.gridy = 4;
 		jPanelDetail.add(panel_6, gbc_panel_6);
 		panel_6.setLayout(new BorderLayout(0, 0));
-		
+
 		JTextPane textPane = new JTextPane();
 		textPane.setBackground(UIManager.getColor("windowBorder"));
 		panel_6.add(textPane);
@@ -301,29 +302,33 @@ public class DateEditor extends JPanel {
 	}
 
 	public void reloadTable() {
-		int selectedRow=table.getSelectedRow();
+		int selectedRow = table.getSelectedRow();
 		dateFormats = repository.getDates();
 		// Collections.sort(records);
-		if (dateFormats != null){
-		Iterator it = dateFormats.iterator();
-		int count = 0;
-		data.clear();
-	//	this.repaint();
-		while (it.hasNext()) {
-			DateFormat record = (DateFormat) it.next();
-			data.add(new Object[] { record.getName(),record.getPattern(), record.getDateFormat() });
-			logger.info(count + record.getName() + record.getPattern() +record.getDateFormat());
-		}
-		model.fireTableDataChanged();
-	//	this.repaint();
-	//	table.repaint();
-	//	table.revalidate(); ******************** removed to workaround NPE
-		if (selectedRow>=0)	{
-			if (selectedRow <= table.getRowCount()) {
-				table.setRowSelectionInterval(selectedRow,selectedRow);}
-			else table.setRowSelectionInterval(selectedRow-1,selectedRow-1);}
-		else if (table.getRowCount()>0) {table.setRowSelectionInterval(0,0);}
-		this.revalidate();
+		if (dateFormats != null) {
+			Iterator it = dateFormats.iterator();
+			int count = 0;
+			data.clear();
+			// this.repaint();
+			while (it.hasNext()) {
+				DateFormat record = (DateFormat) it.next();
+				data.add(new Object[] { record.getName(), record.getPattern(), record.getDateFormat() });
+				logger.info(count + record.getName() + record.getPattern() + record.getDateFormat());
+			}
+			model.fireTableDataChanged();
+			// this.repaint();
+			// table.repaint();
+			// table.revalidate(); ******************** removed to workaround
+			// NPE
+			if (selectedRow >= 0) {
+				if (selectedRow <= table.getRowCount()) {
+					table.setRowSelectionInterval(selectedRow, selectedRow);
+				} else
+					table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+			} else if (table.getRowCount() > 0) {
+				table.setRowSelectionInterval(0, 0);
+			}
+			this.revalidate();
 		}
 	}
 
@@ -334,14 +339,12 @@ public class DateEditor extends JPanel {
 		int headerWidth = 0;
 		int cellWidth = 0;
 		// Object[] longValues = model.longValues;
-		TableCellRenderer headerRenderer = theTable.getTableHeader()
-				.getDefaultRenderer();
+		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
 		for (int i = 0; i < 3; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 
-			comp = headerRenderer.getTableCellRendererComponent(null,
-					column.getHeaderValue(), false, false, 0, 0);
+			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
 
 			/*
@@ -352,9 +355,7 @@ public class DateEditor extends JPanel {
 			cellWidth = comp.getPreferredSize().width;
 
 			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". "
-						+ "headerWidth = " + headerWidth + "; cellWidth = "
-						+ cellWidth);
+				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
 			}
 
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
@@ -395,7 +396,7 @@ public class DateEditor extends JPanel {
 		public void updateRow(int rowId, Object[] obj) {
 			data.set(rowId, obj);
 		}
-		
+
 		@Override
 		public Object getValueAt(int row, int column) {
 			return data.get(row)[column];
@@ -435,13 +436,12 @@ public class DateEditor extends JPanel {
 		 */
 		/*
 		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " +
-		 * value + " (an instance of " + value.getClass() + ")"); }
+		 * logger.info("Setting value at " + row + "," + col + " to " + value +
+		 * " (an instance of " + value.getClass() + ")"); }
 		 * 
 		 * data[row][col] = value; fireTableCellUpdated(row, col);
 		 * 
-		 * if (DEBUG) { logger.info("New value of data:");
-		 * printDebugData(); } }
+		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
 		 * 
 		 * private void printDebugData() { int numRows = getRowCount(); int
 		 * numCols = getColumnCount();
@@ -488,32 +488,18 @@ public class DateEditor extends JPanel {
 		table.repaint();
 	}
 
-/*	private Vector<DateFormat> findRecordItems(String theLine) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-				"EEE MM/dd/yy HH:mm:ss");
-		String[] rIString = theLine.split(", ");
-		Vector<RecordingItem> rI = new Vector<RecordingItem>();
-		for (int i = 0; i < rIString.length; i++) {
-			if (i == 0) {
-				String[] splitted = rIString[i].split(": ");
-				String date = splitted[0];
-				try {
-					simpleDateFormat.parse(date);
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else {
-				if (rIString[i].contains("=")) {
-					String[] splitted = rIString[i].split("=");
-					String name = splitted[0];
-					String value = splitted[1];
-					// rI.add(new RecordingItem(name,value,true));
-					logger.info(name + " " + value);
-				}
-			}
-		}
-		return rI;
-	}
-	*/
+	/*
+	 * private Vector<DateFormat> findRecordItems(String theLine) {
+	 * SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
+	 * Vector<RecordingItem> rI = new Vector<RecordingItem>(); for (int i = 0; i
+	 * < rIString.length; i++) { if (i == 0) { String[] splitted =
+	 * rIString[i].split(": "); String date = splitted[0]; try {
+	 * simpleDateFormat.parse(date); } catch (ParseException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); } } else { if
+	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
+	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
+	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
+	 * return rI; }
+	 */
 }

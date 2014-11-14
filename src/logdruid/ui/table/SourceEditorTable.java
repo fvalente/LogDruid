@@ -85,7 +85,7 @@ public class SourceEditorTable extends JPanel {
 	static Matcher m;
 	static Vector records = null;
 	private MyTableModel model;
-	private String[] header = { "Name", "Before", "Type", "After", "selected","Value" };
+	private String[] header = { "Name", "Before", "Type", "After", "selected", "Value" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	JTable table = null;
 	private String theLine = "";
@@ -129,7 +129,7 @@ public class SourceEditorTable extends JPanel {
 		table.setFillsViewportHeight(true);
 
 		this.theLine = textPane.getText();
-		
+
 		// Create the scroll pane and add the table to it.
 		JScrollPane scrollPane = new JScrollPane(table);
 		// Set up column sizes.
@@ -140,21 +140,21 @@ public class SourceEditorTable extends JPanel {
 		add(scrollPane);
 		records = re.getSourceItem();
 		// Collections.sort(records);
-		if (records != null){
-		Iterator it = records.iterator();
+		if (records != null) {
+			Iterator it = records.iterator();
 
-		while (it.hasNext()) {
-			RecordingItem rI = (RecordingItem) it.next();
-			data.add(new Object[] { rI.getName(),rI.getBefore(), rI.getType(),rI.getAfter(), rI.isSelected(),"" });
-			//(new Object[] { "", ".*", "integer", "", Boolean.TRUE, "" });
-		}
-		FixValues();
+			while (it.hasNext()) {
+				RecordingItem rI = (RecordingItem) it.next();
+				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), rI.getAfter(), rI.isSelected(), "" });
+				// (new Object[] { "", ".*", "integer", "", Boolean.TRUE, "" });
+			}
+			FixValues();
 		}
 	}
 
 	public void FixValues() {
 		String patternString = "";
-		
+
 		Iterator it = data.iterator();
 		Object[] obj;
 
@@ -163,40 +163,40 @@ public class SourceEditorTable extends JPanel {
 			String stBefore = (String) obj[1];
 			String stType = (String) obj[2];
 			String stAfter = (String) obj[3];
-			if (logger.isEnabledFor(Level.INFO))logger.info("stType: " +stType);
-			logger.info("getTypeString(stType) -: " +DataMiner.getTypeString(stType) );
-			patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")"+stAfter;
+			if (logger.isEnabledFor(Level.INFO))
+				logger.info("stType: " + stType);
+			logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+			patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
 		}
 
 		try {
-			if (logger.isEnabledFor(Level.INFO))logger.info("theLine: "+theLine);
-			if (logger.isEnabledFor(Level.INFO))logger.info("patternString: " +patternString);
+			if (logger.isEnabledFor(Level.INFO))
+				logger.info("theLine: " + theLine);
+			if (logger.isEnabledFor(Level.INFO))
+				logger.info("patternString: " + patternString);
 			Pattern pattern = Pattern.compile(patternString);
 			Matcher matcher = pattern.matcher(theLine);
-			int currIndex =0;
+			int currIndex = 0;
 			if (matcher.find()) {
-				//int currIndex = 0;
+				// int currIndex = 0;
 				// doc.insertString(doc.getLength(),line+"\n", null);
 				Highlighter h = examplePane.getHighlighter();
-				
-				for (int i=1;i<=matcher.groupCount();i++){
-					model.setValueAt(matcher.group(i), i-1, 5);
-					h.addHighlight(matcher.start(i),	 + matcher.end(i), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
-					logger.info("matcher.start(i): " +matcher.start(i) + "matcher.end(i): "+matcher.end(i));
+
+				for (int i = 1; i <= matcher.groupCount(); i++) {
+					model.setValueAt(matcher.group(i), i - 1, 5);
+					h.addHighlight(matcher.start(i), +matcher.end(i), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
+					logger.info("matcher.start(i): " + matcher.start(i) + "matcher.end(i): " + matcher.end(i));
 				}
-				
+
 			}
 
 		} catch (Exception e1) {
 			e1.printStackTrace();
-//			System.exit(1);
+			// System.exit(1);
 		}
 
 	}
 
-
-
-	
 	/*
 	 * This method picks good column sizes. If all column heads are wider than
 	 * the column's cells' contents, then you can just use
@@ -209,14 +209,12 @@ public class SourceEditorTable extends JPanel {
 		int headerWidth = 0;
 		int cellWidth = 0;
 		// Object[] longValues = model.longValues;
-		TableCellRenderer headerRenderer = theTable.getTableHeader()
-				.getDefaultRenderer();
+		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
 		for (int i = 0; i < 6; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 
-			comp = headerRenderer.getTableCellRendererComponent(null,
-					column.getHeaderValue(), false, false, 0, 0);
+			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
 
 			/*
@@ -227,16 +225,13 @@ public class SourceEditorTable extends JPanel {
 			cellWidth = comp.getPreferredSize().width;
 
 			if (DEBUG) {
-				if (logger.isDebugEnabled()) logger.debug("Initializing width of column " + i + ". "
-						+ "headerWidth = " + headerWidth + "; cellWidth = "
-						+ cellWidth);
+				if (logger.isDebugEnabled())
+					logger.debug("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
 			}
 
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 		}
 	}
-
-	
 
 	public void setUpSportColumn(JTable theTable, TableColumn sportColumn) {
 		// Set up the editor for the sport cells.
@@ -321,13 +316,12 @@ public class SourceEditorTable extends JPanel {
 		 */
 		/*
 		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " +
-		 * value + " (an instance of " + value.getClass() + ")"); }
+		 * logger.info("Setting value at " + row + "," + col + " to " + value +
+		 * " (an instance of " + value.getClass() + ")"); }
 		 * 
 		 * data[row][col] = value; fireTableCellUpdated(row, col);
 		 * 
-		 * if (DEBUG) { logger.info("New value of data:");
-		 * printDebugData(); } }
+		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
 		 * 
 		 * private void printDebugData() { int numRows = getRowCount(); int
 		 * numCols = getColumnCount();
@@ -349,8 +343,7 @@ public class SourceEditorTable extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
-		SourceEditorTable newContentPane = new SourceEditorTable(
-				new JTextPane());
+		SourceEditorTable newContentPane = new SourceEditorTable(new JTextPane());
 		newContentPane.setOpaque(true); // content panes must be opaque
 		frame.setContentPane(newContentPane);
 
@@ -368,22 +361,17 @@ public class SourceEditorTable extends JPanel {
 			}
 		});
 	}
-	
-/*	public Vector<RecordingItem> getRecordingItems() {
-		Vector<RecordingItem> toReturn = new Vector<RecordingItem>();
-		for (int i = 0; i < data.size(); i++) { // model.getRowCount()
-			toReturn.add(new RecordingItem(
-					(String) model.getValueAt(i, 0),
-					(String) model.getValueAt(i, 1),
-					(String) model.getValueAt(i, 2),
-					(String) model.getValueAt(i, 3),
-					(Boolean)model.getValueAt(i, 4),
-					(String) model.getValueAt(i, 5)));
-		}
-		return toReturn;
-	}
-	*/
-	
+
+	/*
+	 * public Vector<RecordingItem> getRecordingItems() { Vector<RecordingItem>
+	 * toReturn = new Vector<RecordingItem>(); for (int i = 0; i < data.size();
+	 * i++) { // model.getRowCount() toReturn.add(new RecordingItem( (String)
+	 * model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String)
+	 * model.getValueAt(i, 2), (String) model.getValueAt(i, 3),
+	 * (Boolean)model.getValueAt(i, 4), (String) model.getValueAt(i, 5))); }
+	 * return toReturn; }
+	 */
+
 	public void Add() {
 		data.add(new Object[] { "", ".*", "integer", "", Boolean.TRUE, "" });
 		table.repaint();
@@ -394,32 +382,18 @@ public class SourceEditorTable extends JPanel {
 		table.repaint();
 	}
 
-/*	private Vector<RecordingItem> findRecordItems(String theLine) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-				"EEE MM/dd/yy HH:mm:ss");
-		String[] rIString = theLine.split(", ");
-		Vector<RecordingItem> rI = new Vector<RecordingItem>();
-		for (int i = 0; i < rIString.length; i++) {
-			if (i == 0) {
-				String[] splitted = rIString[i].split(": ");
-				String date = splitted[0];
-				try {
-					simpleDateFormat.parse(date);
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else {
-				if (rIString[i].contains("=")) {
-					String[] splitted = rIString[i].split("=");
-					String name = splitted[0];
-					String value = splitted[1];
-					// rI.add(new RecordingItem(name,value,true));
-					logger.info(name + " " + value);
-				}
-			}
-		}
-		return rI;
-	}
-*/
+	/*
+	 * private Vector<RecordingItem> findRecordItems(String theLine) {
+	 * SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
+	 * Vector<RecordingItem> rI = new Vector<RecordingItem>(); for (int i = 0; i
+	 * < rIString.length; i++) { if (i == 0) { String[] splitted =
+	 * rIString[i].split(": "); String date = splitted[0]; try {
+	 * simpleDateFormat.parse(date); } catch (ParseException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); } } else { if
+	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
+	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
+	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
+	 * return rI; }
+	 */
 }

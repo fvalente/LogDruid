@@ -1,4 +1,4 @@
- package logdruid.data.record;
+package logdruid.data.record;
 
 import java.util.Vector;
 import java.util.UUID;
@@ -11,27 +11,26 @@ public class MetadataRecording extends Recording {
 	private Vector recordingItem;
 	private String dateFormat;
 
-
 	public String getType() {
 		return "Metadata";
 	}
 
-	public MetadataRecording( String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public MetadataRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
 		setIsActive(_isActive);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
-		super.id=generate();
-		logger.info("New MetadataRecording name: "+_name + ", regexp: "+ _regexp + ", id: "+ super.id );
-		if (recordingItem!=null)
-			logger.info("New MetadataRecording with recordingItem vector: "+recordingItem.toString());	
+		super.id = generate();
+		logger.info("New MetadataRecording name: " + _name + ", regexp: " + _regexp + ", id: " + super.id);
+		if (recordingItem != null)
+			logger.info("New MetadataRecording with recordingItem vector: " + recordingItem.toString());
 	}
 
 	public String getDateFormat() {
 		return dateFormat;
-	} 
+	}
 
 	public void setDelimitator(String delimitator) {
 		this.dateFormat = dateFormat;
@@ -69,7 +68,7 @@ public class MetadataRecording extends Recording {
 		if (getRecordingItem() != null) {
 			_recordingItem = (Vector) getRecordingItem().clone();
 		}
-		return new MetadataRecording( _name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		return new MetadataRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
 	}
 
 }

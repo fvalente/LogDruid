@@ -12,46 +12,46 @@ import javax.swing.JTextArea;
 
 //import com.Ostermiller.Syntax.Colorer;
 
+public class LogFile extends JScrollPane {
+	String fileName;
+	String filePath;
+	public JTextArea logTextArea;
 
-public class LogFile extends JScrollPane{
-String fileName;
-String filePath;
-public JTextArea logTextArea;
-//TextArea logTextArea;
-// Colorer colorer;
+	// TextArea logTextArea;
+	// Colorer colorer;
 
-public LogFile(File file){
-	
-	//this.setDoubleBuffered(true);
-	logTextArea= new JTextArea();
-	//PropertyManager pm;
-	//logTextArea = new TextArea(pm);
-	this.setViewportView(logTextArea);
- 	try{
- 		String strLine;
-       	FileInputStream in = new FileInputStream(file);
-		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		while ((strLine = br.readLine()) != null) {
-			logTextArea.append(strLine + "\n");
-			}
-		/* 
-				FileReader in = new FileReader(file);
-		logTextArea.read(in, file.toString());*/
-       	}catch(Exception e){
-    	  e.printStackTrace();
-       	}
-}
+	public LogFile(File file) {
 
-/**
- * This method initializes jTextArea	
- * 	
- * @return javax.swing.JTextArea	
- */
-public JTextArea getlogTextArea() {
-	if (logTextArea == null) {
+		// this.setDoubleBuffered(true);
 		logTextArea = new JTextArea();
+		// PropertyManager pm;
+		// logTextArea = new TextArea(pm);
+		this.setViewportView(logTextArea);
+		try {
+			String strLine;
+			FileInputStream in = new FileInputStream(file);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			while ((strLine = br.readLine()) != null) {
+				logTextArea.append(strLine + "\n");
+			}
+			/*
+			 * FileReader in = new FileReader(file); logTextArea.read(in,
+			 * file.toString());
+			 */
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	return logTextArea;
-}
-}
 
+	/**
+	 * This method initializes jTextArea
+	 * 
+	 * @return javax.swing.JTextArea
+	 */
+	public JTextArea getlogTextArea() {
+		if (logTextArea == null) {
+			logTextArea = new JTextArea();
+		}
+		return logTextArea;
+	}
+}

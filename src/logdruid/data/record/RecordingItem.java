@@ -7,7 +7,7 @@ public class RecordingItem {
 	protected String after;
 	protected String type;
 	protected String value;
-	protected boolean selected; 
+	protected boolean selected;
 
 	public String getBefore() {
 		return before;
@@ -24,6 +24,7 @@ public class RecordingItem {
 	public void setAfter(String after) {
 		this.after = after;
 	}
+
 	public String getProcessingType() {
 		return processingType;
 	}
@@ -32,25 +33,25 @@ public class RecordingItem {
 		this.processingType = processingType;
 	}
 
-	public RecordingItem(String name, String before, String type, String processingType,String after, Boolean isSelected, String value) {
-		this.name=name;
-		this.before=before;
-		this.after=after;
-		this.value=value;
-		this.type=type;
-		this.selected=isSelected;
-		this.processingType=processingType;
-	//	super(name, before, type, after, isSelected, value);
+	public RecordingItem(String name, String before, String type, String processingType, String after, Boolean isSelected, String value) {
+		this.name = name;
+		this.before = before;
+		this.after = after;
+		this.value = value;
+		this.type = type;
+		this.selected = isSelected;
+		this.processingType = processingType;
+		// super(name, before, type, after, isSelected, value);
 		// TODO Auto-generated constructor stub
 	}
 
-	public RecordingItem(String name, String before,String type, String after,Boolean isSelected,String value) {
-	this.name=name;
-	this.before=before;
-	this.after=after;
-	this.value=value;
-	this.type=type;
-	this.selected=isSelected;
+	public RecordingItem(String name, String before, String type, String after, Boolean isSelected, String value) {
+		this.name = name;
+		this.before = before;
+		this.after = after;
+		this.value = value;
+		this.type = type;
+		this.selected = isSelected;
 	}
 
 	public String getName() {
@@ -84,5 +85,5 @@ public class RecordingItem {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
-	
+
 }

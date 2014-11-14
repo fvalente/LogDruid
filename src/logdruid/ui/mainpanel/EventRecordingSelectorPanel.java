@@ -165,25 +165,23 @@ public class EventRecordingSelectorPanel extends JPanel {
 			}
 		});
 		if (repository.getRecordings(EventRecording.class).size() > 0) {
-			recEditor = getEditor(repository.getRecording(EventRecording.class,0));
+			recEditor = getEditor(repository.getRecording(EventRecording.class, 0));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
 		reloadTable();
-	//	jPanelDetail.revalidate();
+		// jPanelDetail.revalidate();
 
 	}
 
 	private JPanel getEditor(Recording rec) {
 		JPanel editorPanel = null;
 		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor(repository, rec.getExampleLine(),
-					rec.getRegexp(), ((StatRecording) rec));
+			editorPanel = new StatRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
 		} else if (rec.getClass() == MetadataRecording.class) {
 			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
 		} else if (rec.getClass() == EventRecording.class) {
-			editorPanel = new EventRecordingEditor(repository, rec.getExampleLine(),
-					rec.getRegexp(), ((EventRecording) rec));
+			editorPanel = new EventRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 		}
 		return editorPanel;
 	}
@@ -202,13 +200,13 @@ public class EventRecordingSelectorPanel extends JPanel {
 			Boolean bool = false;
 			Recording record = (Recording) it.next();
 			if (source != null) {
-				bool = source.isActiveRecordingOnSource(record); 
-				logger.info("ReloadTable with "+ record.getName()+ " with isActiveRecordingOnSource: "+source.isActiveRecordingOnSource(record));
+				bool = source.isActiveRecordingOnSource(record);
+				logger.info("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
 			}
 			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), bool });
-			logger.info("name: "+record.getName() + "regexp: "+record.getRegexp() + "isActive: "+record.getIsActive());
+			logger.info("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
 		}
-		//model.fireTableDataChanged();
+		// model.fireTableDataChanged();
 		logger.info("reloadTable - 2");
 		// this.repaint();
 		table.repaint();
@@ -219,7 +217,8 @@ public class EventRecordingSelectorPanel extends JPanel {
 	}
 
 	private void initColumnSizes(JTable theTable) {
-		logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel model = (logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel) theTable.getModel();
+		logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel model = (logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel) theTable
+				.getModel();
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
@@ -297,7 +296,6 @@ public class EventRecordingSelectorPanel extends JPanel {
 	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
 	 * return rI; }
 	 */
-
 
 	class MyTableModel extends AbstractTableModel {
 		private String[] header;
@@ -434,6 +432,5 @@ public class EventRecordingSelectorPanel extends JPanel {
 		data.add(new Object[] { "", ".*", "integer", Boolean.FALSE });
 		table.repaint();
 	}
-
 
 }

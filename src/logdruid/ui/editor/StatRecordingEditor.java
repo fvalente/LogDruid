@@ -268,11 +268,7 @@ public class StatRecordingEditor extends JPanel {
 							((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							logger.info("RecordingEditor - ok 2");
-							myTableModel2.updateRow(
-									NewRecordingList.table.getSelectedRow(),
-									new Object[] { 
-								txtName.getText(), 
-								txtRegularExp.getText(),
+							myTableModel2.updateRow(NewRecordingList.table.getSelectedRow(), new Object[] { txtName.getText(), txtRegularExp.getText(),
 									chckbxActive.isSelected() });
 							// myTableModel2.fireTableDataChanged();
 						}
@@ -310,7 +306,7 @@ public class StatRecordingEditor extends JPanel {
 	}
 
 	public StatRecordingEditor(Repository repository2, String exampleLine, String regexp, StatRecording statRecording) {
-		this( null,  repository2, exampleLine, regexp, statRecording);
+		this(null, repository2, exampleLine, regexp, statRecording);
 	}
 
 	void refreshList() {

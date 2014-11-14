@@ -157,13 +157,13 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				}
 			}
 		});
-		if (repository.getRecordings(MetadataRecording.class).size() >0) {
+		if (repository.getRecordings(MetadataRecording.class).size() > 0) {
 			recEditor = getEditor(repository.getRecording(MetadataRecording.class, 0));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
 		reloadTable();
-	//	jPanelDetail.revalidate();
+		// jPanelDetail.revalidate();
 
 	}
 
@@ -195,13 +195,13 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 			Boolean bool = false;
 			Recording record = (Recording) it.next();
 			if (source != null) {
-				bool = source.isActiveRecordingOnSource(record); 
-				logger.info("ReloadTable with "+ record.getName()+ " with isActiveRecordingOnSource: "+source.isActiveRecordingOnSource(record));
+				bool = source.isActiveRecordingOnSource(record);
+				logger.info("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
 			}
 			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), bool });
-			logger.info("name: "+record.getName() + "regexp: "+record.getRegexp() + "isActive: "+record.getIsActive());
+			logger.info("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
 		}
-		 //model.fireTableDataChanged();
+		// model.fireTableDataChanged();
 		logger.info("reloadTable - 2");
 		// this.repaint();
 		table.repaint();
@@ -270,14 +270,14 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (source != null) {
-		//		logger.info("source not null");
+				// logger.info("source not null");
 			}
 			if (column == 3 && source != null) {
-			logger.info("getvalueat name" + ((MetadataRecording)repository.getRecording(MetadataRecording.class, row)).getName());
-			logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));
+				logger.info("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row)).getName());
+				logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));
 				return source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row));
 			} else {
-		//		logger.info("source null");
+				// logger.info("source null");
 				return data.get(row)[column];
 			}
 		}
@@ -298,7 +298,8 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				logger.info("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(MetadataRecording.class, row));
 				fireTableCellUpdated(row, column);
-			//	logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));			
+				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
+				// row)));
 			} else {
 
 				data.get(row)[column] = value;
@@ -340,17 +341,15 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 		/*
 		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " +
-		 * value + " (an instance of " + value.getClass() + ")"); } if(4 == col)
-		 * {}
+		 * logger.info("Setting value at " + row + "," + col + " to " + value +
+		 * " (an instance of " + value.getClass() + ")"); } if(4 == col) {}
 		 * 
 		 * }
 		 */
 		/*
 		 * data[row][col] = value; fireTableCellUpdated(row, col);
 		 * 
-		 * if (DEBUG) { logger.info("New value of data:");
-		 * printDebugData(); } }
+		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
 		 * 
 		 * private void printDebugData() { int numRows = getRowCount(); int
 		 * numCols = getColumnCount();
@@ -362,14 +361,15 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		 */
 	}
 
-/*	public Vector<RecordingItem> getRecordingItems() {
-		Vector<RecordingItem> toReturn = new Vector<RecordingItem>();
-		for (int i = 0; i < data.size(); i++) { // model.getRowCount()
-			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
-					.getValueAt(i, 3), (Boolean) model.getValueAt(i, 4), (String) model.getValueAt(i, 5)));
-		}
-		return toReturn;
-	}*/
+	/*
+	 * public Vector<RecordingItem> getRecordingItems() { Vector<RecordingItem>
+	 * toReturn = new Vector<RecordingItem>(); for (int i = 0; i < data.size();
+	 * i++) { // model.getRowCount() toReturn.add(new RecordingItem((String)
+	 * model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String)
+	 * model.getValueAt(i, 2), (String) model .getValueAt(i, 3), (Boolean)
+	 * model.getValueAt(i, 4), (String) model.getValueAt(i, 5))); } return
+	 * toReturn; }
+	 */
 
 	public void Add() {
 		data.add(new Object[] { "", ".*", "integer", Boolean.FALSE });
@@ -392,8 +392,8 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	 * Auto-generated catch block e.printStackTrace(); } } else { if
 	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
 	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
-	 * RecordingItem(name,value,true)); logger.info(name + " " + value);
-	 * } } } return rI; }
+	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
+	 * return rI; }
 	 */
 
 }

@@ -11,12 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-
 public class LogView {
 
 	JTabbedPane jTabbedPane;
-	int paneNumber=0;
-	public LogFile curLogFile =null;
+	int paneNumber = 0;
+	public LogFile curLogFile = null;
 
 	/**
 	 * This is the default constructor
@@ -26,24 +25,24 @@ public class LogView {
 		initialize();
 	}
 
-	public void add (File file){
+	public void add(File file) {
 		StringBuffer strBuf;
-		strBuf=new StringBuffer(file.getName());
-		LogFile logFile =new LogFile(file);
+		strBuf = new StringBuffer(file.getName());
+		LogFile logFile = new LogFile(file);
 		logFile.setName(strBuf.toString());
 		jTabbedPane.add(logFile);
-		curLogFile=logFile;
-	//	jTabbedPane.setComponentAt(paneNumber,new TabButton(strBuf.toString()));
-		jTabbedPane.setToolTipTextAt(paneNumber,file.getAbsolutePath());	
+		curLogFile = logFile;
+		// jTabbedPane.setComponentAt(paneNumber,new
+		// TabButton(strBuf.toString()));
+		jTabbedPane.setToolTipTextAt(paneNumber, file.getAbsolutePath());
 		paneNumber++;
-	//	jTabbedPane.indexOfTabComponent(logFile);
+		// jTabbedPane.indexOfTabComponent(logFile);
 	}
-	
 
 	/**
-	 * This method initializes logView	
-	 * 	
-	 * @return javax.swing.LogView	
+	 * This method initializes logView
+	 * 
+	 * @return javax.swing.LogView
 	 */
 	public JTabbedPane getLogView() {
 		if (jTabbedPane == null) {
@@ -51,7 +50,7 @@ public class LogView {
 		}
 		return jTabbedPane;
 	}
-	
+
 	/**
 	 * This method initializes this
 	 * 
@@ -63,19 +62,19 @@ public class LogView {
 
 	class TabButton extends JPanel implements ActionListener {
 
-	    public TabButton( String label ){
+		public TabButton(String label) {
 
-	        super(new FlowLayout());
-	        add( new JLabel( label ));
-	        JButton button = new JButton("X");
-	      //  button.addActionListener( this );
-	    //    button.setMargin(new Insets(0,0,0,0));
-	  //      add( button );
-	}
+			super(new FlowLayout());
+			add(new JLabel(label));
+			JButton button = new JButton("X");
+			// button.addActionListener( this );
+			// button.setMargin(new Insets(0,0,0,0));
+			// add( button );
+		}
 
-	    public void actionPerformed(ActionEvent ae ){
-	        // close the tab which was clicked
-	        jTabbedPane.remove(jTabbedPane.indexOfTabComponent( this ) );
-	    }
+		public void actionPerformed(ActionEvent ae) {
+			// close the tab which was clicked
+			jTabbedPane.remove(jTabbedPane.indexOfTabComponent(this));
+		}
 	}
-}//  @jve:decl-index=0:visual-constraint="10,10"
+}// @jve:decl-index=0:visual-constraint="10,10"

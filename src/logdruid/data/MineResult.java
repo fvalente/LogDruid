@@ -17,63 +17,48 @@ public class MineResult {
 	private static Logger logger = Logger.getLogger(MineResult.class.getName());
 	private Date startDate;
 	private Date endDate;
-	String source; //Source source; (tuning data size)
+	String source; // Source source; (tuning data size)
 	Vector<File> logFiles;
 	String group;
-	HashMap<String,TimeSeries> statTimeSeriesHashMap;
-	HashMap<String,TimeSeries> eventTimeSeriesHashMap;
+	HashMap<String, TimeSeries> statTimeSeriesHashMap;
+	HashMap<String, TimeSeries> eventTimeSeriesHashMap;
 
+	public MineResult(String _group, FileMineResult hm, Vector fileVector, Repository repo, Source _source) {
+		logFiles = fileVector;
+		source = _source.getSourceName();
+		statTimeSeriesHashMap = hm.statGroupTimeSeries;
+		eventTimeSeriesHashMap = hm.eventGroupTimeSeries;
+		startDate = hm.getStartDate();
+		endDate = hm.getEndDate();
+		group = _group;
+	}
 
+	public Date getStartDate() {
+		return startDate;
+	}
 
-public MineResult(String _group,FileMineResult hm,Vector fileVector, Repository repo, Source _source){
-	logFiles=fileVector;
-	source=_source.getSourceName();
-	statTimeSeriesHashMap=hm.statGroupTimeSeries;
-	eventTimeSeriesHashMap=hm.eventGroupTimeSeries;
-	startDate=hm.getStartDate();
-	endDate=hm.getEndDate();
-	group=_group;
-}
+	public String getSourceID() {
+		return source;
+	}
 
+	public Vector<File> getLogFiles() {
+		return logFiles;
+	}
 
+	public String getGroup() {
+		return group;
+	}
 
-public Date getStartDate() {
-	return startDate;
-}
+	public HashMap<String, TimeSeries> getStatTimeseriesHashMap() {
+		return statTimeSeriesHashMap;
+	}
 
+	public HashMap<String, TimeSeries> getEventTimeseriesHashMap() {
+		return eventTimeSeriesHashMap;
+	}
 
-
-public String getSourceID() {
-	return source;
-}
-
-
-
-public Vector<File> getLogFiles() {
-	return logFiles;
-}
-
-
-
-public String getGroup() {
-	return group;
-}
-
-
-
-public HashMap<String, TimeSeries> getStatTimeseriesHashMap() {
-	return statTimeSeriesHashMap;
-}
-public HashMap<String, TimeSeries> getEventTimeseriesHashMap() {
-	return eventTimeSeriesHashMap;
-}
-
-
-public Date getEndDate() {
-	return endDate;
-}
-	
-
-
+	public Date getEndDate() {
+		return endDate;
+	}
 
 }

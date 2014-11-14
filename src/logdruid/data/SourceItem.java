@@ -7,7 +7,7 @@ public class SourceItem {
 	private String after;
 	private String type;
 	private String value;
-	private boolean selected; 
+	private boolean selected;
 
 	public String getBefore() {
 		return before;
@@ -25,13 +25,13 @@ public class SourceItem {
 		this.after = after;
 	}
 
-	public SourceItem(String name, String before,String type, String after,Boolean isSelected,String value) {
-	this.name=name;
-	this.before=before;
-	this.after=after;
-	this.value=value;
-	this.type=type;
-	this.selected=isSelected;
+	public SourceItem(String name, String before, String type, String after, Boolean isSelected, String value) {
+		this.name = name;
+		this.before = before;
+		this.after = after;
+		this.value = value;
+		this.type = type;
+		this.selected = isSelected;
 	}
 
 	public String getName() {
@@ -65,5 +65,5 @@ public class SourceItem {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
-	
+
 }

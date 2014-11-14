@@ -76,14 +76,14 @@ public class NewRecordingList extends JPanel {
 	public NewRecordingList(final Repository rep) {
 		repository = rep;
 		model = new MyTableModel2(data, header);
-		
+
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] {15, 550, 15};
-		gridBagLayout.rowHeights = new int[] {152, 0, 0, 300};
-		gridBagLayout.columnWeights = new double[]{0.0, 1.0, 0.0};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0};
+		gridBagLayout.columnWidths = new int[] { 15, 550, 15 };
+		gridBagLayout.rowHeights = new int[] { 152, 0, 0, 300 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0 };
 		setLayout(gridBagLayout);
-		
+
 		JPanel panel_1 = new JPanel();
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
@@ -92,19 +92,17 @@ public class NewRecordingList extends JPanel {
 		gbc_panel_1.gridy = 0;
 		add(panel_1, gbc_panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
-		
+
 		table = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane(table);
 		panel_1.add(scrollPane, BorderLayout.CENTER);
-		
 
 		table.setPreferredScrollableViewportSize(new Dimension(0, 0));
 		table.setFillsViewportHeight(true);
-		
-	
+
 		// Set up column sizes.
 		initColumnSizes(table);
-//		panel_1.add(table);
+		// panel_1.add(table);
 		reloadTable();
 		JPanel panel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
@@ -112,86 +110,88 @@ public class NewRecordingList extends JPanel {
 		flowLayout.setVgap(2);
 		flowLayout.setHgap(2);
 		panel_1.add(panel, BorderLayout.SOUTH);
-		
+
 		JButton btnNewMeta = new JButton("New Meta");
 		panel.add(btnNewMeta);
 		btnNewMeta.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int rowCount=table.getRowCount();
+				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
-				Recording re= new MetadataRecording("name", "summary", "example line", "", true,null);
-				recEditor = new MetadataRecordingEditor((logdruid.ui.NewRecordingList.MyTableModel2) table.getModel(),repository,"the line",	"summary",(MetadataRecording) re);
-				jPanelDetail.add(recEditor,BorderLayout.CENTER);
+				Recording re = new MetadataRecording("name", "summary", "example line", "", true, null);
+				recEditor = new MetadataRecordingEditor((logdruid.ui.NewRecordingList.MyTableModel2) table.getModel(), repository, "the line", "summary",
+						(MetadataRecording) re);
+				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				reloadTable();
-				table.setRowSelectionInterval(rowCount,rowCount);
-				logger.info("New record - row count : "+rowCount);
+				table.setRowSelectionInterval(rowCount, rowCount);
+				logger.info("New record - row count : " + rowCount);
 			}
 		});
-		
+
 		JButton btnDuplicate = new JButton("Duplicate");
 		btnDuplicate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow=table.getSelectedRow();
-				if (repository.getRecording(selectedRow).getType()=="Metadata"){
-					repository.addRecording(repository.getRecording(selectedRow).duplicate());					
+				int selectedRow = table.getSelectedRow();
+				if (repository.getRecording(selectedRow).getType() == "Metadata") {
+					repository.addRecording(repository.getRecording(selectedRow).duplicate());
 				}
 
 				reloadTable();
 
 			}
 		});
-		
+
 		JButton btnNewStat = new JButton("New Stat");
 		btnNewStat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int rowCount=table.getRowCount();
+				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
-				Recording re= new StatRecording("nam", "summary", "example line", "", true,null);
-				recEditor = new StatRecordingEditor((MyTableModel2) table.getModel(),repository,"the line",	"summary",(StatRecording) re);
-				jPanelDetail.add(recEditor,BorderLayout.CENTER);
+				Recording re = new StatRecording("nam", "summary", "example line", "", true, null);
+				recEditor = new StatRecordingEditor((MyTableModel2) table.getModel(), repository, "the line", "summary", (StatRecording) re);
+				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				reloadTable();
-				table.setRowSelectionInterval(rowCount,rowCount);
-				logger.info("New record - row count : "+rowCount);
+				table.setRowSelectionInterval(rowCount, rowCount);
+				logger.info("New record - row count : " + rowCount);
 			}
 		});
 		panel.add(btnNewStat);
-		
+
 		JButton btnNewEvent = new JButton("New Event");
 		btnNewEvent.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int rowCount=table.getRowCount();
+				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
-				Recording re= new EventRecording("nam", "summary", "example line", "", true,null);
-				recEditor = new EventRecordingEditor((MyTableModel2) table.getModel(),repository,"the line","summary",(EventRecording) re);
-				jPanelDetail.add(recEditor,BorderLayout.CENTER);
+				Recording re = new EventRecording("nam", "summary", "example line", "", true, null);
+				recEditor = new EventRecordingEditor((MyTableModel2) table.getModel(), repository, "the line", "summary", (EventRecording) re);
+				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				reloadTable();
-				table.setRowSelectionInterval(rowCount,rowCount);
-				logger.info("New record - row count : "+rowCount);
+				table.setRowSelectionInterval(rowCount, rowCount);
+				logger.info("New record - row count : " + rowCount);
 			}
 		});
 		panel.add(btnNewEvent);
 		panel.add(btnDuplicate);
-		
+
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow=table.getSelectedRow();
-				logger.info("selectedRow : "+selectedRow + ", row count: "+table.getRowCount());
+				int selectedRow = table.getSelectedRow();
+				logger.info("selectedRow : " + selectedRow + ", row count: " + table.getRowCount());
 				repository.deleteRecording(selectedRow);
 				reloadTable();
-				
-				if (table.getRowCount()>0)	{
+
+				if (table.getRowCount() > 0) {
 					if (selectedRow == table.getRowCount()) {
-						table.setRowSelectionInterval(selectedRow-1,selectedRow-1);}
-					else table.setRowSelectionInterval(selectedRow,selectedRow);
-					}
+						table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+					} else
+						table.setRowSelectionInterval(selectedRow, selectedRow);
+				}
 			}
 		});
 		panel.add(btnDelete);
-		
+
 		JSeparator separator = new JSeparator();
 		GridBagConstraints gbc_separator = new GridBagConstraints();
 		gbc_separator.anchor = GridBagConstraints.SOUTHWEST;
@@ -200,14 +200,14 @@ public class NewRecordingList extends JPanel {
 		gbc_separator.gridx = 1;
 		gbc_separator.gridy = 1;
 		add(separator, gbc_separator);
-		
+
 		JSeparator separator_1 = new JSeparator();
 		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
 		gbc_separator_1.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_1.gridx = 1;
 		gbc_separator_1.gridy = 2;
 		add(separator_1, gbc_separator_1);
-		
+
 		jPanelDetail = new JPanel();
 		GridBagConstraints gbc_jPanelDetail = new GridBagConstraints();
 		gbc_jPanelDetail.insets = new Insets(0, 0, 0, 5);
@@ -216,91 +216,83 @@ public class NewRecordingList extends JPanel {
 		gbc_jPanelDetail.gridy = 3;
 		add(jPanelDetail, gbc_jPanelDetail);
 		jPanelDetail.setLayout(new BorderLayout(0, 0));
-		table.getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-					public void valueChanged(ListSelectionEvent e) {
-						// table.getSelectedRow()
-						// persist repository
-						// display selected row
-						int selectedRow=table.getSelectedRow();
+			public void valueChanged(ListSelectionEvent e) {
+				// table.getSelectedRow()
+				// persist repository
+				// display selected row
+				int selectedRow = table.getSelectedRow();
 
-						logger.info("ListSelectionListener - selectedRow: "+selectedRow);
-						if (selectedRow >= 0) {
+				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				if (selectedRow >= 0) {
 
-							if (jPanelDetail!=null)	{
-								logger.info("ListSelectionListener - valueChanged");
-							jPanelDetail.removeAll();
-							
-							recEditor=getEditor(repository.getRecording(selectedRow));
- 
-							//data.add(new Object[] { "name", ".*", Boolean.TRUE });
-							//table.repaint();		
-							if (recEditor!=null)
-								{
-								jPanelDetail.add(recEditor,BorderLayout.CENTER);
-								}
-							reloadTable();
-							jPanelDetail.revalidate();
-							}
+					if (jPanelDetail != null) {
+						logger.info("ListSelectionListener - valueChanged");
+						jPanelDetail.removeAll();
+
+						recEditor = getEditor(repository.getRecording(selectedRow));
+
+						// data.add(new Object[] { "name", ".*", Boolean.TRUE
+						// });
+						// table.repaint();
+						if (recEditor != null) {
+							jPanelDetail.add(recEditor, BorderLayout.CENTER);
 						}
+						reloadTable();
+						jPanelDetail.revalidate();
 					}
-				});
-		if (repository.getRecordingCount()>0)
-		{
-		recEditor = getEditor(repository.getRecording(0));
-		jPanelDetail.add(recEditor,BorderLayout.CENTER);
+				}
+			}
+		});
+		if (repository.getRecordingCount() > 0) {
+			recEditor = getEditor(repository.getRecording(0));
+			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 		}
 		reloadTable();
 		jPanelDetail.revalidate();
-		
+
 	}
 
-	private JPanel getEditor(Recording rec){
-		JPanel editorPanel=null;
-	if ( rec.getClass()==StatRecording.class)
-	{
-		editorPanel = new StatRecordingEditor((MyTableModel2) table.getModel(),repository,rec.getExampleLine(),rec.getRegexp(),( (StatRecording)rec));	
-	} 
-	else if (rec.getClass()==MetadataRecording.class)
-	{
-		editorPanel = new MetadataRecordingEditor((MyTableModel2) table.getModel(),repository,rec.getExampleLine(),rec.getRegexp(),( (MetadataRecording)rec));	
-	} 								
-	else if (rec.getClass()==EventRecording.class)
-	{
-		editorPanel = new EventRecordingEditor((MyTableModel2) table.getModel(),repository,rec.getExampleLine(),rec.getRegexp(),( (EventRecording)rec));	
+	private JPanel getEditor(Recording rec) {
+		JPanel editorPanel = null;
+		if (rec.getClass() == StatRecording.class) {
+			editorPanel = new StatRecordingEditor((MyTableModel2) table.getModel(), repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
+		} else if (rec.getClass() == MetadataRecording.class) {
+			editorPanel = new MetadataRecordingEditor((MyTableModel2) table.getModel(), repository, rec.getExampleLine(), rec.getRegexp(),
+					((MetadataRecording) rec));
+		} else if (rec.getClass() == EventRecording.class) {
+			editorPanel = new EventRecordingEditor((MyTableModel2) table.getModel(), repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
+		}
+		return editorPanel;
 	}
-	return editorPanel;
-	}
-	
+
 	public void reloadTable() {
-		int selectedRow=table.getSelectedRow();
-		if (selectedRow==-1 && table.getRowCount()>0){
-			table.setRowSelectionInterval(1,1);
+		int selectedRow = table.getSelectedRow();
+		if (selectedRow == -1 && table.getRowCount() > 0) {
+			table.setRowSelectionInterval(1, 1);
 		}
 		records = repository.getRecordings();
 		// Collections.sort(records);
 		Iterator it = records.iterator();
 		int count = 0;
 		data.clear();
-	//	this.repaint();
-		
+		// this.repaint();
+
 		logger.info("reloadTable - 1");
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
-			data.add(new Object[] { record.getName(),
-					record.getRegexp(),record.getType(), record.getIsActive() });
-			logger.info(count + record.getName() + record.getRegexp()
-					+ record.getIsActive());
+			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive() });
+			logger.info(count + record.getName() + record.getRegexp() + record.getIsActive());
 		}
-	//	model.fireTableDataChanged();
+		// model.fireTableDataChanged();
 		logger.info("reloadTable - 2");
-	//	this.repaint();
+		// this.repaint();
 		table.repaint();
 
 		logger.info("reloadTable - 3");
 		this.revalidate();
-		
+
 	}
 
 	private void initColumnSizes(JTable theTable) {
@@ -310,14 +302,12 @@ public class NewRecordingList extends JPanel {
 		int headerWidth = 0;
 		int cellWidth = 0;
 		// Object[] longValues = model.longValues;
-		TableCellRenderer headerRenderer = theTable.getTableHeader()
-				.getDefaultRenderer();
+		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
 		for (int i = 0; i < 4; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 
-			comp = headerRenderer.getTableCellRendererComponent(null,
-					column.getHeaderValue(), false, false, 0, 0);
+			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
 
 			/*
@@ -328,9 +318,7 @@ public class NewRecordingList extends JPanel {
 			cellWidth = comp.getPreferredSize().width;
 
 			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". "
-						+ "headerWidth = " + headerWidth + "; cellWidth = "
-						+ cellWidth);
+				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
 			}
 
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
@@ -371,7 +359,7 @@ public class NewRecordingList extends JPanel {
 		public void updateRow(int rowId, Object[] obj) {
 			data.set(rowId, obj);
 		}
-		
+
 		@Override
 		public Object getValueAt(int row, int column) {
 			return data.get(row)[column];
@@ -411,13 +399,12 @@ public class NewRecordingList extends JPanel {
 		 */
 		/*
 		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " +
-		 * value + " (an instance of " + value.getClass() + ")"); }
+		 * logger.info("Setting value at " + row + "," + col + " to " + value +
+		 * " (an instance of " + value.getClass() + ")"); }
 		 * 
 		 * data[row][col] = value; fireTableCellUpdated(row, col);
 		 * 
-		 * if (DEBUG) { logger.info("New value of data:");
-		 * printDebugData(); } }
+		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
 		 * 
 		 * private void printDebugData() { int numRows = getRowCount(); int
 		 * numCols = getColumnCount();
@@ -464,32 +451,18 @@ public class NewRecordingList extends JPanel {
 		table.repaint();
 	}
 
-/*	private Vector<RecordingItem> findRecordItems(String theLine) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-				"EEE MM/dd/yy HH:mm:ss");
-		String[] rIString = theLine.split(", ");
-		Vector<RecordingItem> rI = new Vector<RecordingItem>();
-		for (int i = 0; i < rIString.length; i++) {
-			if (i == 0) {
-				String[] splitted = rIString[i].split(": ");
-				String date = splitted[0];
-				try {
-					simpleDateFormat.parse(date);
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else {
-				if (rIString[i].contains("=")) {
-					String[] splitted = rIString[i].split("=");
-					String name = splitted[0];
-					String value = splitted[1];
-					// rI.add(new RecordingItem(name,value,true));
-					logger.info(name + " " + value);
-				}
-			}
-		}
-		return rI;
-	}
-	*/
+	/*
+	 * private Vector<RecordingItem> findRecordItems(String theLine) {
+	 * SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
+	 * Vector<RecordingItem> rI = new Vector<RecordingItem>(); for (int i = 0; i
+	 * < rIString.length; i++) { if (i == 0) { String[] splitted =
+	 * rIString[i].split(": "); String date = splitted[0]; try {
+	 * simpleDateFormat.parse(date); } catch (ParseException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); } } else { if
+	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
+	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
+	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
+	 * return rI; }
+	 */
 }

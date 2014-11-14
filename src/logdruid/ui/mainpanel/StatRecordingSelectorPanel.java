@@ -163,21 +163,20 @@ public class StatRecordingSelectorPanel extends JPanel {
 				}
 			}
 		});
-		if (repository.getRecordings(StatRecording.class).size() >0) {
+		if (repository.getRecordings(StatRecording.class).size() > 0) {
 			recEditor = getEditor(repository.getRecording(0));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
 		reloadTable();
-//		jPanelDetail.revalidate();
+		// jPanelDetail.revalidate();
 
 	}
 
 	private JPanel getEditor(Recording rec) {
 		JPanel editorPanel = null;
 		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor(repository, rec.getExampleLine(),
-					rec.getRegexp(), ((StatRecording) rec));
+			editorPanel = new StatRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
 		} else if (rec.getClass() == MetadataRecording.class) {
 			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
 		} else if (rec.getClass() == EventRecording.class) {
@@ -236,8 +235,6 @@ public class StatRecordingSelectorPanel extends JPanel {
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 		}
 	}
-
-
 
 	class MyTableModel extends AbstractTableModel {
 		private String[] header;
@@ -339,10 +336,10 @@ public class StatRecordingSelectorPanel extends JPanel {
 		table.repaint();
 	}
 
-/*	public void Remove() {
-		data.remove(table.getSelectedRow());
-		table.repaint();
-	}*/
+	/*
+	 * public void Remove() { data.remove(table.getSelectedRow());
+	 * table.repaint(); }
+	 */
 
 	public void Remove() {
 		data.remove(table.getSelectedRow());
@@ -361,8 +358,8 @@ public class StatRecordingSelectorPanel extends JPanel {
 	 * Auto-generated catch block e.printStackTrace(); } } else { if
 	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
 	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
-	 * RecordingItem(name,value,true)); logger.info(name + " " + value);
-	 * } } } return rI; }
+	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
+	 * return rI; }
 	 */
 
 }

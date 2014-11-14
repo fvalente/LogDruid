@@ -25,8 +25,6 @@ public class Repository {
 	private Vector<DateFormat> dates;
 	private boolean recursiveMode;
 	private boolean onlyMatches;
-	
-
 
 	public Repository() {
 		recordings = new Vector<Recording>();
@@ -257,9 +255,11 @@ public class Repository {
 		int cnt = 0;
 		while (dateFormatIterator.hasNext()) {
 			DateFormat df = (DateFormat) dateFormatIterator.next();
-			if (logger.isEnabledFor(Level.TRACE)) logger.trace("getDateFormat "+ df.getId());
+			if (logger.isEnabledFor(Level.TRACE))
+				logger.trace("getDateFormat " + df.getId());
 			if (df.getId() == id) {
-				if (logger.isEnabledFor(Level.TRACE)) logger.trace("getDateFormat found");
+				if (logger.isEnabledFor(Level.TRACE))
+					logger.trace("getDateFormat found");
 				return df;
 			}
 		}
@@ -267,9 +267,10 @@ public class Repository {
 	}
 
 	public void setOnlyMatches(boolean selected) {
-		onlyMatches=selected;
-		
+		onlyMatches = selected;
+
 	}
+
 	public boolean isOnlyMatches() {
 		return onlyMatches;
 	}

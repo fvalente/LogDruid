@@ -1,11 +1,11 @@
 package logdruid.util;
 
-public class MinerThread  implements Runnable {
+public class MinerThread implements Runnable {
 
-	   public MinerThread(Object parameter) {
-	       // store parameter for later user
-	   }
+	public MinerThread(Object parameter) {
+		// store parameter for later user
+	}
 
-	   public void run() {
-	   }
+	public void run() {
+	}
 }

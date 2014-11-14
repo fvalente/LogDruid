@@ -41,20 +41,6 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 //import sun.awt.X11.ColorData;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import logdruid.data.MineResult;
 import logdruid.data.MineResultSet;
 import logdruid.data.Repository;
@@ -72,15 +58,14 @@ import java.awt.Stroke;
 
 import javax.swing.BoxLayout;
 
-
-
 public final class GraphPanel extends JPanel {
 	private Date minimumDate;
 	private Date maximumDate;
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private JScrollPane scrollPane;
 	private JPanel panel;
-	private Color[] colors = { Color.blue, new Color(255,40,40), new Color(65,90,220), new Color(70,255,62), Color.magenta, Color.orange, Color.pink,new Color(65,90,220), new Color(107,255,102) };
+	private Color[] colors = { Color.blue, new Color(255, 40, 40), new Color(65, 90, 220), new Color(70, 255, 62), Color.magenta, Color.orange, Color.pink,
+			new Color(65, 90, 220), new Color(107, 255, 102) };
 	JSpinner startDateJSpinner;
 	JSpinner endDateJSPinner;
 	MineResultSet mineResultSet;
@@ -88,60 +73,59 @@ public final class GraphPanel extends JPanel {
 	long estimatedTime = 0;
 	long startTime = 0;
 
-
 	XYPlot plot = null;
 	JFreeChart chart = null;
-	
-	
 
 	/**
 	 * Create the panel.
-	 * @param panel_2 
+	 * 
+	 * @param panel_2
 	 */
 
 	public GraphPanel(final Repository repo, JPanel panel_2) {
 		setLayout(new BorderLayout(0, 0));
 		startTime = System.currentTimeMillis();
 		mineResultSet = DataMiner.gatherMineResultSet(repo);
-		startDateJSpinner= (JSpinner) panel_2.getComponent(2); 
-		endDateJSPinner= (JSpinner) panel_2.getComponent(3); 
-		minimumDate=mineResultSet.getStartDate();
-		maximumDate=mineResultSet.getEndDate();
-		if (minimumDate!=null)
-		startDateJSpinner.setValue(minimumDate); 		
-		if (maximumDate!=null)
-		endDateJSPinner.setValue(maximumDate); 
-//		removeAll();
+		startDateJSpinner = (JSpinner) panel_2.getComponent(2);
+		endDateJSPinner = (JSpinner) panel_2.getComponent(3);
+		minimumDate = mineResultSet.getStartDate();
+		maximumDate = mineResultSet.getEndDate();
+		if (minimumDate != null)
+			startDateJSpinner.setValue(minimumDate);
+		if (maximumDate != null)
+			endDateJSPinner.setValue(maximumDate);
+		// removeAll();
 		panel = new JPanel();
 		scrollPane = new JScrollPane(panel);
 		load(panel_2);
 	}
-	
-	public void resetTimePeriod( JPanel panel_2){
-		startDateJSpinner= (JSpinner) panel_2.getComponent(2); 
-		endDateJSPinner= (JSpinner) panel_2.getComponent(3); 
-		minimumDate=mineResultSet.getStartDate();
-		maximumDate=mineResultSet.getEndDate();
-		if (minimumDate!=null)
-		startDateJSpinner.setValue(minimumDate); 		
-		if (maximumDate!=null)
-		endDateJSPinner.setValue(maximumDate); 
+
+	public void resetTimePeriod(JPanel panel_2) {
+		startDateJSpinner = (JSpinner) panel_2.getComponent(2);
+		endDateJSPinner = (JSpinner) panel_2.getComponent(3);
+		minimumDate = mineResultSet.getStartDate();
+		maximumDate = mineResultSet.getEndDate();
+		if (minimumDate != null)
+			startDateJSpinner.setValue(minimumDate);
+		if (maximumDate != null)
+			endDateJSPinner.setValue(maximumDate);
 	}
 
-	public void load(JPanel panel_2){
-		startDateJSpinner= (JSpinner) panel_2.getComponent(2); 
-		endDateJSPinner= (JSpinner) panel_2.getComponent(3);
-		//scrollPane.setV
+	public void load(JPanel panel_2) {
+		startDateJSpinner = (JSpinner) panel_2.getComponent(2);
+		endDateJSPinner = (JSpinner) panel_2.getComponent(3);
+		// scrollPane.setV
 		panel.removeAll();
 		Dimension panelSize = this.getSize();
 		add(scrollPane, BorderLayout.CENTER);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-//scrollPane.set trying to replace scroll where it was
+		// scrollPane.set trying to replace scroll where it was
 		JCheckBox relativeCheckBox = (JCheckBox) panel_2.getComponent(5);
 		estimatedTime = System.currentTimeMillis() - startTime;
 		logger.info("gathering time: " + estimatedTime);
 		startTime = System.currentTimeMillis();
-		//Persister.save(new File("/home/fred/git/LogDruid/mineResultSet"), mineResultSet);
+		// Persister.save(new File("/home/fred/git/LogDruid/mineResultSet"),
+		// mineResultSet);
 		Iterator mineResultSetIterator = mineResultSet.mineResults.entrySet().iterator();
 
 		logger.info("mineResultSet size: " + mineResultSet.mineResults.size());
@@ -157,166 +141,176 @@ public final class GraphPanel extends JPanel {
 				HashMap<String, TimeSeries> eventHashMap = mr.getEventTimeseriesHashMap();
 				// logger.info("mineResultSet hash size: "
 				// +mr.getTimeseriesHashMap().size());
-			//	logger.info("mineResultSet hash content: " + mr.getStatTimeseriesHashMap());
+				// logger.info("mineResultSet hash content: " +
+				// mr.getStatTimeseriesHashMap());
 				logger.info("mineResultSet mr.getStartDate(): " + mr.getStartDate());
 				logger.info("mineResultSet mr.getEndDate(): " + mr.getEndDate());
-				logger.info("mineResultSet (Date)jsp.getValue(): " + (Date)startDateJSpinner.getValue());
-				logger.info("mineResultSet (Date)jsp2.getValue(): " + (Date)endDateJSPinner.getValue());				
-				if (mr.getStartDate()!=null && mr.getEndDate()!=null){
-				if ((mr.getStartDate().before((Date)endDateJSPinner.getValue()))&&(mr.getEndDate().after((Date)startDateJSpinner.getValue()))) {
-			//		logger.info("bool 1 " +(mr.getStartDate().before((Date)jsp2.getValue())));
-			//		logger.info("bool 2  " +mr.getEndDate().after((Date)jsp.getValue()));
-			//		logger.info("mineResultSet displayed " );	
-				// HashMap<String, TimeSeries> hashMap2 = (HashMap<String,
-				// TimeSeries>) mineResultSetIterator.next();
+				logger.info("mineResultSet (Date)jsp.getValue(): " + (Date) startDateJSpinner.getValue());
+				logger.info("mineResultSet (Date)jsp2.getValue(): " + (Date) endDateJSPinner.getValue());
+				if (mr.getStartDate() != null && mr.getEndDate() != null) {
+					if ((mr.getStartDate().before((Date) endDateJSPinner.getValue())) && (mr.getEndDate().after((Date) startDateJSpinner.getValue()))) {
+						// logger.info("bool 1 "
+						// +(mr.getStartDate().before((Date)jsp2.getValue())));
+						// logger.info("bool 2  "
+						// +mr.getEndDate().after((Date)jsp.getValue()));
+						// logger.info("mineResultSet displayed " );
+						// HashMap<String, TimeSeries> hashMap2 =
+						// (HashMap<String,
+						// TimeSeries>) mineResultSetIterator.next();
 
-				Iterator statHashMapIterator = statHashMap.entrySet().iterator();
-				
-				if (!statHashMap.entrySet().isEmpty() || !eventHashMap.entrySet().isEmpty() ) {
-					int count = 1;
-					chart = ChartFactory.createXYAreaChart(// Title
-							 mr.getSourceID() + " " + mr.getGroup(),// +
-							// pairs.getKey().toString(),
-							"Time", // X-Axis
-							// label
-							"", // Y-Axis label
-							null, // Dataset
-							PlotOrientation.VERTICAL, true, // Show legend
-							true, // tooltips
-							false // url
-							);
+						Iterator statHashMapIterator = statHashMap.entrySet().iterator();
 
-					final DateAxis domainAxis1 = new DateAxis("Time");
-					domainAxis1.setTickLabelsVisible(true);
-					
-					//domainAxis1.setTickMarksVisible(true);
-					
-					logger.debug("getRange: " + domainAxis1.getRange());
-					if (relativeCheckBox.isSelected()){		
-						domainAxis1.setRange((Date)startDateJSpinner.getValue(), (Date)endDateJSPinner.getValue());
-					} 
-					else {
-						Date startDate=mr.getStartDate();
-						Date endDate=mr.getEndDate();
-						if (mr.getStartDate().before((Date)startDateJSpinner.getValue())){
-							startDate=(Date)startDateJSpinner.getValue();
-							logger.debug("setMinimumDate: " + (Date)startDateJSpinner.getValue());
-						}
-						if (mr.getEndDate().after((Date)endDateJSPinner.getValue())){
-							endDate=(Date)endDateJSPinner.getValue();
-							logger.debug("setMaximumDate: " + (Date)endDateJSPinner.getValue());
-						}
-						if (startDate.before(endDate)) {
-							domainAxis1.setRange(startDate, endDate);
+						if (!statHashMap.entrySet().isEmpty() || !eventHashMap.entrySet().isEmpty()) {
+							int count = 1;
+							chart = ChartFactory.createXYAreaChart(// Title
+									mr.getSourceID() + " " + mr.getGroup(),// +
+									// pairs.getKey().toString(),
+									"Time", // X-Axis
+									// label
+									"", // Y-Axis label
+									null, // Dataset
+									PlotOrientation.VERTICAL, true, // Show
+																	// legend
+									true, // tooltips
+									false // url
+									);
+
+							final DateAxis domainAxis1 = new DateAxis("Time");
+							domainAxis1.setTickLabelsVisible(true);
+
+							// domainAxis1.setTickMarksVisible(true);
+
+							logger.debug("getRange: " + domainAxis1.getRange());
+							if (relativeCheckBox.isSelected()) {
+								domainAxis1.setRange((Date) startDateJSpinner.getValue(), (Date) endDateJSPinner.getValue());
+							} else {
+								Date startDate = mr.getStartDate();
+								Date endDate = mr.getEndDate();
+								if (mr.getStartDate().before((Date) startDateJSpinner.getValue())) {
+									startDate = (Date) startDateJSpinner.getValue();
+									logger.debug("setMinimumDate: " + (Date) startDateJSpinner.getValue());
+								}
+								if (mr.getEndDate().after((Date) endDateJSPinner.getValue())) {
+									endDate = (Date) endDateJSPinner.getValue();
+									logger.debug("setMaximumDate: " + (Date) endDateJSPinner.getValue());
+								}
+								if (startDate.before(endDate)) {
+									domainAxis1.setRange(startDate, endDate);
+								}
+							}
+							while (statHashMapIterator.hasNext()) {
+
+								TimeSeriesCollection dataset = new TimeSeriesCollection();
+								Map.Entry me = (Map.Entry) statHashMapIterator.next();
+								// logger.info(me.toString());
+								// ((TimeSeries) me.getValue()).
+								dataset.addSeries((TimeSeries) me.getValue());
+								logger.debug("getRange: " + domainAxis1.getRange());
+								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
+										+ ((TimeSeries) me.getValue()).getItemCount());
+								logger.info("(((TimeSeries) me.getValue()).getMaxY(): " + (((TimeSeries) me.getValue()).getMaxY()));
+								logger.info("(((TimeSeries) me.getValue()).getMinY(): " + (((TimeSeries) me.getValue()).getMinY()));
+								XYPlot plot1 = chart.getXYPlot();
+
+								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
+								axis4.setAutoRange(true);
+								axis4.setAxisLineVisible(true);
+								axis4.setAutoRangeIncludesZero(false);
+								axis4.setRange(new Range(((TimeSeries) me.getValue()).getMinY(), ((TimeSeries) me.getValue()).getMaxY()));
+								axis4.setLabelPaint(colors[count]);
+								axis4.setTickLabelPaint(colors[count]);
+								plot1.setRangeAxis(count, axis4);
+								final ValueAxis domainAxis = domainAxis1;
+								domainAxis.setLowerMargin(0.0);
+								domainAxis.setUpperMargin(0.0);
+								plot1.setDomainAxis(domainAxis);
+								plot1.setForegroundAlpha(0.5f);
+								plot1.setDataset(count, dataset);
+								plot1.mapDatasetToRangeAxis(count, count);
+								final XYItemRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
+																						// also
+																						// nice
+								if ((((TimeSeries) me.getValue()).getMaxY() - ((TimeSeries) me.getValue()).getMinY()) > 0) {
+									renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
+											new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+								}
+								renderer.setSeriesPaint(0, colors[count]);
+								plot1.setRenderer(count, renderer);
+								count++;
+							}
+							Iterator eventHashMapIterator = eventHashMap.entrySet().iterator();
+							while (eventHashMapIterator.hasNext()) {
+								TimeSeriesCollection dataset = new TimeSeriesCollection();
+								Map.Entry me = (Map.Entry) eventHashMapIterator.next();
+								logger.info(me.toString());
+								// ((TimeSeries) me.getValue()).
+								dataset.addSeries((TimeSeries) me.getValue());
+
+								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
+										+ ((TimeSeries) me.getValue()).getItemCount());
+								logger.info("mineResultSet hash content: " + mr.getEventTimeseriesHashMap());
+								logger.info("(((TimeSeries) me.getValue()).getMaxY(): " + (((TimeSeries) me.getValue()).getMaxY()));
+								logger.info("(((TimeSeries) me.getValue()).getMinY(): " + (((TimeSeries) me.getValue()).getMinY()));
+								XYPlot plot2 = chart.getXYPlot();
+
+								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
+								// axis4.setAutoRange(true);
+								// axis4.setAxisLineVisible(true);
+								// axis4.setAutoRangeIncludesZero(true);
+								// axis4.setRange(new Range(((TimeSeries)
+								// me.getValue()).getMinY(), ((TimeSeries)
+								// me.getValue()).getMaxY()));
+								axis4.setLabelPaint(colors[count]);
+								axis4.setTickLabelPaint(colors[count]);
+								plot2.setRangeAxis(count, axis4);
+								final ValueAxis domainAxis = domainAxis1;
+								domainAxis.setLowerMargin(0.0);
+								domainAxis.setUpperMargin(0.0);
+								plot2.setDomainAxis(domainAxis);
+								plot2.setForegroundAlpha(0.5f);
+								plot2.setDataset(count, dataset);
+								plot2.mapDatasetToRangeAxis(count, count);
+								XYBarRenderer rend = new XYBarRenderer(); // XYErrorRenderer
+																			// ??
+								rend.setShadowVisible(false);
+								rend.setDrawBarOutline(true);
+								Stroke stroke = new BasicStroke(5);
+								rend.setBaseStroke(stroke);
+								final XYItemRenderer renderer = rend;
+								renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
+										new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+
+								// renderer.setItemLabelsVisible(true);
+								renderer.setSeriesPaint(0, colors[count]);
+								plot2.setRenderer(count, renderer);
+								count++;
+							}
+
+							JPanel pan = new JPanel();
+							pan.setLayout(new BorderLayout());
+							// pan.setPreferredSize(panelSize);
+							panel.add(pan);
+							ChartPanel cpanel = new ChartPanel(chart);
+							cpanel.setMinimumDrawWidth(0);
+							cpanel.setMinimumDrawHeight(0);
+							cpanel.setMaximumDrawWidth(1920);
+							cpanel.setMaximumDrawHeight(1200);
+							// cpanel.setInitialDelay(0);
+
+							// cpanel.setPreferredSize(new Dimension(900, 300));
+							cpanel.setPreferredSize(new Dimension(600, 350));
+							pan.add(cpanel, BorderLayout.CENTER);
+
 						}
 					}
-					while (statHashMapIterator.hasNext()) {
-
-						
-						
-						TimeSeriesCollection dataset = new TimeSeriesCollection();
-						Map.Entry me = (Map.Entry) statHashMapIterator.next();
-						// logger.info(me.toString());
-//						((TimeSeries) me.getValue()).
-						dataset.addSeries((TimeSeries) me.getValue());
-						logger.debug("getRange: " + domainAxis1.getRange());
-						logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey()+ " nb records: " +((TimeSeries) me.getValue()).getItemCount());
-						logger.info("(((TimeSeries) me.getValue()).getMaxY(): " +(((TimeSeries) me.getValue()).getMaxY()));						
-						logger.info("(((TimeSeries) me.getValue()).getMinY(): " +(((TimeSeries) me.getValue()).getMinY()));
-						XYPlot plot1 = chart.getXYPlot();
-						
-						NumberAxis axis4 = new NumberAxis(me.getKey().toString());
-						axis4.setAutoRange(true);
-						axis4.setAxisLineVisible(true);
-						axis4.setAutoRangeIncludesZero(false);
-						axis4.setRange(new Range(((TimeSeries) me.getValue()).getMinY(), ((TimeSeries) me.getValue()).getMaxY()));
-						axis4.setLabelPaint(colors[count]);
-						axis4.setTickLabelPaint(colors[count]);
-						plot1.setRangeAxis(count, axis4);
-						final ValueAxis domainAxis=domainAxis1;
-						domainAxis.setLowerMargin(0.0);
-						domainAxis.setUpperMargin(0.0);
-						plot1.setDomainAxis(domainAxis);
-						plot1.setForegroundAlpha(0.5f);
-						plot1.setDataset(count, dataset);
-						plot1.mapDatasetToRangeAxis(count, count);
-						final XYItemRenderer renderer = new XYAreaRenderer(); //XYAreaRenderer2 also nice
-						if ((((TimeSeries) me.getValue()).getMaxY() -((TimeSeries) me.getValue()).getMinY())>0){
-						renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT, new SimpleDateFormat(
-								"d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
-						}
-						renderer.setSeriesPaint(0, colors[count]);
-						plot1.setRenderer(count, renderer);
-						count++;
-					}
-					Iterator eventHashMapIterator = eventHashMap.entrySet().iterator();
-					while (eventHashMapIterator.hasNext()) {
-						TimeSeriesCollection dataset = new TimeSeriesCollection();
-						Map.Entry me = (Map.Entry) eventHashMapIterator.next();
-						 logger.info(me.toString());
-//						((TimeSeries) me.getValue()).
-						dataset.addSeries((TimeSeries) me.getValue());
-
-						logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey()+ " nb records: " +((TimeSeries) me.getValue()).getItemCount());
-						logger.info("mineResultSet hash content: " + mr.getEventTimeseriesHashMap());
-						logger.info("(((TimeSeries) me.getValue()).getMaxY(): " +(((TimeSeries) me.getValue()).getMaxY()));						
-						logger.info("(((TimeSeries) me.getValue()).getMinY(): " +(((TimeSeries) me.getValue()).getMinY()));
-						XYPlot plot2 = chart.getXYPlot();
-						
-						NumberAxis axis4 = new NumberAxis(me.getKey().toString());
-			//			axis4.setAutoRange(true);
-			//			axis4.setAxisLineVisible(true);
-			//			axis4.setAutoRangeIncludesZero(true);
-					//	axis4.setRange(new Range(((TimeSeries) me.getValue()).getMinY(), ((TimeSeries) me.getValue()).getMaxY()));
-						axis4.setLabelPaint(colors[count]);
-						axis4.setTickLabelPaint(colors[count]);
-						plot2.setRangeAxis(count, axis4);
-						final ValueAxis domainAxis=domainAxis1;
-						domainAxis.setLowerMargin(0.0);
-						domainAxis.setUpperMargin(0.0);
-						plot2.setDomainAxis(domainAxis);
-						plot2.setForegroundAlpha(0.5f);
-						plot2.setDataset(count, dataset);
-						plot2.mapDatasetToRangeAxis(count, count);
-						XYBarRenderer rend= new XYBarRenderer(); // XYErrorRenderer ??
-						rend.setShadowVisible(false);
-						rend.setDrawBarOutline(true);
-						Stroke stroke=new BasicStroke(5);
-						rend.setBaseStroke(stroke);
-						final XYItemRenderer renderer = rend;
-							renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT, new SimpleDateFormat(
-									"d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));						
-
-				//		renderer.setItemLabelsVisible(true);
-						renderer.setSeriesPaint(0, colors[count]);
-						plot2.setRenderer(count, renderer);				
-						count++;
-					}
-
-					JPanel pan = new JPanel();
-					pan.setLayout(new BorderLayout());
-					// pan.setPreferredSize(panelSize);
-					panel.add(pan);
-					ChartPanel cpanel = new ChartPanel(chart);
-					cpanel.setMinimumDrawWidth( 0 );
-					cpanel.setMinimumDrawHeight( 0 );
-					cpanel.setMaximumDrawWidth( 1920 );
-					cpanel.setMaximumDrawHeight( 1200 );
-				//	cpanel.setInitialDelay(0);
-					
-					// cpanel.setPreferredSize(new Dimension(900, 300));
-					cpanel.setPreferredSize(new Dimension(600, 350));
-					pan.add(cpanel, BorderLayout.CENTER);
-
+				} else {
+					logger.error("mr dates null: " + mr.getGroup() + mr.getSourceID() + mr.getLogFiles());
 				}
-			}}else {
-				logger.error("mr dates null: "+  mr.getGroup()+ mr.getSourceID()+mr.getLogFiles());
 			}
-				}
 		}
 		// hashMap=miner.mine(sourceFiles,repo);
 		estimatedTime = System.currentTimeMillis() - startTime;
-		
+
 		revalidate();
 		logger.info("display time: " + estimatedTime);
 	}

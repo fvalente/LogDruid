@@ -475,8 +475,10 @@ public class DataMiner {
 														ts.addOrUpdate((new TimeSeriesDataItem(fMS, 100)));
 													} else {
 														if (!recItem2.getType().equals("date"))
-														ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble(matcher2.group(count)))));
-														//ts.addOrUpdate((new TimeSeriesDataItem(fMS, 100)));
+															ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble(matcher2.group(count)))));
+														// ts.addOrUpdate((new
+														// TimeSeriesDataItem(fMS,
+														// 100)));
 													}
 
 													eventHashMap.put(recItem2.getName(), ts);

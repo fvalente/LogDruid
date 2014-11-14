@@ -50,10 +50,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-
 public class BasicGraphPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private DataMiner miner;
@@ -109,20 +105,25 @@ public class BasicGraphPanel extends JPanel {
 						String s1 = r.getSourcePattern();
 						Pattern pattern = Pattern.compile(s1);
 						Matcher matcher = pattern.matcher(listOfFiles.get(i).getName());
-			//			logger.info("matching with pattern: " + s1);
-			//			logger.info("matching file: " + listOfFiles.get(i).getName());
+						// logger.info("matching with pattern: " + s1);
+						// logger.info("matching file: " +
+						// listOfFiles.get(i).getName());
 						if (matcher.find()) {
 							try {
-								sourceFiles.add(new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
-								
-					//			logger.info(" Graphpanel file1: "+listOfFiles.get(i).getCanonicalPath());
-					//			logger.info(" Graphpanel file: "+new File(repo.getBaseSourcePath()).toURI()
-					//					.relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
+								sourceFiles.add(new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI())
+										.getPath());
+
+								// logger.info(" Graphpanel file1: "+listOfFiles.get(i).getCanonicalPath());
+								// logger.info(" Graphpanel file: "+new
+								// File(repo.getBaseSourcePath()).toURI()
+								// .relativize(new
+								// File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							//sourceFiles.add(listOfFiles.get(i).getAbsolutePath() + listOfFiles.get(i).getName());
+							// sourceFiles.add(listOfFiles.get(i).getAbsolutePath()
+							// + listOfFiles.get(i).getName());
 						}
 					}
 				}
@@ -136,27 +137,26 @@ public class BasicGraphPanel extends JPanel {
 				Map.Entry pairs = (Map.Entry) it.next();
 				logger.info(pairs.getKey().toString() + " = " + pairs.getValue());
 				// it.remove(); // avoids a ConcurrentModificationException
-				FileMineResult fMR= miner.fastMine((Vector<String>) pairs.getValue(), repo, r);
+				FileMineResult fMR = miner.fastMine((Vector<String>) pairs.getValue(), repo, r);
 				HashMap hashMap2;
-				hashMap2 =fMR.statGroupTimeSeries;
+				hashMap2 = fMR.statGroupTimeSeries;
 
 				TimeSeriesCollection dataset = new TimeSeriesCollection();
 
 				Iterator it2 = hashMap2.entrySet().iterator();
 				while (it2.hasNext()) {
-					 dataset = new TimeSeriesCollection();
+					dataset = new TimeSeriesCollection();
 					Map.Entry me = (Map.Entry) it2.next();
 					logger.info(me.toString());
 					// dataset.addSeries((TimeSeries)me.getValue());
 					dataset.addSeries((TimeSeries) me.getValue());
-			
-					
+
 					/*
 					 * JFreeChart chart = ChartFactory.createTimeSeriesChart
-					 * (r.getSourceName()+"."+pairs.getKey().toString(), // Title
-					 * "Day", // X-Axis label "Number Of Users", // Y-Axis label
-					 * dataset, // Dataset true, // Show legend true, //tooltips
-					 * false //url );
+					 * (r.getSourceName()+"."+pairs.getKey().toString(), //
+					 * Title "Day", // X-Axis label "Number Of Users", // Y-Axis
+					 * label dataset, // Dataset true, // Show legend true,
+					 * //tooltips false //url );
 					 */
 
 					chart = ChartFactory.createXYAreaChart(r.getSourceName() + " " + pairs.getKey().toString(), // Title
@@ -175,11 +175,11 @@ public class BasicGraphPanel extends JPanel {
 					 */
 					plot = chart.getXYPlot();
 
-			        NumberAxis axis4 = new NumberAxis("Range Axis 4");
-			        axis4.setLabelPaint(Color.green);
-			        axis4.setTickLabelPaint(Color.green);
-			        plot.setRangeAxis(3, axis4);
-					
+					NumberAxis axis4 = new NumberAxis("Range Axis 4");
+					axis4.setLabelPaint(Color.green);
+					axis4.setTickLabelPaint(Color.green);
+					plot.setRangeAxis(3, axis4);
+
 					final ValueAxis domainAxis = new DateAxis("Time");
 					domainAxis.setLowerMargin(0.0);
 					domainAxis.setUpperMargin(0.0);
@@ -198,9 +198,7 @@ public class BasicGraphPanel extends JPanel {
 					cpanel.setPreferredSize(new Dimension(900, 300));
 					pan.add(cpanel, BorderLayout.WEST);
 
-
-				}		
-
+				}
 
 			}
 
