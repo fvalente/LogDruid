@@ -13,14 +13,19 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -41,6 +46,14 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 //import sun.awt.X11.ColorData;
 
+
+
+
+
+
+
+
+
 import logdruid.data.MineResult;
 import logdruid.data.MineResultSet;
 import logdruid.data.Repository;
@@ -54,7 +67,10 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
 
 import javax.swing.BoxLayout;
 
@@ -75,7 +91,8 @@ public final class GraphPanel extends JPanel {
 
 	XYPlot plot = null;
 	JFreeChart chart = null;
-
+    final StandardChartTheme chartTheme = (StandardChartTheme)org.jfree.chart.StandardChartTheme.createJFreeTheme();
+    final Font oldSmallFont = chartTheme.getSmallFont();
 	/**
 	 * Create the panel.
 	 * 
@@ -161,6 +178,9 @@ public final class GraphPanel extends JPanel {
 						Iterator statHashMapIterator = statHashMap.entrySet().iterator();
 
 						if (!statHashMap.entrySet().isEmpty() || !eventHashMap.entrySet().isEmpty()) {
+							JPanel checkboxPanel=new JPanel(new FlowLayout());
+							checkboxPanel.setBackground(Color.white);
+							
 							int count = 1;
 							chart = ChartFactory.createXYAreaChart(// Title
 									mr.getSourceID() + " " + mr.getGroup(),// +
@@ -169,7 +189,7 @@ public final class GraphPanel extends JPanel {
 									// label
 									"", // Y-Axis label
 									null, // Dataset
-									PlotOrientation.VERTICAL, true, // Show
+									PlotOrientation.VERTICAL, false, // Show
 																	// legend
 									true, // tooltips
 									false // url
@@ -199,12 +219,12 @@ public final class GraphPanel extends JPanel {
 								}
 							}
 							while (statHashMapIterator.hasNext()) {
-
+						            
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
 								Map.Entry me = (Map.Entry) statHashMapIterator.next();
-								// logger.info(me.toString());
-								// ((TimeSeries) me.getValue()).
-								dataset.addSeries((TimeSeries) me.getValue());
+								TimeSeries ts=(TimeSeries) me.getValue();
+								
+								dataset.addSeries(ts);
 								logger.debug("getRange: " + domainAxis1.getRange());
 								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
 										+ ((TimeSeries) me.getValue()).getItemCount());
@@ -227,7 +247,7 @@ public final class GraphPanel extends JPanel {
 								plot1.setForegroundAlpha(0.5f);
 								plot1.setDataset(count, dataset);
 								plot1.mapDatasetToRangeAxis(count, count);
-								final XYItemRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
+								final XYAreaRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
 																						// also
 																						// nice
 								if ((((TimeSeries) me.getValue()).getMaxY() - ((TimeSeries) me.getValue()).getMinY()) > 0) {
@@ -235,7 +255,16 @@ public final class GraphPanel extends JPanel {
 											new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
 								}
 								renderer.setSeriesPaint(0, colors[count]);
+						         renderer.setSeriesVisible(0, true);
 								plot1.setRenderer(count, renderer);
+								 JCheckBox jcb = new JCheckBox(new VisibleAction(renderer,me.getKey().toString(), 0));
+						         jcb.setSelected(true);
+						         jcb.setBackground(Color.white);
+					         	 jcb.setBorderPainted(true);
+						         jcb.setBorder(BorderFactory.createLineBorder(colors[count],1,true));
+						         jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
+						         checkboxPanel.add(jcb);
+								
 								count++;
 							}
 							Iterator eventHashMapIterator = eventHashMap.entrySet().iterator();
@@ -282,12 +311,22 @@ public final class GraphPanel extends JPanel {
 
 								// renderer.setItemLabelsVisible(true);
 								renderer.setSeriesPaint(0, colors[count]);
-								plot2.setRenderer(count, renderer);
+						        renderer.setSeriesVisible(0, true);
+							    plot2.setRenderer(count, renderer);
+								
+								 JCheckBox jcb = new JCheckBox(new VisibleAction(rend,me.getKey().toString(), 0));
+						         jcb.setSelected(true);
+						         jcb.setBackground(Color.white);
+					         	 jcb.setBorderPainted(true);
+						         jcb.setBorder(BorderFactory.createLineBorder(colors[count],1,true));
+						         jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
+						         checkboxPanel.add(jcb);
 								count++;
 							}
 
 							JPanel pan = new JPanel();
 							pan.setLayout(new BorderLayout());
+							pan.setPreferredSize(new Dimension(600, 350));
 							// pan.setPreferredSize(panelSize);
 							panel.add(pan);
 							ChartPanel cpanel = new ChartPanel(chart);
@@ -299,7 +338,11 @@ public final class GraphPanel extends JPanel {
 
 							// cpanel.setPreferredSize(new Dimension(900, 300));
 							cpanel.setPreferredSize(new Dimension(600, 350));
-							pan.add(cpanel, BorderLayout.CENTER);
+							panel.add(new JSeparator(SwingConstants.HORIZONTAL));
+							pan.add(cpanel, BorderLayout.CENTER);			
+							//checkboxPanel.setPreferredSize(new Dimension(600, 0));
+
+							pan.add(checkboxPanel, BorderLayout.SOUTH);		
 
 						}
 					}
@@ -315,4 +358,29 @@ public final class GraphPanel extends JPanel {
 		logger.info("display time: " + estimatedTime);
 	}
 
+
+    private static class VisibleAction extends AbstractAction {
+
+        private XYItemRenderer renderer;
+        private int i;
+
+        public VisibleAction(XYItemRenderer renderer, String name,int i) {
+            super(name);
+            this.renderer = renderer;
+            this.i = i;
+        }
+        public VisibleAction(XYBarRenderer renderer, String name,int i) {
+            super(name);
+            this.renderer = renderer;
+            this.i = i;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
+    		logger.info("actionPerformed "+renderer.toString());
+            renderer.removeAnnotations();
+        }
+    
+}
 }
