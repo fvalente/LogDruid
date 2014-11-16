@@ -133,8 +133,7 @@ public class DataMiner {
 			Vector<String> sourceFiles = (Vector<String>) sourcePairs.getValue();
 			sourceFileGroup = miner.getSourceFileGroup(sourceFiles, src, repo);
 			if (logger.isEnabledFor(Level.INFO))
-				logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + src.getSourceName() + " and nb values"
-						+ sourceFileGroup.values().size());
+				logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + src.getSourceName());
 
 			cd.setGroupFilesVectorHashMap(src, sourceFileGroup);
 		}
@@ -891,8 +890,7 @@ public class DataMiner {
 			}
 			HashMap<String, Vector<String>> sourceFileGroup = miner.getSourceFileGroup(sourceFiles, r, repo);
 			expVec.add(sourceFileGroup);
-			logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + r.getSourceName() + " and nb values"
-					+ sourceFileGroup.values().size());
+			logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + r.getSourceName());
 			Iterator it = sourceFileGroup.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry) it.next();

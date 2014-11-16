@@ -130,8 +130,7 @@ public class BasicGraphPanel extends JPanel {
 				logger.info("matched file: " + sourceFiles.size() + " to source group " + r.getSourceName());
 			}
 			HashMap<String, Vector<String>> sourceFileGroup = miner.getSourceFileGroup(sourceFiles, r, repo);
-			logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + r.getSourceName() + " and nb values"
-					+ sourceFileGroup.values().size());
+			logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + r.getSourceName());
 			Iterator it = sourceFileGroup.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry) it.next();
