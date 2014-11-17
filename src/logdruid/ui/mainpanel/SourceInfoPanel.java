@@ -37,7 +37,6 @@ import logdruid.data.Source;
 import logdruid.util.DataMiner;
 import java.awt.GridLayout;
 import java.awt.Font;
-import net.miginfocom.swing.MigLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
@@ -138,9 +137,6 @@ public class SourceInfoPanel extends JPanel {
 			}
 		}
 		nbFilesValueLabel.setText(""+nbFiles);
-		
-		JPanel panel_7 = new JPanel();
-		panel_1.add(panel_7, BorderLayout.SOUTH);
 
 	}
 }
