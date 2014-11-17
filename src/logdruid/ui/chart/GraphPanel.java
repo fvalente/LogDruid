@@ -168,9 +168,9 @@ public final class GraphPanel extends JPanel {
 							int count = 1;
 							chart = ChartFactory.createXYAreaChart(// Title
 									mr.getSourceID() + " " + mr.getGroup(),// +
-									"Time", // X-Axis
+									null, // X-Axis
 									// label
-									"", // Y-Axis label
+									null, // Y-Axis label
 									null, // Dataset
 									PlotOrientation.VERTICAL, false, // Show
 																		// legend
@@ -178,9 +178,8 @@ public final class GraphPanel extends JPanel {
 									false // url
 									);
 
-							final DateAxis domainAxis1 = new DateAxis("Time");
+							final DateAxis domainAxis1 = new DateAxis();
 							domainAxis1.setTickLabelsVisible(true);
-
 							// domainAxis1.setTickMarksVisible(true);
 
 							logger.debug("getRange: " + domainAxis1.getRange());

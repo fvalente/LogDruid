@@ -39,6 +39,7 @@ import logdruid.ui.NewRecordingList;
 import logdruid.ui.chart.GraphPanel;
 import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
 import logdruid.ui.mainpanel.MetadataRecordingSelectorPanel;
+import logdruid.ui.mainpanel.SourceInfoPanel;
 import logdruid.ui.mainpanel.SourcePanel;
 import logdruid.ui.mainpanel.StatRecordingSelectorPanel;
 import logdruid.util.DataMiner;
@@ -53,6 +54,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class MainFrame extends JFrame {
@@ -352,53 +354,50 @@ public class MainFrame extends JFrame {
 		if (node != null) {
 			logger.info(node.toString());
 			treeSelected = node.toString();
-			switch (node.toString()) {
-			case "Sources":
+			if (treeSelected.equals("Sources")){
 				panel_1.removeAll();
 				panel_1.add(new SourcePanel(repository, thiis));
 				panel_1.revalidate();
-				break;
-			case "Recordings":
+			} else if(treeSelected.equals("Recordings")){
 				panel_1.removeAll();
 				panel_1.add(new NewRecordingList(repository));
 				panel_1.revalidate();
-				break;
-			case "Data":
+			} else if(treeSelected.equals("Data")){
 				panel_1.removeAll();
 				panel_1.add(new StatRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-				break;
-			case "Event":
+			} else if(treeSelected.equals("Event")){
 				panel_1.removeAll();
 				panel_1.add(new EventRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-				break;
-			case "DateFormat":
+			} else if(treeSelected.equals("Identification")){
+				panel_1.removeAll();
+				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
+				panel_1.revalidate();
+			} else if(treeSelected.equals("DateFormat")){
 				panel_1.removeAll();
 				panel_1.add(new DateEditor(repository));
 				panel_1.revalidate();
-				break;
-			case "Identification":
-				panel_1.removeAll();
-				// logger.info("source: "+node.getParent().toString());
-				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
-				panel_1.revalidate();
-				break;
-			/*
-			 * case "Chart": panel_1.removeAll();
-			 * logger.info("Chart panel loading "); panel_1.add(new
-			 * BasicGraphPanel(repository)); panel_1.revalidate();
-			 * logger.info("Chart panel loaded "); break;
-			 */
-			case "Chart":
+			} else if(treeSelected.equals("Chart")){
 				panel_1.removeAll();
 				logger.info("Chart panel loading ");
 				graphPanel = new GraphPanel(repository, panel_2);
 				panel_1.add(graphPanel);
 				panel_1.revalidate();
 				logger.info("Chart panel loaded ");
-				break;
+			} else {
+				Vector sources=repository.getSources();
+				Iterator it=sources.iterator();
+				while (it.hasNext()){
+					Source src=(Source)it.next();
+					if (src.getSourceName().equals(treeSelected)){
+						panel_1.removeAll();
+						panel_1.add(new SourceInfoPanel(repository,src));
+						panel_1.revalidate();
+					}
+				}
 			}
+			
 		}
 	}
 

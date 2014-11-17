@@ -54,6 +54,8 @@ import javax.swing.event.CaretEvent;
 import org.apache.log4j.Logger;
 
 import java.awt.Font;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.BevelBorder;
 
 public class EventRecordingEditor extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -62,6 +64,7 @@ public class EventRecordingEditor extends JPanel {
 	private JTextField txtName;
 	private JTextField txtRegularExp;
 	private JTextField txtDate;
+	JPanel panel2;
 	private EventRecordingEditorTable eventRecordingEditorTablePanel;
 	private Repository repository;
 	DefaultListModel listModel;
@@ -69,6 +72,9 @@ public class EventRecordingEditor extends JPanel {
 	private EventRecording recording;
 	Document doc;
 	JCheckBox chckbxActive;
+	private JLabel nameLabel;
+	private JLabel regularExpressionLabel;
+	private JLabel dateFormatLabel;
 
 	// private JList recordingList;
 
@@ -96,6 +102,26 @@ public class EventRecordingEditor extends JPanel {
 		this.add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new BorderLayout(0, 0));
 		{
+			JPanel panel_1 = new JPanel();
+			contentPanel.add(panel_1, BorderLayout.CENTER);
+
+			panel_1.setLayout(new BorderLayout(0, 0));
+			{
+				JPanel panel = new JPanel();
+				panel_1.add(panel, BorderLayout.CENTER);
+				panel.setLayout(new BorderLayout(0, 0));
+				{
+					JScrollPane scrollPane = new JScrollPane();
+					panel.add(scrollPane);
+					{
+						examplePane = new JTextPane();
+						examplePane.setText(theLine);
+						scrollPane.setViewportView(examplePane);
+					}
+				}
+			}
+		}
+		{
 			JPanel panelTop = new JPanel();
 			contentPanel.add(panelTop, BorderLayout.NORTH);
 			panelTop.setLayout(new BorderLayout(0, 0));
@@ -104,46 +130,79 @@ public class EventRecordingEditor extends JPanel {
 				panelTop.add(panel_1, BorderLayout.NORTH);
 				panel_1.setLayout(new GridLayout(0, 3, 0, 0));
 				{
-					txtName = new JTextField();
-					panel_1.add(txtName);
-					txtName.setText("name");
-					txtName.setColumns(10);
+					JPanel namePanel = new JPanel();
+					panel_1.add(namePanel);
+					namePanel.setLayout(new BorderLayout(0, 0));
+					{
+						nameLabel = new JLabel("name:");
+						namePanel.add(nameLabel, BorderLayout.WEST);
+					}
+					nameLabel.setLabelFor(txtName);
+					{
+						txtName = new JTextField();
+						namePanel.add(txtName);
+						txtName.setText("name");
+						txtName.setColumns(5);
+					}
+					{
+						JPanel panel = new JPanel();
+						namePanel.add(panel, BorderLayout.EAST);
+					}
 				}
 				{
-					txtRegularExp = new JTextField();
-					txtRegularExp.addCaretListener(new CaretListener() {
-						public void caretUpdate(CaretEvent e) {
-							doc = examplePane.getDocument();
+					JPanel regularExpressionPanel = new JPanel();
+					panel_1.add(regularExpressionPanel);
+					regularExpressionPanel.setLayout(new BorderLayout(0, 0));
+					{
+						regularExpressionLabel = new JLabel("reg. exp.:");
+						regularExpressionPanel.add(regularExpressionLabel, BorderLayout.WEST);
+					}
+					{
+						txtRegularExp = new JTextField();
+						regularExpressionLabel.setLabelFor(txtRegularExp);
+						regularExpressionPanel.add(txtRegularExp);
+						txtRegularExp.addCaretListener(new CaretListener() {
+							public void caretUpdate(CaretEvent e) {
+								doc = examplePane.getDocument();
 
-							Pattern pattern = Pattern.compile(txtRegularExp.getText());
-							Matcher matcher = pattern.matcher(examplePane.getText());
-							Highlighter h = examplePane.getHighlighter();
-							h.removeAllHighlights();
-							if (matcher.find()) {
-								// int currIndex=doc.getLength();
-								// doc.insertString(doc.getLength(),line+"\n",
-								// null);
+								Pattern pattern = Pattern.compile(txtRegularExp.getText());
+								Matcher matcher = pattern.matcher(examplePane.getText());
+								Highlighter h = examplePane.getHighlighter();
+								h.removeAllHighlights();
+								if (matcher.find()) {
+									// int currIndex=doc.getLength();
+									// doc.insertString(doc.getLength(),line+"\n",
+									// null);
 
-								try {
-									h.addHighlight(matcher.start(), matcher.end(), DefaultHighlighter.DefaultPainter);
-								} catch (BadLocationException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
+									try {
+										h.addHighlight(matcher.start(), matcher.end(), DefaultHighlighter.DefaultPainter);
+									} catch (BadLocationException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+
 								}
-
 							}
-						}
-					});
-					panel_1.add(txtRegularExp);
-					txtRegularExp.setText(regex);
-					txtRegularExp.setColumns(10);
+						});
+						txtRegularExp.setText(regex);
+						txtRegularExp.setColumns(10);
+					}
+					{
+						JPanel panel = new JPanel();
+						regularExpressionPanel.add(panel, BorderLayout.EAST);
+					}
 				}
 				{
 					JPanel panel_2 = new JPanel();
 					panel_1.add(panel_2);
 					panel_2.setLayout(new BorderLayout(0, 0));
 					{
+						dateFormatLabel = new JLabel("Date Format:\n");
+						panel_2.add(dateFormatLabel, BorderLayout.WEST);
+					}
+					{
 						txtDate = new JTextField();
+						dateFormatLabel.setLabelFor(txtDate);
 						txtDate.setEditable(false);
 						panel_2.add(txtDate, BorderLayout.CENTER);
 						txtDate.setText("date format");
@@ -179,68 +238,54 @@ public class EventRecordingEditor extends JPanel {
 				}
 			}
 			{
-				JPanel panel_2 = new JPanel();
-				FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
-				flowLayout.setAlignment(FlowLayout.LEFT);
-				panelTop.add(panel_2, BorderLayout.SOUTH);
-				{
-					JButton btnAddButton = new JButton("Add");
-					btnAddButton.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							eventRecordingEditorTablePanel.Add();
-						}
-					});
-					btnAddButton.setHorizontalAlignment(SwingConstants.LEFT);
-					panel_2.add(btnAddButton);
-				}
-				{
-					JButton btnRemoveButton = new JButton("Remove");
-					btnRemoveButton.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							eventRecordingEditorTablePanel.Remove();
-						}
-					});
-					btnRemoveButton.setHorizontalAlignment(SwingConstants.LEFT);
-					panel_2.add(btnRemoveButton);
-				}
-				{
-					JButton btnCheck = new JButton("Check");
-					btnCheck.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							logger.info("check");
-							eventRecordingEditorTablePanel.FixValues();
+				JPanel panel = new JPanel();
+				panelTop.add(panel, BorderLayout.CENTER);
+				panel.setLayout(new BorderLayout(5, 5));
+				panel2 = new JPanel();
+				panel.add(panel2, BorderLayout.CENTER);
+				panel2.setLayout(new BorderLayout(0, 0));
 
-						}
-					});
-					panel_2.add(btnCheck);
-				}
-			}
-			{
-				JPanel panel_1 = new JPanel();
-				panelTop.add(panel_1);
-
-				panel_1.setLayout(new BorderLayout(0, 0));
 				{
-					JPanel panel = new JPanel();
-					panel_1.add(panel, BorderLayout.CENTER);
-					panel.setLayout(new BorderLayout(0, 0));
+					JPanel panel_2 = new JPanel();
+					panel.add(panel_2, BorderLayout.SOUTH);
+					FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
+					flowLayout.setAlignment(FlowLayout.LEFT);
 					{
-						JScrollPane scrollPane = new JScrollPane();
-						panel.add(scrollPane);
-						{
-							examplePane = new JTextPane();
-							examplePane.setText(theLine);
-							scrollPane.setViewportView(examplePane);
-						}
+						JButton btnAddButton = new JButton("Add");
+						btnAddButton.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								eventRecordingEditorTablePanel.Add();
+							}
+						});
+						btnAddButton.setHorizontalAlignment(SwingConstants.LEFT);
+						panel_2.add(btnAddButton);
+					}
+					{
+						JButton btnRemoveButton = new JButton("Remove");
+						btnRemoveButton.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								eventRecordingEditorTablePanel.Remove();
+							}
+						});
+						btnRemoveButton.setHorizontalAlignment(SwingConstants.LEFT);
+						panel_2.add(btnRemoveButton);
+					}
+					{
+						JButton btnCheck = new JButton("Check");
+						btnCheck.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								logger.info("check");
+								eventRecordingEditorTablePanel.FixValues();
+
+							}
+						});
+						panel_2.add(btnCheck);
 					}
 				}
 			}
 		}
 		{
 			{
-				JPanel panel2 = new JPanel();
-				contentPanel.add(panel2);
-				panel2.setLayout(new BorderLayout(0, 0));
 				if (re == null) {
 					eventRecordingEditorTablePanel = new EventRecordingEditorTable(examplePane);
 					logger.info("RecordingEditor - re=null");
@@ -249,7 +294,6 @@ public class EventRecordingEditor extends JPanel {
 					logger.info("RecordingEditor - re!=null");
 				}
 				eventRecordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
-				panel2.add(eventRecordingEditorTablePanel);
 				eventRecordingEditorTablePanel.setOpaque(true);
 				eventRecordingEditorTablePanel.setVisible(true);
 			}
@@ -311,21 +355,14 @@ public class EventRecordingEditor extends JPanel {
 			txtDate.setText(((EventRecording) re).getDateFormat());
 			examplePane.setText(re.getExampleLine());
 		}
+		JScrollPane scrollPaneEventRecordingEditorTablePanel = new JScrollPane(eventRecordingEditorTablePanel);
+		//scrollPaneEventRecordingEditorTablePanel.setViewportView(eventRecordingEditorTablePanel);
+		panel2.add(scrollPaneEventRecordingEditorTablePanel);
+		eventRecordingEditorTablePanel.FixValues();
 	}
 
 	public EventRecordingEditor(Repository repository2, String exampleLine, String regexp, EventRecording eventRecording) {
 		this(null, repository2, exampleLine, regexp, eventRecording);
-	}
-
-	void refreshList() {
-		// listModel.clear();
-		// Enumeration<Recording> recordingEnum =
-		// repository.getRecordings().elements();
-		for (Enumeration<Recording> e = (Enumeration<Recording>) ((Vector<Recording>) repository.getRecordings(EventRecording.class)).elements(); e
-				.hasMoreElements();) {
-			Recording localRecording = e.nextElement();
-			listModel.addElement(localRecording.getName() + " | " + localRecording.getRegexp());
-		}
 	}
 
 }

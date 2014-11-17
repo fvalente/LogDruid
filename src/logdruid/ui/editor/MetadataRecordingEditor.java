@@ -46,6 +46,7 @@ import logdruid.data.record.Recording;
 import logdruid.ui.DateSelector;
 import logdruid.ui.NewRecordingList;
 import logdruid.ui.NewRecordingList.MyTableModel2;
+import logdruid.ui.table.MetadataRecordingEditorTable;
 import logdruid.ui.table.StatRecordingEditorTable;
 import logdruid.util.DataMiner;
 
@@ -56,17 +57,20 @@ import javax.swing.event.CaretEvent;
 import org.apache.log4j.Logger;
 
 import java.awt.Font;
+import javax.swing.ScrollPaneConstants;
 
 public class MetadataRecordingEditor extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private JPanel _this = this;
 	private JPanel panel_1;
+	JPanel panel_2;
+	JPanel panel2;
 	private final JPanel contentPanel = new JPanel();
 	private JScrollPane scrollPane;
 	private JTextField txtName;
 	private JTextField txtRegularExp;
 	private JTextField txtDate;
-	private StatRecordingEditorTable recordingEditorTablePanel;
+	private MetadataRecordingEditorTable recordingEditorTablePanel;
 	private Repository repository;
 	DefaultListModel listModel;
 	JTextPane examplePane = new JTextPane();
@@ -103,7 +107,12 @@ public class MetadataRecordingEditor extends JPanel {
 		this.setLayout(borderLayout);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.add(contentPanel, BorderLayout.CENTER);
+		
+
+
 		contentPanel.setLayout(new BorderLayout(0, 0));
+
+		
 		{
 			JPanel panel = new JPanel();
 			contentPanel.add(panel, BorderLayout.NORTH);
@@ -180,7 +189,7 @@ public class MetadataRecordingEditor extends JPanel {
 				}
 			}
 			{
-				JPanel panel_2 = new JPanel();
+				panel_2 = new JPanel();
 				FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
 				flowLayout.setAlignment(FlowLayout.LEFT);
 				panel.add(panel_2, BorderLayout.SOUTH);
@@ -216,39 +225,28 @@ public class MetadataRecordingEditor extends JPanel {
 					panel_2.add(btnCheck);
 				}
 			}
-			{
-				JPanel panel_1 = new JPanel();
-				panel.add(panel_1);
-				panel_1.setLayout(new BorderLayout(0, 0));
-				{
-					scrollPane = new JScrollPane();
-					panel_1.add(scrollPane);
-					{
-						examplePane = new JTextPane();
-						examplePane.setText(theLine);
-						scrollPane.setViewportView(examplePane);
-					}
-				}
-			}
+			panel2 = new JPanel();
+			panel.add(panel2, BorderLayout.CENTER);
+			panel2.setLayout(new BorderLayout(0, 0));
+
 		}
 		{
+			JPanel panel_1_1 = new JPanel();
+
+			panel_1_1.setLayout(new BorderLayout(0, 0));
 			{
-				JPanel panel2 = new JPanel();
-				contentPanel.add(panel2);
-				panel2.setLayout(new BorderLayout(0, 0));
-				if (re == null) {
-					recordingEditorTablePanel = new StatRecordingEditorTable(examplePane);
-					logger.info("RecordingEditor - re=null");
-				} else {
-					recordingEditorTablePanel = new StatRecordingEditorTable(repo, re, examplePane);
-					logger.info("RecordingEditor - re!=null");
+				scrollPane = new JScrollPane();
+				panel_1_1.add(scrollPane);
+				{
+					examplePane = new JTextPane();
+					examplePane.setText(theLine);
+					scrollPane.setViewportView(examplePane);
 				}
-				recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
-				panel2.add(recordingEditorTablePanel);
-				recordingEditorTablePanel.setOpaque(true);
-				recordingEditorTablePanel.setVisible(true);
 			}
-		}
+			contentPanel.add(panel_1_1, BorderLayout.CENTER);
+		}	
+
+
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -300,6 +298,20 @@ public class MetadataRecordingEditor extends JPanel {
 				buttonPane.add(cancelButton);
 			}
 		}
+		{
+			{
+				if (re == null) {
+					recordingEditorTablePanel = new MetadataRecordingEditorTable(examplePane);
+					logger.info("RecordingEditor - re=null");
+				} else {
+					recordingEditorTablePanel = new MetadataRecordingEditorTable(repo, re, examplePane);
+					logger.info("RecordingEditor - re!=null examplePane: " + examplePane.getText());
+				}
+				recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
+				recordingEditorTablePanel.setOpaque(true);
+				recordingEditorTablePanel.setVisible(true);
+			}
+		}
 		if (re != null) {
 			txtName.setText(re.getName());
 			txtRegularExp.setText(re.getRegexp());
@@ -309,17 +321,10 @@ public class MetadataRecordingEditor extends JPanel {
 			panel_1.repaint();
 
 		}
-	}
-
-	void refreshList() {
-		// listModel.clear();
-		// Enumeration<Recording> recordingEnum =
-		// repository.getRecordings().elements();
-		for (Enumeration<Recording> e = (Enumeration<Recording>) ((Vector<Recording>) repository.getRecordings(MetadataRecording.class)).elements(); e
-				.hasMoreElements();) {
-			Recording localRecording = e.nextElement();
-			listModel.addElement(localRecording.getName() + " | " + localRecording.getRegexp());
-		}
+		JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
+//		scrollPaneRecordingEditorTablePanel.setViewportView(recordingEditorTablePanel);
+		panel2.add(scrollPaneRecordingEditorTablePanel );
+		recordingEditorTablePanel.FixValues();
 	}
 
 }

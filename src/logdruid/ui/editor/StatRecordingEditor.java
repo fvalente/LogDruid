@@ -61,6 +61,7 @@ public class StatRecordingEditor extends JPanel {
 	private JTextField txtName;
 	private JTextField txtRegularExp;
 	private JTextField txtDate;
+	JPanel panel2;
 	private StatRecordingEditorTable recordingEditorTablePanel;
 	private Repository repository;
 	DefaultListModel listModel;
@@ -94,6 +95,20 @@ public class StatRecordingEditor extends JPanel {
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new BorderLayout(0, 0));
+		{
+			JPanel panel_1 = new JPanel();
+			contentPanel.add(panel_1, BorderLayout.CENTER);
+			panel_1.setLayout(new BorderLayout(0, 0));
+			{
+				JScrollPane scrollPane = new JScrollPane();
+				panel_1.add(scrollPane);
+				{
+					examplePane = new JTextPane();
+					examplePane.setText(theLine);
+					scrollPane.setViewportView(examplePane);
+				}
+			}
+		}
 		{
 			JPanel panel = new JPanel();
 			contentPanel.add(panel, BorderLayout.NORTH);
@@ -177,6 +192,10 @@ public class StatRecordingEditor extends JPanel {
 					panel_1.add(chckbxActive);
 				}
 			}
+			panel2 = new JPanel();
+			panel.add(panel2, BorderLayout.CENTER);
+			panel2.setLayout(new BorderLayout(0, 0));
+
 			{
 				JPanel panel_2 = new JPanel();
 				FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
@@ -214,26 +233,9 @@ public class StatRecordingEditor extends JPanel {
 					panel_2.add(btnCheck);
 				}
 			}
-			{
-				JPanel panel_1 = new JPanel();
-				panel.add(panel_1);
-				panel_1.setLayout(new BorderLayout(0, 0));
-				{
-					JScrollPane scrollPane = new JScrollPane();
-					panel_1.add(scrollPane);
-					{
-						examplePane = new JTextPane();
-						examplePane.setText(theLine);
-						scrollPane.setViewportView(examplePane);
-					}
-				}
-			}
 		}
 		{
 			{
-				JPanel panel2 = new JPanel();
-				contentPanel.add(panel2);
-				panel2.setLayout(new BorderLayout(0, 0));
 				if (re == null) {
 					recordingEditorTablePanel = new StatRecordingEditorTable(examplePane);
 					logger.info("RecordingEditor - re=null");
@@ -242,7 +244,6 @@ public class StatRecordingEditor extends JPanel {
 					logger.info("RecordingEditor - re!=null");
 				}
 				recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
-				panel2.add(recordingEditorTablePanel);
 				recordingEditorTablePanel.setOpaque(true);
 				recordingEditorTablePanel.setVisible(true);
 			}
@@ -303,21 +304,14 @@ public class StatRecordingEditor extends JPanel {
 			examplePane.setText(re.getExampleLine());
 			examplePane.repaint();
 		}
+		JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
+	//	scrollPaneRecordingEditorTablePanel.setViewportView(recordingEditorTablePanel);
+		panel2.add(scrollPaneRecordingEditorTablePanel);
+		recordingEditorTablePanel.FixValues();
 	}
 
 	public StatRecordingEditor(Repository repository2, String exampleLine, String regexp, StatRecording statRecording) {
 		this(null, repository2, exampleLine, regexp, statRecording);
-	}
-
-	void refreshList() {
-		// listModel.clear();
-		// Enumeration<Recording> recordingEnum =
-		// repository.getRecordings().elements();
-		for (Enumeration<Recording> e = (Enumeration<Recording>) ((Vector<Recording>) repository.getRecordings(StatRecording.class)).elements(); e
-				.hasMoreElements();) {
-			Recording localRecording = e.nextElement();
-			listModel.addElement(localRecording.getName() + " | " + localRecording.getRegexp());
-		}
 	}
 
 }

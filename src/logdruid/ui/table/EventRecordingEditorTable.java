@@ -38,6 +38,8 @@ import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
 import logdruid.util.DataMiner;
 import logdruid.util.PatternCache;
+import java.awt.Font;
+import javax.swing.ListSelectionModel;
 
 /*
  * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
@@ -105,8 +107,12 @@ public class EventRecordingEditorTable extends JPanel {
 
 		model = new MyTableModel(data, header);
 		table = new JTable(model);
-		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setFont(new Font("SansSerif", Font.PLAIN, 11));
+		//table.setPreferredScrollableViewportSize(new Dimension(500, 200));
+		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
+
 		this.theLine = textPane.getText();
 		this.examplePane = textPane;
 		// Create the scroll pane and add the table to it.
