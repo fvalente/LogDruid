@@ -187,7 +187,10 @@ public final class GraphPanel extends JPanel {
 									true, // tooltips
 									false // url
 									);
-
+							XYPlot plot = (XYPlot) chart.getPlot();
+							ValueAxis range = plot.getRangeAxis();
+							range.setVisible(false);
+							
 							final DateAxis domainAxis1 = new DateAxis();
 							domainAxis1.setTickLabelsVisible(true);
 							// domainAxis1.setTickMarksVisible(true);
