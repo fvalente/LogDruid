@@ -66,6 +66,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
+import java.awt.Font;
 
 public class MainFrame extends JFrame {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -119,7 +120,7 @@ public class MainFrame extends JFrame {
 
 		JMenuItem mntmNewSource = new JMenuItem("NewSource");
 		mnFile.add(mntmNewSource);
-
+		thiis.setTitle("LogDruid");
 		JMenuItem mntmOpen = new JMenuItem("Open");
 		mntmOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -133,7 +134,7 @@ public class MainFrame extends JFrame {
 					tree.setSelectionPath(tp);
 
 					configFile = fileChooserDialog.getSelectedFile();
-					thiis.setTitle(file.getName() + " - " + repository.getBaseSourcePath());
+					thiis.setTitle("LogDruid - "  +file.getName() + " - " + repository.getBaseSourcePath());
 					treeSelected();
 
 				}
@@ -157,7 +158,7 @@ public class MainFrame extends JFrame {
 				FileSaverDialog fileChooserDialog = new FileSaverDialog();
 				if ((fileChooserDialog != null) && (fileChooserDialog.isValidate())) {
 					Persister.save(fileChooserDialog.getSelectedFile(), (Repository) repository);
-					thiis.setTitle(fileChooserDialog.getSelectedFile().getName() + " - " + repository.getBaseSourcePath());
+					thiis.setTitle("LogDruid - "  +fileChooserDialog.getSelectedFile().getName() + " - " + repository.getBaseSourcePath());
 					configFile = fileChooserDialog.getSelectedFile();
 					// repository.open(fileChooserDialog.getSelectedFile());
 					// repository=(Repository)persister.open(fileChooserDialog.getSelectedFile());
@@ -267,6 +268,7 @@ public class MainFrame extends JFrame {
 		contentPane.add(panel_2, BorderLayout.NORTH);
 
 		JButton btnMain = new JButton("Discovery");
+		btnMain.setFont(new Font("Dialog", Font.BOLD, 11));
 		btnMain.setHorizontalAlignment(SwingConstants.LEFT);
 		panel_2.add(btnMain);
 		tree.setSelectionRow(0);
@@ -278,6 +280,7 @@ public class MainFrame extends JFrame {
 		timeEditor = new JSpinner.DateEditor(startTimeSpinner, "dd-MM-yyyy HH:mm:ss");
 		startTimeSpinner.setEditor(timeEditor);
 		startTimeSpinner.setValue(new Date());
+		
 		panel_2.add(startTimeSpinner);
 
 		endTimeSpinner = new JSpinner(new SpinnerDateModel());
@@ -287,6 +290,7 @@ public class MainFrame extends JFrame {
 		panel_2.add(endTimeSpinner);
 
 		JCheckBox chckbxRelative = new JCheckBox("relative");
+		chckbxRelative.setFont(new Font("Dialog", Font.BOLD, 11));
 		chckbxRelative.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (treeSelected.equals("Chart")) {
@@ -296,8 +300,9 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		JButton btnReset_1 = new JButton("Reset");
-		btnReset_1.addActionListener(new ActionListener() {
+		JButton btnRefresh = new JButton("Reset");
+		btnRefresh.setFont(new Font("Dialog", Font.BOLD, 11));
+		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (treeSelected.equals("Chart")) {
 					graphPanel.resetTimePeriod(panel_2);
@@ -306,10 +311,11 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-		panel_2.add(btnReset_1);
+		panel_2.add(btnRefresh);
 		panel_2.add(chckbxRelative);
 
 		JButton btnReset = new JButton("Refresh");
+		btnReset.setFont(new Font("Dialog", Font.BOLD, 11));
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (treeSelected.equals("Chart")) {
@@ -325,6 +331,13 @@ public class MainFrame extends JFrame {
 		MemInspector mi = new MemInspector();
 		panel_3.add(mi, BorderLayout.EAST);
 		contentPane.add(panel_3, BorderLayout.SOUTH);
+		
+
+	/*	startTimeSpinner.setEnabled(false);
+		endTimeSpinner.setEnabled(false);
+		btnReset.setEnabled(false);
+		btnRefresh.setEnabled(false);
+		chckbxRelative.setEnabled(false); */
 
 	}
 
@@ -355,6 +368,7 @@ public class MainFrame extends JFrame {
 		tree.expandPath(initialTreePath);
 		// tree.fireTreeExpanded(initialTreePath);
 
+		
 		tree.revalidate();
 		tree.repaint();
 	}

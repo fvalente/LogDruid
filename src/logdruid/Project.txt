@@ -26,6 +26,8 @@ OK recursive file listing as source
 OK actual check of select value on recordingitem
 OK choice of date format in record item
 OK pattern to select files identified as one source
+add auto population of examples
+
 manual selection of files
 csv input instead of regex pattenr
 

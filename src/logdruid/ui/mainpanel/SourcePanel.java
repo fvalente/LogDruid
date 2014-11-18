@@ -267,9 +267,12 @@ public class SourcePanel extends JPanel {
 				int selectedRow = table.getSelectedRow();
 				updateSources();
 				reloadTable();
-				table.setRowSelectionInterval(selectedRow, selectedRow);
+				if (selectedRow > 0) {
+					table.setRowSelectionInterval(selectedRow, selectedRow);
+				}
 				mainFrame.updateTreeSources(repository.getSources());
 				refreshList();
+
 			}
 		});
 		btnRefresh.setForeground(Color.BLUE);
