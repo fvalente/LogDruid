@@ -855,7 +855,7 @@ public class DataMiner {
 									if (recordings.get(i).getIsActive()) {
 										if (logger.isDebugEnabled())
 											logger.debug("one : " + matcher.group(i));
-										key +=  matcher.group(i);
+										key +=  matcher.group(i) + " ";
 									}
 								}
 								if (logger.isDebugEnabled())
