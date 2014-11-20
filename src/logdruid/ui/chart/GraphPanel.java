@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -55,6 +56,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 //import sun.awt.X11.ColorData;
+
 
 import logdruid.data.MineResult;
 import logdruid.data.MineResultSet;
@@ -106,18 +108,23 @@ public final class GraphPanel extends JPanel {
 		setLayout(new BorderLayout(0, 0));
 		startTime = System.currentTimeMillis();
 		mineResultSet = DataMiner.gatherMineResultSet(repo);
-		startDateJSpinner = (JSpinner) panel_2.getComponent(2);
-		endDateJSPinner = (JSpinner) panel_2.getComponent(3);
-		minimumDate = mineResultSet.getStartDate();
-		maximumDate = mineResultSet.getEndDate();
-		if (minimumDate != null)
-			startDateJSpinner.setValue(minimumDate);
-		if (maximumDate != null)
-			endDateJSPinner.setValue(maximumDate);
-		// removeAll();
 		panel = new JPanel();
-		scrollPane = new JScrollPane(panel);
-		load(panel_2);
+		if (mineResultSet==null){
+			panel.add(new JLabel(" No Data "));
+		} else {
+			startDateJSpinner = (JSpinner) panel_2.getComponent(2);
+			endDateJSPinner = (JSpinner) panel_2.getComponent(3);
+			minimumDate = mineResultSet.getStartDate();
+			maximumDate = mineResultSet.getEndDate();
+			if (minimumDate != null)
+				startDateJSpinner.setValue(minimumDate);
+			if (maximumDate != null)
+				endDateJSPinner.setValue(maximumDate);
+			// removeAll();
+			scrollPane = new JScrollPane(panel);
+			load(panel_2);			
+		}
+
 	}
 
 	public void resetTimePeriod(JPanel panel_2) {
