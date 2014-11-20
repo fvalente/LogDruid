@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -33,7 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import logdruid.data.ChartData;
 import logdruid.data.DateFormat;
@@ -43,15 +43,12 @@ import logdruid.data.MineResultSet;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.record.EventRecording;
-//import logdruid.data.record.EventRecordingItem;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
 
-import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.time.FixedMillisecond;
 import org.apache.log4j.Level;
@@ -65,15 +62,10 @@ public class DataMiner {
 	private static final ExecutorService workers1 = Executors.newFixedThreadPool(8);
 	static DataMiner miner = new DataMiner();
 
-	
-	public static ChartData gatherSourceData(final Repository repo)
-	{
+	public static ChartData gatherSourceData(final Repository repo) {
 		ChartData cd = new ChartData();
-		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
-		MineResultSet mineResultSet = new MineResultSet();
 		List<File> listOfFiles = null;
 		final DataMiner miner = new DataMiner();
-		HashMap hashMap;
 		logger.info("Base file path: " + repo.getBaseSourcePath());
 
 		File folder = new File(repo.getBaseSourcePath());
@@ -89,15 +81,11 @@ public class DataMiner {
 			e.printStackTrace();
 		}
 		logger.info("number of files: " + listOfFiles.size());
-		// int[][] fileListMatches = new int[listOfFiles.size()][3];
 		cd.sourceVector = repo.getSources();
-
-		Iterator sourceIterator = cd.sourceVector.iterator();
+		Iterator<Source> sourceIterator = cd.sourceVector.iterator();
 
 		while (sourceIterator.hasNext()) {
 			final Source source = (Source) sourceIterator.next();
-			// source.timeSeriesHashMapVector= new Vector< HashMap<String,
-			// TimeSeries>>();
 			cd.selectedSourceFiles = new Vector<String>();
 			// sourceFiles contains all the matched files for a given source
 
@@ -105,29 +93,26 @@ public class DataMiner {
 
 				for (int i = 0; i < listOfFiles.size(); i++) {
 					if (listOfFiles.get(i).isFile()) {
-						// logger.info("File " +
-						// listOfFiles.get(i).getName());
+						;
 						String s1 = source.getSourcePattern();
 						Matcher matcher = PatternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
-						// logger.info("matching with pattern: " + s1);
-						// logger.info("matching file: " +
-						// listOfFiles.get(i).getName());
+						if (logger.isDebugEnabled()) {
+							logger.debug("matching file: " + listOfFiles.get(i).getName() + " with pattern: " + s1);
+						}
 						if (matcher.find()) {
 							try {
 								cd.selectedSourceFiles.add(new File(repo.getBaseSourcePath()).toURI()
 										.relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
-								if (logger.isDebugEnabled())
+								if (logger.isDebugEnabled()) {
 									logger.debug("Source: " + source.getSourceName() + " file: " + listOfFiles.get(i).getCanonicalPath());
-								// logger.info(" Graphpanel file: "+new
-								// File(repo.getBaseSourcePath()).toURI()
-								// .relativize(new
-								// File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
+									logger.debug(" Graphpanel file: "
+											+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI())
+													.getPath());
+								}
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							// sourceFiles.add(listOfFiles.get(i).getAbsolutePath()
-							// + listOfFiles.get(i).getName());
 						}
 					}
 				}
@@ -137,7 +122,7 @@ public class DataMiner {
 			cd.sourceFileVectorHashMap.put(source, cd.selectedSourceFiles);
 		}
 		HashMap<String, Vector<String>> sourceFileGroup = null;
-		Iterator ite = cd.sourceFileVectorHashMap.entrySet().iterator();
+		Iterator<Entry<Source, Vector<String>>> ite = cd.sourceFileVectorHashMap.entrySet().iterator();
 		while (ite.hasNext()) {
 			final Map.Entry sourcePairs = (Map.Entry) ite.next();
 
@@ -151,20 +136,16 @@ public class DataMiner {
 		}
 		return cd;
 	}
-	
-	
-	
-	
-	
+
 	public static MineResultSet gatherMineResultSet(final Repository repo) {
 		ChartData cd = new ChartData();
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
 		List<File> listOfFiles = null;
 		final DataMiner miner = new DataMiner();
-		HashMap hashMap;
 		logger.info("Base file path: " + repo.getBaseSourcePath());
-
+		if (repo.getBaseSourcePath() == null)
+			return null;
 		File folder = new File(repo.getBaseSourcePath());
 		try {
 			if (repo.isRecursiveMode()) {
@@ -178,45 +159,35 @@ public class DataMiner {
 			e.printStackTrace();
 		}
 		logger.info("number of files: " + listOfFiles.size());
-		// int[][] fileListMatches = new int[listOfFiles.size()][3];
 		cd.sourceVector = repo.getSources();
-
-		Iterator sourceIterator = cd.sourceVector.iterator();
+		Iterator<Source> sourceIterator = cd.sourceVector.iterator();
 
 		while (sourceIterator.hasNext()) {
 			final Source source = (Source) sourceIterator.next();
-			// source.timeSeriesHashMapVector= new Vector< HashMap<String,
-			// TimeSeries>>();
 			cd.selectedSourceFiles = new Vector<String>();
 			// sourceFiles contains all the matched files for a given source
-
 			if (source.getActive()) {
-
 				for (int i = 0; i < listOfFiles.size(); i++) {
 					if (listOfFiles.get(i).isFile()) {
-						// logger.info("File " +
-						// listOfFiles.get(i).getName());
 						String s1 = source.getSourcePattern();
 						Matcher matcher = PatternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
-						// logger.info("matching with pattern: " + s1);
-						// logger.info("matching file: " +
-						// listOfFiles.get(i).getName());
+						if (logger.isDebugEnabled()) {
+							logger.debug("matching file: " + listOfFiles.get(i).getName() + " with pattern: " + s1);
+						}
 						if (matcher.find()) {
 							try {
 								cd.selectedSourceFiles.add(new File(repo.getBaseSourcePath()).toURI()
 										.relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
-								if (logger.isDebugEnabled())
+								if (logger.isDebugEnabled()) {
 									logger.debug("Source: " + source.getSourceName() + " file: " + listOfFiles.get(i).getCanonicalPath());
-								// logger.info(" Graphpanel file: "+new
-								// File(repo.getBaseSourcePath()).toURI()
-								// .relativize(new
-								// File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
+									logger.debug(" Graphpanel file: "
+											+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI())
+													.getPath());
+								}
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							// sourceFiles.add(listOfFiles.get(i).getAbsolutePath()
-							// + listOfFiles.get(i).getName());
 						}
 					}
 				}
@@ -240,7 +211,7 @@ public class DataMiner {
 		}
 		if (logger.isEnabledFor(Level.INFO))
 			logger.info("Vector sourceFileGroup" + sourceFileGroup);
-		Iterator sourceIterator2 = repo.getSources().iterator();
+		Iterator<Source> sourceIterator2 = repo.getSources().iterator();
 
 		while (sourceIterator2.hasNext()) {
 			final Source source = (Source) sourceIterator2.next();
@@ -855,7 +826,7 @@ public class DataMiner {
 									if (recordings.get(i).getIsActive()) {
 										if (logger.isDebugEnabled())
 											logger.debug("one : " + matcher.group(i));
-										key +=  matcher.group(i) + " ";
+										key += matcher.group(i) + " ";
 									}
 								}
 								if (logger.isDebugEnabled())
