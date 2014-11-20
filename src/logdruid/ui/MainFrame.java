@@ -67,6 +67,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 import java.awt.Font;
+import javax.swing.JProgressBar;
+import javax.swing.border.MatteBorder;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.BoxLayout;
+import java.awt.Insets;
 
 public class MainFrame extends JFrame {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -82,7 +88,8 @@ public class MainFrame extends JFrame {
 	private JSpinner startTimeSpinner;
 	private JSpinner.DateEditor timeEditor;
 	private JSpinner endTimeSpinner;
-	private JSpinner.DateEditor timeEditor2;
+	private JSpinner.DateEditor timeEditor2; 
+	public String currentRepositoryFile = "New";
 
 	private MainFrame thiis;
 
@@ -118,7 +125,15 @@ public class MainFrame extends JFrame {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
-		JMenuItem mntmNewSource = new JMenuItem("NewSource");
+		JMenuItem mntmNewSource = new JMenuItem("New");
+		mntmNewSource.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				repository=new Repository();
+				currentRepositoryFile= "New";
+				thiis.setTitle("LogDruid  - " +currentRepositoryFile);
+				treeSelected();
+			}
+		});
 		mnFile.add(mntmNewSource);
 		thiis.setTitle("LogDruid");
 		JMenuItem mntmOpen = new JMenuItem("Open");
@@ -210,6 +225,7 @@ public class MainFrame extends JFrame {
 		panel.add(btnNewButton_1);
 
 		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOneTouchExpandable(true);
 		contentPane.add(splitPane);
 
 		tree = new JTree();
@@ -328,9 +344,37 @@ public class MainFrame extends JFrame {
 		tree.setSelectionRow(0);
 
 		JPanel panel_3 = new JPanel();
-		MemInspector mi = new MemInspector();
-		panel_3.add(mi, BorderLayout.EAST);
+		panel_3.setLayout(new BorderLayout(0, 0));
 		contentPane.add(panel_3, BorderLayout.SOUTH);
+		
+		JPanel panel_4 = new JPanel();
+		FlowLayout flowLayout_1 = (FlowLayout) panel_4.getLayout();
+		flowLayout_1.setVgap(0);
+		panel_3.add(panel_4, BorderLayout.EAST);
+		MemInspector mi = new MemInspector();
+		panel_4.add(mi);
+		
+		JPanel panel_5 = new JPanel();
+		panel_3.add(panel_5, BorderLayout.CENTER);
+		panel_5.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_6 = new JPanel();
+		panel_5.add(panel_6);
+		GridBagLayout gbl_panel_6 = new GridBagLayout();
+		gbl_panel_6.columnWidths = new int[] {100, 300, 100, 0};
+		gbl_panel_6.rowHeights = new int[] {20, 0};
+		gbl_panel_6.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_6.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panel_6.setLayout(gbl_panel_6);
+		
+		JProgressBar progressBar = new JProgressBar();
+		GridBagConstraints gbc_progressBar = new GridBagConstraints();
+		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
+		gbc_progressBar.insets = new Insets(0, 0, 0, 5);
+		gbc_progressBar.gridx = 1;
+		gbc_progressBar.gridy = 0;
+		progressBar.setVisible(false);
+		panel_6.add(progressBar, gbc_progressBar);
 		
 
 	/*	startTimeSpinner.setEnabled(false);
@@ -424,7 +468,6 @@ public class MainFrame extends JFrame {
 			
 		}
 	}
-
 }
 
 /*

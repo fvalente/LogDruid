@@ -95,7 +95,7 @@ public class SourcePanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public SourcePanel(final Repository repo, MainFrame _mainFrame) {
+	public SourcePanel(final Repository repo, final MainFrame _mainFrame) {
 		mainFrame = _mainFrame;
 		model = new MyTableModel2(data, header);
 		repository = repo;
@@ -144,7 +144,11 @@ public class SourcePanel extends JPanel {
 		basePathTextField = new JTextField();
 		basePathTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
+				File temp = new File(basePathTextField.getText());
+				if (temp.exists()) {
+					repo.setBaseSourcePath(basePathTextField.getText());
+					_mainFrame.setTitle("LogDruid - " +_mainFrame.currentRepositoryFile + " - "+ basePathTextField.getText());
+				}
 			}
 		});
 		GridBagConstraints gbc_textField = new GridBagConstraints();
