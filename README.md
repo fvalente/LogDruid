@@ -1,4 +1,4 @@
-LogDruid: chart statistics and events retrieved in logs files through configurable regular expressions
+LogDruid: Chart statistics and events retrieved in logs files through configurable regular expressions
 URL : https://github.com/fvalente/LogDruid
 
 LogDruid is an application to gather, aggregate and chart information originating from any log files.
@@ -52,4 +52,3 @@ Other ideas:
 - interface to get data from other sources 
 - ability to access data in archives
 - template compression
-- 
