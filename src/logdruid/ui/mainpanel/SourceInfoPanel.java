@@ -35,10 +35,13 @@ import logdruid.data.ChartData;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.util.DataMiner;
+
 import java.awt.GridLayout;
 import java.awt.Font;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -137,29 +140,32 @@ public class SourceInfoPanel extends JPanel {
 				panel_6.add(scrollPane_1, gbc_scrollPane_1);
 				groupDoc = textPane_1.getDocument();
 
-		ChartData cd = DataMiner.gatherSourceData(repo);
-		HashMap<String, Vector<String>> hm = cd.getGroupFilesHashMap(src);
-		filesDoc = textPane.getDocument();
-		Iterator it = hm.entrySet().iterator();
-		int nbFiles =0;
-		while (it.hasNext()) {
-			try {
-				final Map.Entry sourcePairs = (Map.Entry) it.next();
-				final String groupString = (String) sourcePairs.getKey();
-				Vector files = (Vector) sourcePairs.getValue();
-				nbFiles+=files.size();
-				groupDoc.insertString(groupDoc.getLength(), groupString + "("+files.size()+")\n", null);
-				filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
-				Iterator vecIt = files.iterator();
-				while (vecIt.hasNext()) {
-					filesDoc.insertString(filesDoc.getLength(), vecIt.next() + "\n", null);
+				if (repo!= null && repo.getBaseSourcePath()!=null){
+					ChartData cd = DataMiner.gatherSourceData(repo);
+					HashMap<String, Vector<String>> hm = cd.getGroupFilesHashMap(src);
+					filesDoc = textPane.getDocument();
+					Iterator it = hm.entrySet().iterator();
+					int nbFiles =0;
+					while (it.hasNext()) {
+						try {
+							final Map.Entry sourcePairs = (Map.Entry) it.next();
+							final String groupString = (String) sourcePairs.getKey();
+							Vector files = (Vector) sourcePairs.getValue();
+							nbFiles+=files.size();
+							groupDoc.insertString(groupDoc.getLength(), groupString + "("+files.size()+")\n", null);
+							filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
+							Iterator vecIt = files.iterator();
+							while (vecIt.hasNext()) {
+								filesDoc.insertString(filesDoc.getLength(), vecIt.next() + "\n", null);
+							}
+						} catch (BadLocationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					nbFilesValueLabel.setText(""+nbFiles);	
 				}
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		nbFilesValueLabel.setText(""+nbFiles);
+
 
 	}
 }
