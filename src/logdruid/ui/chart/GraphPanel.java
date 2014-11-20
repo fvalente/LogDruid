@@ -49,6 +49,7 @@ import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer2;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.RegularTimePeriod;
@@ -56,6 +57,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 //import sun.awt.X11.ColorData;
+
 
 
 import logdruid.data.MineResult;
@@ -194,6 +196,9 @@ public final class GraphPanel extends JPanel {
 									true, // tooltips
 									false // url
 									);
+							TextTitle my_Chart_title=new TextTitle(mr.getSourceID() + " " + mr.getGroup(), new Font ("Verdana", Font.BOLD , 17));
+							chart.setTitle(my_Chart_title);
+			                
 							XYPlot plot = (XYPlot) chart.getPlot();
 							ValueAxis range = plot.getRangeAxis();
 							range.setVisible(false);
