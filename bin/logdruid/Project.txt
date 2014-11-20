@@ -1,13 +1,15 @@
 project : LogDruid
 
-URL : http://logdruid.sourceforge.net
+URL : https://github.com/fvalente/LogDruid
 
-Display, search, filter and generate graphs from log files
+Chart statistics and events retrieved in logs files through configurable regular expressions
 
-Search Criteria:
-case
-regex
-
+Logdruid is an application to gather, aggregate and chart information from log files.
+Templates are available and can be easily created to gather information in any type of log files.
+It uses regular expressions that are constructed graphically and can be verified in the application against data samples.
+This facility is at the core of the application and is used both to group files depending on any path/filename criteria (such as PID) and to mine data items from the files.
+The information is aggregated for each groups and displayed in time series chart. it is possible to toggle the display of any recordings and to zoom or go to a specific time for all the charts at the same time.
+Once configured for a specific type of logs set, the gathering and display of the information can be done in one click. The application is multi-threaded at its core and can handle significant amount of data quickly.   
 
 Recordings
 type: metrics|incidents/events/errors
