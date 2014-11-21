@@ -296,7 +296,6 @@ public class DataMiner {
 		HashMap<String, TimeSeries> statHashMap = new HashMap<String, TimeSeries>();
 		HashMap<String, TimeSeries> eventHashMap = new HashMap<String, TimeSeries>();
 		Collection<Callable<FileMineResult>> tasks = new ArrayList<Callable<FileMineResult>>();
-		// patternVector = new Vector<Pattern>();
 
 		Vector<Object> mapVector;
 		mapVector = new Vector<>();
@@ -304,13 +303,9 @@ public class DataMiner {
 			logger.info("mine called on " + source.getSourceName());
 		Iterator<String> fileVectorIterator = fileVector.iterator();
 		while (fileVectorIterator.hasNext()) {
-			// oneFile=;
 			final String fileName = fileVectorIterator.next();
 			tasks.add(new Callable<FileMineResult>() {
-
 				public FileMineResult call() throws Exception {
-					// logger.info("HEEERE2:"+miner.mine((Vector<String>)
-					// pairs.getValue(), repo, source));
 					return fileMine(new File(repo.getBaseSourcePath() + "/" + fileName), repo, source);
 				}
 
@@ -327,15 +322,19 @@ public class DataMiner {
 		for (Future<FileMineResult> f : results) {
 			FileMineResult mineRes = null;
 			try {
-				mineRes = f.get();
+				if (f!=null){
+					mineRes = f.get();	
+				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-
+			} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
 			if (mineRes != null) {
 				mapVector.add(mineRes);
 			}
@@ -352,7 +351,7 @@ public class DataMiner {
 			if (endDate == null) {
 				endDate = fMR.getEndDate();
 			}
-			if (fMR.getEndDate() != null)
+			if (fMR.getEndDate() != null && fMR.getStartDate() != null)
 				if (fMR.getEndDate().after(endDate)) {
 					endDate = fMR.getEndDate();
 				} else if (fMR.getStartDate().before(startDate)) {
@@ -492,7 +491,7 @@ public class DataMiner {
 												// block
 												e.printStackTrace();
 											}
-										} else {
+										} else if (date1!=null){
 											if (recItem2.isSelected()) {
 
 												if (startDate == null) {
