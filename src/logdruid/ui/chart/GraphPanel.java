@@ -86,8 +86,11 @@ public final class GraphPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private JScrollPane scrollPane;
 	private JPanel panel;
-	private Color[] colors = { Color.blue, new Color(255, 40, 40), new Color(65, 90, 220), new Color(70, 255, 62), Color.magenta, Color.orange, Color.pink,
-			new Color(65, 90, 220), new Color(107, 255, 102) };
+	private Color[] colors = { Color.blue, new Color(255, 40, 40), new Color(65, 90, 220), new Color(70, 255, 62), Color.magenta, Color.orange, Color.pink,	new Color(65, 90, 220), new Color(107, 255, 102) };
+	//private Color[] colors = { new Color(65,171,93),new Color(254,196,79),new Color(65,171,93), new Color(239,59,44), new Color(65,182,196),new Color(5,112,176), new Color(254,178,76),Color.blue, new Color(255, 40, 40), new Color(65, 90, 220), new Color(70, 255, 62), Color.magenta, Color.orange, Color.pink,
+		//	new Color(65, 90, 220), new Color(107, 255, 102) };	
+    
+    
 	JSpinner startDateJSpinner;
 	JSpinner endDateJSPinner;
 	MineResultSet mineResultSet;
@@ -258,8 +261,11 @@ public final class GraphPanel extends JPanel {
 																						// also
 																						// nice
 								if ((((TimeSeries) me.getValue()).getMaxY() - ((TimeSeries) me.getValue()).getMinY()) > 0) {
-									renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
-											new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+								//	   FileReferenceToolTipGenerator myxytooltipgenerator = new FileReferenceToolTipGenerator();
+								//	      renderer.setToolTipGenerator(myxytooltipgenerator);
+									//renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
+										//	new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+									renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
 								}
 								renderer.setSeriesPaint(0, colors[count]);
 								renderer.setSeriesVisible(0, true);
