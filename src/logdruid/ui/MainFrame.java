@@ -261,14 +261,14 @@ public class MainFrame extends JFrame {
 				DMTnode_1 = new DefaultMutableTreeNode("Configuration");
 				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
-				DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
-				DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
-				DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
+			//	DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
+			//	DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
+			//	DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
 				add(DMTnode_1);
 				add(DMTnode_1);
 				add(DMTnode_sources);
 				add(new DefaultMutableTreeNode("Chart"));
-				add(new DefaultMutableTreeNode("Report"));
+		//		add(new DefaultMutableTreeNode("Report"));
 
 			}
 		}));
@@ -284,8 +284,13 @@ public class MainFrame extends JFrame {
 		contentPane.add(panel_2, BorderLayout.NORTH);
 
 		JButton btnMain = new JButton("Discovery");
+		btnMain.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		btnMain.setFont(new Font("Dialog", Font.BOLD, 11));
 		btnMain.setHorizontalAlignment(SwingConstants.LEFT);
+		btnMain.setVisible(false);
 		panel_2.add(btnMain);
 		tree.setSelectionRow(0);
 
