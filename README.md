@@ -20,6 +20,7 @@ Glossary:
 
 
 Planned improvements:
+- ability to see which file as the information selected in any charts and possibly to visualize it (or open it with external text editor)
 - make it easier to configure the software for a new logs set through
 	- templates selection
 	- automatic sampling of the data
@@ -27,7 +28,6 @@ Planned improvements:
 	- easy access and use of list of records that failed to match 
 	- way to quickly disable the capture of data(RecordingItem) which is not available in data source 
 	- mass fixing when feasible (eg. Date Formats)
-- ability to see which file as the information selected in any charts and possibly to visualize it (or open it with external text editor)
 - add column sorting and filtering to tables
 - One key functionality of the application is that Recording Items are being aggregated through different Recordings if they have the same name. This is useful when there are several version of a recording as it allow charting them in one graph. It is however adding confusion as the information end up as being redundant in such case. One significant improvement will be to allow several sets of RecordingItems for a given Recording.
 - rework of multi-threaded data mining
