@@ -77,7 +77,7 @@ public class DateSelector extends JDialog {
 	 * Create the dialog.
 	 */
 	public DateSelector(final Repository rep, final JTextField txtDate, final Recording re) {
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 729, 567);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setLayout(new FlowLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
