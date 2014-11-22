@@ -896,7 +896,10 @@ public class DataMiner {
 		case "string":
 			typeString = ".*";
 			break;
-		case "long":
+		case "double":
+			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
+			break;
+		case "long": //keeping for compatibility with older templates
 			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
 			break;
 		/*

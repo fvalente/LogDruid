@@ -279,8 +279,8 @@ public class StatRecordingEditor extends JPanel {
 							((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							logger.info("RecordingEditor - ok 2");
-							myTableModel2.updateRow(NewRecordingList.table.getSelectedRow(), new Object[] { txtName.getText(), txtRegularExp.getText(),
-									chckbxActive.isSelected() });
+						//	myTableModel2.updateRow(NewRecordingList.table.getSelectedRow(), new Object[] { txtName.getText(), txtRegularExp.getText(),
+						//			chckbxActive.isSelected() });
 							// myTableModel2.fireTableDataChanged();
 						}
 

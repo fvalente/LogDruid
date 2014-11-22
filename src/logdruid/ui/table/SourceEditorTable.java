@@ -186,7 +186,7 @@ public class SourceEditorTable extends JPanel {
 		comboBox.addItem("word");
 		comboBox.addItem("string");
 		comboBox.addItem("integer");
-		comboBox.addItem("long");
+		comboBox.addItem("double");
 		comboBox.addItem("date");
 		comboBox.addItem("percent");
 		TypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
