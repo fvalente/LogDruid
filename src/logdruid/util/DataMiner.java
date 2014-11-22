@@ -422,6 +422,7 @@ public class DataMiner {
 		try {
 			statHashMap = new HashMap<String, TimeSeries>();
 			eventHashMap = new HashMap<String, TimeSeries>();
+			int lineCount=0;
 			while ((line = buf1st.readLine()) != null) {
 
 				// Iterator patternIt = patternVector.iterator();
@@ -517,7 +518,11 @@ public class DataMiner {
 													// logger.info("5A**** date1: "
 													// + date1);
 													FixedMillisecond fMS = new FixedMillisecond(date1);
-													ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble(matcher2.group(count)))));
+													if (matcher2.group(count)==null){
+														logger.info("null in match on "+recItem2.getName()+ " at "+ file.getName()+ " line cnt:" +lineCount);
+														logger.info("line : "+line);
+													}
+													ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble((matcher2.group(count))))));
 													// logger.info("6**** "
 													// +
 													// Double.parseDouble(matcher2.group(count))
@@ -563,6 +568,7 @@ public class DataMiner {
 						}
 					}
 				}
+				lineCount++;
 			}
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
@@ -891,7 +897,7 @@ public class DataMiner {
 			typeString = ".*";
 			break;
 		case "long":
-			typeString = "\\d+.{1}\\d+";
+			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
 			break;
 		/*
 		 * case "date": typeString = repo.getDateFormat(rec.getDateFormatID());
