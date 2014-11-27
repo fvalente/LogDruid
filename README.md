@@ -2,7 +2,7 @@ LogDruid: Chart statistics and events retrieved in logs files through configurab
 
 ![Alt text](logdruid-charts.png?raw=true "screenshot")
 
-LogDruid is an application to gather, aggregate and chart information originating from any log files.
+LogDruid is an application to gather, aggregate and chart information originating from any log files in a given folder.
 Templates can be easily created to gather information in any type of log files.
 It uses regular expressions that are constructed graphically and can be verified in the application against data samples.
 This facility is at the core of the application and is used both to group files depending on any path/filename criteria (such as PID) and to mine data items from the files.
@@ -20,7 +20,7 @@ Glossary:
 
 
 Planned improvements:
-- <del>ability to see which file as the information selected in any charts and possibly to visualize it (or open it with external text editor)</del>.DONE
+- <del>ability to see which file as the information selected in any charts</del>.DONE
 - make it easier to configure the software for a new logs set through
 	- templates selection
 	- automatic sampling of the data
@@ -38,6 +38,7 @@ Planned improvements:
 
 
 Other ideas:
+- allow opening external text editor on selected file
 - export of data to csv (currently data to xml only)
 - export of chart data for light transport
 - record template exceptions (spot quickly what was custom for a log set - could be useful to merge templates for instance) 
@@ -51,3 +52,4 @@ Other ideas:
 - interface to get data from other sources 
 - ability to access data in archives
 - template compression
+- visualize logs extract corresponding to selection
