@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import logdruid.data.ChartData;
 import logdruid.data.DateFormat;
 import logdruid.data.FileMineResult;
+import logdruid.data.FileMineResultSet;
 import logdruid.data.MineResult;
 import logdruid.data.MineResultSet;
 import logdruid.data.Repository;
@@ -281,16 +282,13 @@ public class DataMiner {
 	}
 
 	public MineResult mine(String group, Vector<String> fileVector, Repository repo, Source source) {
-
-		FileMineResult hm = fastMine(fileVector, repo, source);
-		MineResult mineResult = new MineResult(group, hm, fileVector, repo, source);
-
-		return mineResult;
-
+		logger.debug("call to mine for source "+source.getSourceName() + " on group "+ group);
+		FileMineResultSet hm = fastMine(fileVector, repo, source);
+		return new MineResult(group, hm, fileVector, repo, source);
 	}
 
 	// handle gathering for vector of file
-	public FileMineResult fastMine(Vector<String> fileVector, final Repository repo, final Source source) {
+	public FileMineResultSet fastMine(Vector<String> fileVector, final Repository repo, final Source source) {
 		Date startDate = null;
 		Date endDate = null;
 		HashMap<String, TimeSeries> statHashMap = new HashMap<String, TimeSeries>();
@@ -340,7 +338,7 @@ public class DataMiner {
 			}
 
 		}
-
+		 ArrayList<Object[]> fileDates= new ArrayList<Object[]>();
 		Iterator<Object> mapVectorIterator = mapVector.iterator();
 		while (mapVectorIterator.hasNext()) {
 			FileMineResult fMR = (FileMineResult) mapVectorIterator.next();
@@ -351,12 +349,15 @@ public class DataMiner {
 			if (endDate == null) {
 				endDate = fMR.getEndDate();
 			}
-			if (fMR.getEndDate() != null && fMR.getStartDate() != null)
+			if (fMR.getEndDate() != null && fMR.getStartDate() != null){
 				if (fMR.getEndDate().after(endDate)) {
 					endDate = fMR.getEndDate();
 				} else if (fMR.getStartDate().before(startDate)) {
 					startDate = fMR.getStartDate();
 				}
+			 if (logger.isDebugEnabled()) {logger.debug("1: "+fMR.getStartDate()+"2: "+fMR.getEndDate()+"3: "+fMR.getFile());}
+				fileDates.add(new Object[]{fMR.getStartDate(),fMR.getEndDate(),fMR.getFile()});
+			 }
 
 			HashMap tempStatHashMap = fMR.statGroupTimeSeries;
 			tempStatHashMap.entrySet();
@@ -386,7 +387,7 @@ public class DataMiner {
 				}
 			}
 		}
-		return new FileMineResult(statHashMap, eventHashMap, startDate, endDate);
+		return new FileMineResultSet(fileDates,statHashMap, eventHashMap, startDate, endDate);
 	}
 
 	// handle gathering for a single file
@@ -542,7 +543,13 @@ public class DataMiner {
 													}
 													FixedMillisecond fMS = new FixedMillisecond(date1);
 													if (((RecordingItem) recItem2).getProcessingType().equals("occurrences")) {
-														ts.addOrUpdate((new TimeSeriesDataItem(fMS, 100)));
+														TimeSeriesDataItem t=ts.getDataItem(fMS);
+														if (t != null ){
+															ts.addOrUpdate((new TimeSeriesDataItem(fMS, 100 ))); //	+ (double)t.getValue() - need some way to show several occurences											
+														} else{
+															ts.add((new TimeSeriesDataItem(fMS, 1)));	
+														}
+														
 													} else {
 														if (!recItem2.getType().equals("date"))
 															ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble(matcher2.group(count)))));
@@ -578,9 +585,9 @@ public class DataMiner {
 				e.printStackTrace();
 			}
 		}
-		return new FileMineResult(statHashMap, eventHashMap, startDate, endDate);
+		return new FileMineResult(file,statHashMap, eventHashMap, startDate, endDate);
 	}
-
+/*
 	public HashMap serialMine(Vector<String> fileVector, Repository repo, Source source) {
 		SimpleDateFormat simpleDateFormat;
 		File oneFile;
@@ -592,11 +599,7 @@ public class DataMiner {
 
 		Matcher matcher;
 		Matcher matcher2;
-		/*
-		 * while (recIt.hasNext()) { Recording record=(Recording)recIt.next();
-		 * regexpVector.add(record.getRegexp());
-		 * patternVector.add(Pattern.compile(record.getRegexp())); }
-		 */
+
 		if (logger.isEnabledFor(Level.INFO))
 			logger.info("mine called on " + source.getSourceName());
 		Iterator<String> fileVectorIterator = fileVector.iterator();
@@ -754,7 +757,8 @@ public class DataMiner {
 		return hashMap;
 
 	}
-
+*/
+	
 	/*
 	 * public HashMap<String,Vector> getSourceFileGroup(Vector<String>
 	 * sourceFiles,Source src) { String patternString = ""; Vector<SourceItem>
@@ -967,12 +971,15 @@ public class DataMiner {
 				Map.Entry pairs = (Map.Entry) it.next();
 				logger.info(pairs.getKey().toString() + " = " + pairs.getValue());
 				// it.remove(); // avoids a ConcurrentModificationException
-				HashMap hashMap2;
-				hashMap2 = miner.serialMine((Vector<String>) pairs.getValue(), repo, r);
-				expVec.add(hashMap2);
+
+				FileMineResultSet fMR= miner.fastMine((Vector<String>) pairs.getValue(), repo, r); 	
+
+				expVec.add(fMR.eventGroupTimeSeries);
+				expVec.add(fMR.statGroupTimeSeries);
 			}
 		}
 		return expVec;
 	}
 
+	
 }

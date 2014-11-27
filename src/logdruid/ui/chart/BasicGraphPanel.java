@@ -41,6 +41,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import logdruid.data.FileMineResult;
+import logdruid.data.FileMineResultSet;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.record.Recording;
@@ -146,7 +147,7 @@ public class BasicGraphPanel extends JPanel {
 				Map.Entry pairs = (Map.Entry) it.next();
 				logger.info(pairs.getKey().toString() + " = " + pairs.getValue());
 				// it.remove(); // avoids a ConcurrentModificationException
-				FileMineResult fMR = miner.fastMine((Vector<String>) pairs.getValue(), repo, r);
+				FileMineResultSet fMR = miner.fastMine((Vector<String>) pairs.getValue(), repo, r);
 				HashMap hashMap2;
 				hashMap2 = fMR.statGroupTimeSeries;
 

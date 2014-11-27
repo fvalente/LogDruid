@@ -34,14 +34,20 @@ import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
@@ -60,6 +66,16 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 
 
+
+
+
+
+
+
+
+import org.jfree.data.time.TimeSeriesDataItem;
+import org.jfree.data.xy.XYDataset;
+
 import logdruid.data.MineResult;
 import logdruid.data.MineResultSet;
 import logdruid.data.Repository;
@@ -75,8 +91,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Point2D;
 
 import javax.swing.BoxLayout;
 
@@ -115,7 +136,7 @@ public final class GraphPanel extends JPanel {
 		mineResultSet = DataMiner.gatherMineResultSet(repo);
 		panel = new JPanel();
 		if (mineResultSet==null){
-			panel.add(new JLabel(" No Data "));
+			panel.add(new JLabel(" No Data "),BorderLayout.CENTER);
 		} else {
 			startDateJSpinner = (JSpinner) panel_2.getComponent(2);
 			endDateJSPinner = (JSpinner) panel_2.getComponent(3);
@@ -168,7 +189,7 @@ public final class GraphPanel extends JPanel {
 			Iterator mrVectorIterator = mrVector.iterator();
 			// Collections.sort(mrVectorIterator);
 			while (mrVectorIterator.hasNext()) {
-				MineResult mr = (MineResult) mrVectorIterator.next();
+				final MineResult mr = (MineResult) mrVectorIterator.next();
 				HashMap<String, TimeSeries> statHashMap = mr.getStatTimeseriesHashMap();
 				HashMap<String, TimeSeries> eventHashMap = mr.getEventTimeseriesHashMap();
 				// logger.info("mineResultSet hash size: "
@@ -228,6 +249,26 @@ public final class GraphPanel extends JPanel {
 									domainAxis1.setRange(startDate, endDate);
 								}
 							}
+							//	new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+						      XYToolTipGenerator tt1 = new XYToolTipGenerator() {
+						          public String generateToolTip(XYDataset dataset, int series, int item) {
+						             StringBuffer sb = new StringBuffer();
+
+						             DecimalFormat form = new DecimalFormat("#,##0.00"); 
+						             //new DecimalFormat("00.0"); 
+						             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+						             Number x = dataset.getX(series, item);
+						             String htmlStr = "<html>";
+						             sb.append(htmlStr);
+						             if (x!=null){
+						            	 sb.append("<p style='color:#000000;'>"+(sdf.format(x))+"</p>");    
+						            	 sb.append("<p style='color:#000000;'>"+dataset.getSeriesKey(series).toString()+ ": " + form.format(dataset.getYValue(0, item)) + "</p>");
+								         sb.append( "<p style='color:#0000FF;'>" +  mr.getFileForDate(new Date(x.longValue())) + "</p>");
+						             }
+						             return sb.toString();
+						          }
+						       };
+						       
 							while (statHashMapIterator.hasNext()) {
 
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -246,6 +287,8 @@ public final class GraphPanel extends JPanel {
 								axis4.setAutoRange(true);
 								axis4.setAxisLineVisible(true);
 								axis4.setAutoRangeIncludesZero(false);
+								plot1.setDomainCrosshairVisible(true);
+							    plot1.setRangeCrosshairVisible(true);
 								axis4.setRange(new Range(((TimeSeries) me.getValue()).getMinY(), ((TimeSeries) me.getValue()).getMaxY()));
 								axis4.setLabelPaint(colors[count]);
 								axis4.setTickLabelPaint(colors[count]);
@@ -261,17 +304,16 @@ public final class GraphPanel extends JPanel {
 																						// also
 																						// nice
 								if ((((TimeSeries) me.getValue()).getMaxY() - ((TimeSeries) me.getValue()).getMinY()) > 0) {
-								//	   FileReferenceToolTipGenerator myxytooltipgenerator = new FileReferenceToolTipGenerator();
-								//	      renderer.setToolTipGenerator(myxytooltipgenerator);
-									//renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
-										//	new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
-									renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+
+								//	renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
 								}
 								renderer.setSeriesPaint(0, colors[count]);
 								renderer.setSeriesVisible(0, true);
+								renderer.setSeriesToolTipGenerator(0, tt1);
 								plot1.setRenderer(count, renderer);
 
 								JCheckBox jcb = new JCheckBox(new VisibleAction(renderer, me.getKey().toString(), 0));
+								Boolean selected=true;
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
@@ -297,14 +339,18 @@ public final class GraphPanel extends JPanel {
 								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
 								axis4.setAutoRange(true);
 								axis4.setAxisLineVisible(true);
-								axis4.setAutoRangeIncludesZero(true);
+								axis4.setAutoRangeIncludesZero(false);
 								// axis4.setRange(new Range(((TimeSeries)
+//								axis4.setRange(new Range(((TimeSeries) me.getValue()).getMinY(), ((TimeSeries) me.getValue()).getMaxY()));
 								axis4.setLabelPaint(colors[count]);
 								axis4.setTickLabelPaint(colors[count]);
 								plot2.setRangeAxis(count, axis4);
 								final ValueAxis domainAxis = domainAxis1;
-								domainAxis.setLowerMargin(0.0);
-								domainAxis.setUpperMargin(0.0);
+								domainAxis.setInverted(true);
+								//domainAxis.setLowerMargin(0.0);
+								//domainAxis.setUpperMargin(0.0);
+								plot2.setDomainCrosshairVisible(true);
+							    plot2.setRangeCrosshairVisible(true);
 								plot2.setDomainAxis(domainAxis);
 								plot2.setForegroundAlpha(0.5f);
 								plot2.setDataset(count, dataset);
@@ -316,14 +362,13 @@ public final class GraphPanel extends JPanel {
 								Stroke stroke = new BasicStroke(5);
 								rend.setBaseStroke(stroke);
 								final XYItemRenderer renderer = rend;
-								renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
-										new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
-
+							
+							//	renderer.setToolTipGenerator(new StandardXYToolTipGenerator(StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,new SimpleDateFormat("d-MMM-yyyy HH:mm:ss"), new DecimalFormat("#,##0.00")));
+							       renderer.setSeriesToolTipGenerator(0, tt1);
 								// renderer.setItemLabelsVisible(true);
 								renderer.setSeriesPaint(0, colors[count]);
 								renderer.setSeriesVisible(0, true);
 								plot2.setRenderer(count, renderer);
-
 								JCheckBox jcb = new JCheckBox(new VisibleAction(rend, me.getKey().toString(), 0));
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
@@ -339,18 +384,62 @@ public final class GraphPanel extends JPanel {
 							pan.setPreferredSize(new Dimension(600, 350));
 							// pan.setPreferredSize(panelSize);
 							panel.add(pan);
-							ChartPanel cpanel = new ChartPanel(chart);
+							final ChartPanel cpanel = new ChartPanel(chart);
 							cpanel.setMinimumDrawWidth(0);
 							cpanel.setMinimumDrawHeight(0);
 							cpanel.setMaximumDrawWidth(1920);
 							cpanel.setMaximumDrawHeight(1200);
 							// cpanel.setInitialDelay(0);
 							cpanel.setPreferredSize(new Dimension(600, 350));
+						//	cpanel.restoreAutoBounds(); fix the tooltip missing problem but then relative display is broken
 							panel.add(new JSeparator(SwingConstants.HORIZONTAL));
 							pan.add(cpanel, BorderLayout.CENTER);
 							// checkboxPanel.setPreferredSize(new Dimension(600,
 							// 0));
+							cpanel.addChartMouseListener(new ChartMouseListener() {
 
+							    public void chartMouseClicked(ChartMouseEvent chartmouseevent) {
+							        //chartmouseevent.getEntity().
+							    	
+							    	ChartEntity entity = chartmouseevent.getEntity();
+							    	if (entity instanceof XYItemEntity)
+							    		{
+							    		XYItemEntity item = ((XYItemEntity)entity);
+							    		if ( item.getDataset() instanceof TimeSeriesCollection )
+							    		{
+							    		TimeSeriesCollection data = (TimeSeriesCollection) item.getDataset();
+							    		TimeSeries series = data.getSeries(item.getSeriesIndex());
+							    		TimeSeriesDataItem dataitem = series.getDataItem(item.getItem());
+
+							   // 		logger.info(" Serie: "+series.getKey().toString() + " Period : "+dataitem.getPeriod().toString());
+							    		//mr.getFileForDate(new Date (x.longValue())	
+							    		;
+							    		int x = chartmouseevent.getTrigger().getX();
+							    //		logger.info(mr.getFileForDate(dataitem.getPeriod().getEnd()));
+							            int y = chartmouseevent.getTrigger().getY(); 
+
+							    		
+							    		
+							    		String myString = mr.getFileForDate(dataitem.getPeriod().getEnd()).toString();
+							    		StringSelection stringSelection = new StringSelection (myString);
+							    		Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+							    		clpbrd.setContents(stringSelection, null);
+							    		cpanel.getGraphics().drawString("file name copied",x-5, y-5);
+							    		try {
+											Thread.sleep(500);
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+							    	//	logger.info(mr.getFileForDate(dataitem.getPeriod().getStart()));							    		
+							    		}
+							    		}
+							    }
+
+							    public void chartMouseMoved(ChartMouseEvent e) {}
+
+							});
+							
 							pan.add(checkboxPanel, BorderLayout.SOUTH);
 
 						}
