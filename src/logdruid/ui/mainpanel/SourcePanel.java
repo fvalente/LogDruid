@@ -193,6 +193,8 @@ public class SourcePanel extends JPanel {
 						repository.setBaseSourcePath(file.getAbsolutePath());
 						basePathTextField.setText(file.getAbsolutePath());
 						repo.setBaseSourcePath(file.getAbsolutePath());
+						_mainFrame.setTitle("LogDruid - " +_mainFrame.currentRepositoryFile + " - "+ file.getAbsolutePath());
+						
 					}
 				}
 			}
