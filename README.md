@@ -20,7 +20,7 @@ Glossary:
 
 
 Planned improvements:
-- ability to see which file as the information selected in any charts and possibly to visualize it (or open it with external text editor)
+- <del>ability to see which file as the information selected in any charts and possibly to visualize it (or open it with external text editor)</del>.DONE
 - make it easier to configure the software for a new logs set through
 	- templates selection
 	- automatic sampling of the data
