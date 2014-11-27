@@ -272,7 +272,6 @@ public final class GraphPanel extends JPanel {
 								logger.info(((TimeSeries) me.getValue()).getMaxY());
 								if (((TimeSeries) me.getValue()).getMaxY()>0)
 								dataset.addSeries(ts);
-								logger.debug("getRange: " + domainAxis1.getRange());
 								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
 										+ ((TimeSeries) me.getValue()).getItemCount());
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((TimeSeries) me.getValue()).getMaxY()));
@@ -326,7 +325,8 @@ public final class GraphPanel extends JPanel {
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
 								Map.Entry me = (Map.Entry) eventHashMapIterator.next();
 								//if (dataset.getEndXValue(series, item))
-								dataset.addSeries((TimeSeries) me.getValue());
+								if (((TimeSeries) me.getValue()).getMaxY()>0)
+									dataset.addSeries((TimeSeries) me.getValue());
 
 
 								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
