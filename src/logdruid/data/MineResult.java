@@ -11,6 +11,7 @@
 package logdruid.data;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,14 +33,17 @@ public class MineResult {
 	String group;
 	HashMap<String, TimeSeries> statTimeSeriesHashMap;
 	HashMap<String, TimeSeries> eventTimeSeriesHashMap;
+	private ArrayList<Object[]> fileDates= new ArrayList<Object[]>();
 
-	public MineResult(String _group, FileMineResult hm, Vector fileVector, Repository repo, Source _source) {
+
+	public MineResult(String _group, FileMineResultSet hm, Vector fileVector, Repository repo, Source _source) {
 		logFiles = fileVector;
 		source = _source.getSourceName();
 		statTimeSeriesHashMap = hm.statGroupTimeSeries;
 		eventTimeSeriesHashMap = hm.eventGroupTimeSeries;
 		startDate = hm.getStartDate();
 		endDate = hm.getEndDate();
+		fileDates=hm.getFileDates();
 		group = _group;
 	}
 
@@ -69,6 +73,17 @@ public class MineResult {
 
 	public Date getEndDate() {
 		return endDate;
+		
 	}
-
+	public File getFileForDate(Date date){
+		Iterator it=fileDates.iterator();
+		while (it.hasNext())
+		{
+			 Object[] obj=( Object[] )it.next();
+			 if (logger.isDebugEnabled()) logger.debug("1: "+(Date)obj[0]+"2: "+(Date)obj[1]+"3: "+(File)obj[2]);
+			if (date.after((Date)obj[0]) && date.before((Date)obj[1]))
+				return (File)obj[2];
+		}
+		return null;
+	}
 }

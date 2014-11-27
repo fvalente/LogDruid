@@ -10,23 +10,22 @@
  *******************************************************************************/
 package logdruid.data;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
-public class FileMineResult {
-	// HashMap<Recording, Boolean> activeRecordingOnSourceCache = new
-	// HashMap<Recording, Boolean>();
-	private static Logger logger = Logger.getLogger(FileMineResult.class.getName());
+public class FileMineResultSet {
+	private static Logger logger = Logger.getLogger(FileMineResultSet.class.getName());
 	public HashMap<String, TimeSeries> statGroupTimeSeries;
 	public HashMap<String, TimeSeries> eventGroupTimeSeries;
 	private Date startDate;
 	private Date endDate;
-	private File file;
 	
+	private ArrayList<Object[]> fileDates= new ArrayList<Object[]>();
+
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -35,19 +34,19 @@ public class FileMineResult {
 		return endDate;
 	}
 
-	public FileMineResult(File file1,HashMap<String, TimeSeries> _statGroupTimeSeries, HashMap<String, TimeSeries> _eventGroupTimeSeries, Date startDate2, Date endDate2) {
-		file=file1;
+	public ArrayList<Object[]>  getFileDates(){
+		return fileDates;
+	}
+	
+	public FileMineResultSet( ArrayList<Object[]> _fileDates, HashMap<String, TimeSeries> _statGroupTimeSeries, HashMap<String, TimeSeries> _eventGroupTimeSeries, Date startDate2, Date endDate2) {
 		startDate = startDate2;
 		endDate = endDate2;
+		fileDates=_fileDates;
 		statGroupTimeSeries = _statGroupTimeSeries;
 		eventGroupTimeSeries = _eventGroupTimeSeries;
 		if (logger.isDebugEnabled()) {
 			logger.debug("start date: " + startDate2 + " end date: " + endDate2);
 		}
 
-	}
-
-	public File getFile() {
-		return file;
 	}
 }
