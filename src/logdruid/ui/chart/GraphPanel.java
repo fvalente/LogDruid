@@ -14,14 +14,17 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -180,19 +183,16 @@ public final class GraphPanel extends JPanel {
 		while (mineResultSetIterator.hasNext()) {
 			Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
 			logger.info("mineResultSet key/source: " + pairs.getKey());
-			Vector<MineResult> mrVector = (Vector<MineResult>) pairs.getValue();
+			List mrVector = (ArrayList<MineResult>) pairs.getValue();
+			Collections.sort(mrVector);
 			Iterator mrVectorIterator = mrVector.iterator();
-			// Collections.sort(mrVectorIterator);
 			while (mrVectorIterator.hasNext()) {
 				final MineResult mr = (MineResult) mrVectorIterator.next();
 				HashMap<String, TimeSeries> statHashMap = mr.getStatTimeseriesHashMap();
 				HashMap<String, TimeSeries> eventHashMap = mr.getEventTimeseriesHashMap();
-				// logger.info("mineResultSet hash size: "
-				// +mr.getTimeseriesHashMap().size());
-				// logger.info("mineResultSet hash content: " +
-				// mr.getStatTimeseriesHashMap());
-				logger.info("mineResultSet mr.getStartDate(): " + mr.getStartDate());
-				logger.info("mineResultSet mr.getEndDate(): " + mr.getEndDate());
+				// logger.info("mineResultSet hash size: " +mr.getTimeseriesHashMap().size());
+				// logger.info("mineResultSet hash content: " + mr.getStatTimeseriesHashMap());
+				logger.debug("mineResultSet mr.getStartDate(): " + mr.getStartDate() +" mineResultSet mr.getEndDate(): " + mr.getEndDate());
 				logger.debug("mineResultSet (Date)jsp.getValue(): " + (Date) startDateJSpinner.getValue());
 				logger.debug("mineResultSet (Date)jsp2.getValue(): " + (Date) endDateJSPinner.getValue());
 				if (mr.getStartDate() != null && mr.getEndDate() != null) {
@@ -269,10 +269,10 @@ public final class GraphPanel extends JPanel {
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
 								Map.Entry me = (Map.Entry) statHashMapIterator.next();
 								TimeSeries ts = (TimeSeries) me.getValue();
-								logger.info(((TimeSeries) me.getValue()).getMaxY());
+								//logger.info(((TimeSeries) me.getValue()).getMaxY());
 								if (((TimeSeries) me.getValue()).getMaxY()>0)
 								dataset.addSeries(ts);
-								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
+								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
 										+ ((TimeSeries) me.getValue()).getItemCount());
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((TimeSeries) me.getValue()).getMaxY()));
 								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((TimeSeries) me.getValue()).getMinY()));
@@ -329,7 +329,7 @@ public final class GraphPanel extends JPanel {
 									dataset.addSeries((TimeSeries) me.getValue());
 
 
-								logger.info("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
+								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
 										+ ((TimeSeries) me.getValue()).getItemCount());
 								logger.debug("mineResultSet hash content: " + mr.getEventTimeseriesHashMap());
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((TimeSeries) me.getValue()).getMaxY()));

@@ -91,6 +91,6 @@ public class MineResult implements Comparable{
 	public int compareTo(Object o) {
 		String local = source+group;
 		String remote=((MineResult)o).getSourceID()+((MineResult)o).getGroup();
-		return local.compareTo(remote);
+		return remote.compareTo(local);
 	}
 }
