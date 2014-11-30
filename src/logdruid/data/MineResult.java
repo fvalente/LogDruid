@@ -24,7 +24,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
-public class MineResult {
+public class MineResult implements Comparable{
 	private static Logger logger = Logger.getLogger(MineResult.class.getName());
 	private Date startDate;
 	private Date endDate;
@@ -85,5 +85,12 @@ public class MineResult {
 				return (File)obj[2];
 		}
 		return null;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		String local = source+group;
+		String remote=((MineResult)o).getSourceID()+((MineResult)o).getGroup();
+		return local.compareTo(remote);
 	}
 }

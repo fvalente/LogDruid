@@ -10,6 +10,7 @@
  *******************************************************************************/
 package logdruid.data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +22,7 @@ import org.jfree.data.time.TimeSeries;
 
 public class MineResultSet {
 	private static Logger logger = Logger.getLogger(MineResultSet.class.getName());
-	public HashMap<String, Vector<MineResult>> mineResults;
+	public HashMap<String, ArrayList<MineResult>> mineResults;
 	private Date startDate;
 	private Date endDate;
 
@@ -60,7 +61,7 @@ public class MineResultSet {
 	}
 
 	public MineResultSet() {
-		mineResults = new HashMap<String, Vector<MineResult>>();
+		mineResults = new HashMap<String, ArrayList<MineResult>>();
 	}
 
 }

@@ -50,6 +50,7 @@ import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
 
 import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.time.FixedMillisecond;
 import org.apache.log4j.Level;
@@ -267,7 +268,7 @@ public class DataMiner {
 				mineResultSet.updateStartDate(mineRes.getStartDate());
 				mineResultSet.updateEndDate(mineRes.getEndDate());
 				if (!mineResultSet.mineResults.keySet().contains(mineRes.getSourceID())) {
-					mineResultSet.mineResults.put(mineRes.getSourceID(), new Vector<MineResult>());
+					mineResultSet.mineResults.put(mineRes.getSourceID(), new ArrayList<MineResult>());
 				}
 				mineResultSet.mineResults.get(mineRes.getSourceID()).add(mineRes);
 
@@ -282,7 +283,7 @@ public class DataMiner {
 	}
 
 	public MineResult mine(String group, Vector<String> fileVector, Repository repo, Source source) {
-		logger.debug("call to mine for source "+source.getSourceName() + " on group "+ group);
+		logger.debug("call to mine for source " + source.getSourceName() + " on group " + group);
 		FileMineResultSet hm = fastMine(fileVector, repo, source);
 		return new MineResult(group, hm, fileVector, repo, source);
 	}
@@ -320,8 +321,8 @@ public class DataMiner {
 		for (Future<FileMineResult> f : results) {
 			FileMineResult mineRes = null;
 			try {
-				if (f!=null){
-					mineRes = f.get();	
+				if (f != null) {
+					mineRes = f.get();
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -330,15 +331,15 @@ public class DataMiner {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			}
 			if (mineRes != null) {
 				mapVector.add(mineRes);
 			}
 
 		}
-		 ArrayList<Object[]> fileDates= new ArrayList<Object[]>();
+		ArrayList<Object[]> fileDates = new ArrayList<Object[]>();
 		Iterator<Object> mapVectorIterator = mapVector.iterator();
 		while (mapVectorIterator.hasNext()) {
 			FileMineResult fMR = (FileMineResult) mapVectorIterator.next();
@@ -349,15 +350,17 @@ public class DataMiner {
 			if (endDate == null) {
 				endDate = fMR.getEndDate();
 			}
-			if (fMR.getEndDate() != null && fMR.getStartDate() != null){
+			if (fMR.getEndDate() != null && fMR.getStartDate() != null) {
 				if (fMR.getEndDate().after(endDate)) {
 					endDate = fMR.getEndDate();
 				} else if (fMR.getStartDate().before(startDate)) {
 					startDate = fMR.getStartDate();
 				}
-			 if (logger.isDebugEnabled()) {logger.debug("1: "+fMR.getStartDate()+"2: "+fMR.getEndDate()+"3: "+fMR.getFile());}
-				fileDates.add(new Object[]{fMR.getStartDate(),fMR.getEndDate(),fMR.getFile()});
-			 }
+				if (logger.isDebugEnabled()) {
+					logger.debug("1: " + fMR.getStartDate() + "2: " + fMR.getEndDate() + "3: " + fMR.getFile());
+				}
+				fileDates.add(new Object[] { fMR.getStartDate(), fMR.getEndDate(), fMR.getFile() });
+			}
 
 			HashMap tempStatHashMap = fMR.statGroupTimeSeries;
 			tempStatHashMap.entrySet();
@@ -387,32 +390,31 @@ public class DataMiner {
 				}
 			}
 		}
-		return new FileMineResultSet(fileDates,statHashMap, eventHashMap, startDate, endDate);
+		return new FileMineResultSet(fileDates, statHashMap, eventHashMap, startDate, endDate);
 	}
 
 	// handle gathering for a single file
 	public FileMineResult fileMine(File file, Repository repo, Source source) {
 		Date startDate = null;
 		Date endDate = null;
-		HashMap<Recording, Boolean> activeRecordingOnSourceCache = new HashMap<Recording, Boolean>();
+
 		HashMap<String, TimeSeries> statHashMap = null;
 		HashMap<String, TimeSeries> eventHashMap = null;
-		Vector<Recording> recordings;
+
 		SimpleDateFormat simpleDateFormat;
 		FileReader flstr = null;
 		BufferedReader buf1st;
 		Matcher matcher;
 		Matcher matcher2;
-		recordings = repo.getRecordings(StatRecording.class);
-		recordings.addAll(repo.getRecordings(EventRecording.class));
+		
 		DateFormat df = null;
+
+		HashMap<Recording,String> recMatch=new HashMap<Recording,String>();
 		try {
 			if (logger.isDebugEnabled()) {
-				// logger.debug("++file: "+repo.getBaseSourcePath()+"/"+(String)fileVectorIterator.next());
+				logger.debug("++file: "+repo.getBaseSourcePath()+"/"+(String)file.toString());
 			}
-
 			flstr = new FileReader(file);
-
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -421,53 +423,26 @@ public class DataMiner {
 		buf1st = new BufferedReader(flstr);
 		String line;
 		try {
+			recMatch = getRegexp(repo,source);
+			
 			statHashMap = new HashMap<String, TimeSeries>();
 			eventHashMap = new HashMap<String, TimeSeries>();
-			int lineCount=0;
+			int lineCount = 0;
 			while ((line = buf1st.readLine()) != null) {
 
 				// Iterator patternIt = patternVector.iterator();
 				// check against one Recording pattern at a tim
-				Iterator<Recording> recordingIterator = recordings.iterator();
-				while (recordingIterator.hasNext()) {
-					Recording rec = recordingIterator.next();
-					if (!activeRecordingOnSourceCache.containsKey(rec)) {
-						activeRecordingOnSourceCache.put(rec, source.isActiveRecordingOnSource(rec));
-					}
-					if (activeRecordingOnSourceCache.get(rec)) {
-						if (rec.getIsActive() == true) {
-							// logger.info("1**** regexp: " +
-							// rec.getRegexp());
-							// Pattern pat = Pattern.compile((String)
-							// (rec.getRegexp()));
-							// Matcher matcher =
-							// PatternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
+				
+				Iterator recMatchIte = recMatch.entrySet().iterator();
+				while (recMatchIte.hasNext()) {
+					Map.Entry me = (Map.Entry) recMatchIte.next();
+					Recording rec =(Recording)me.getKey();
 							matcher = PatternCache.getPattern((String) (rec.getRegexp())).matcher(line);
 							if (matcher.find()) {
 								// logger.info("1**** matched: " + line);
 								Vector recordingItem = ((Recording) rec).getRecordingItem();
-								Iterator recItemIte = recordingItem.iterator();
-								String patternString = "";
-
 								int cnt = 0;
-								while (recItemIte.hasNext()) {
-									RecordingItem recItem = (RecordingItem) recItemIte.next();
-									String stBefore = (String) recItem.getBefore();
-									String stType = (String) recItem.getType();
-									String stAfter = (String) recItem.getAfter();
-									if (stType.equals("date")) {
-										patternString += stBefore + "(" + repo.getDateFormat(rec.getDateFormatID()).getPattern() + ")" + stAfter;
-									} else {
-										patternString += stBefore + "(" + getTypeString(stType) + ")" + stAfter;
-									}
-								}
-								// logger.info("2**** regexp: "
-								// +rec.getRegexp());
-								if (logger.isDebugEnabled()) {
-									logger.debug("2**** " + patternString);
-									logger.debug("line: " + line);
-								}
-								matcher2 = PatternCache.getPattern(patternString).matcher(line);
+								matcher2 = PatternCache.getPattern((String)me.getValue()).matcher(line);
 								if (matcher2.find()) {
 									// logger.info("3**** " + line);
 									int count = 1;
@@ -493,7 +468,7 @@ public class DataMiner {
 												// block
 												e.printStackTrace();
 											}
-										} else if (date1!=null){
+										} else if (date1 != null) {
 											if (recItem2.isSelected()) {
 
 												if (startDate == null) {
@@ -516,27 +491,19 @@ public class DataMiner {
 														if (logger.isDebugEnabled())
 															logger.debug("5**** Adding record to hashMap: " + recItem2.getName());
 													}
-													// logger.info("5A**** date1: "
-													// + date1);
 													FixedMillisecond fMS = new FixedMillisecond(date1);
-													if (matcher2.group(count)==null){
-														logger.info("null in match on "+recItem2.getName()+ " at "+ file.getName()+ " line cnt:" +lineCount);
-														logger.info("line : "+line);
+													if (matcher2.group(count) == null) {
+														logger.info("null in match on " + recItem2.getName() + " at " + file.getName() + " line cnt:"
+																+ lineCount);
+														logger.info("line : " + line);
 													}
 													ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble((matcher2.group(count))))));
-													// logger.info("6**** "
-													// +
-													// Double.parseDouble(matcher2.group(count))
-													// + " " +
-													// fMS.toString());
 													statHashMap.put(recItem2.getName(), ts);
-													// performance add the
-													// TimeSeriesDataItem to
-													// the
+													// performance: add the
+													// TimeSeriesDataItem to the
 													// TimeSeries instead of
-													// updating
-													// the TimeSeries in the
-													// HashMap
+													// updating the TimeSeries
+													// in the HashMap
 
 												} else { // rec.getClass().equals(EventRecording.class)
 													if (eventHashMap.containsKey(recItem2.getName())) {
@@ -548,13 +515,22 @@ public class DataMiner {
 													}
 													FixedMillisecond fMS = new FixedMillisecond(date1);
 													if (((RecordingItem) recItem2).getProcessingType().equals("occurrences")) {
-														TimeSeriesDataItem t=ts.getDataItem(fMS);
-														if (t != null ){
-															ts.addOrUpdate((new TimeSeriesDataItem(fMS, 100 ))); //	+ (double)t.getValue() - need some way to show several occurences											
-														} else{
-															ts.add((new TimeSeriesDataItem(fMS, 1)));	
+														TimeSeriesDataItem t = ts.getDataItem(fMS);
+														if (t != null) {
+															ts.addOrUpdate((new TimeSeriesDataItem(fMS, 100))); // +
+																												// (double)t.getValue()
+																												// -
+																												// need
+																												// some
+																												// way
+																												// to
+																												// show
+																												// several
+																												// occurences
+														} else {
+															ts.add((new TimeSeriesDataItem(fMS, 1)));
 														}
-														
+
 													} else {
 														if (!recItem2.getType().equals("date"))
 															ts.addOrUpdate((new TimeSeriesDataItem(fMS, Double.parseDouble(matcher2.group(count)))));
@@ -572,8 +548,8 @@ public class DataMiner {
 									}
 								}
 							}
-						}
-					}
+						
+					
 				}
 				lineCount++;
 			}
@@ -591,180 +567,161 @@ public class DataMiner {
 				e.printStackTrace();
 			}
 		}
-		return new FileMineResult(file,statHashMap, eventHashMap, startDate, endDate);
+		return new FileMineResult(file, statHashMap, eventHashMap, startDate, endDate);
 	}
-/*
-	public HashMap serialMine(Vector<String> fileVector, Repository repo, Source source) {
-		SimpleDateFormat simpleDateFormat;
-		File oneFile;
-		FileReader flstr = null;
-		BufferedReader buf1st;
-		HashMap hashMap = new HashMap();
+
+	private static HashMap<Recording,String> getRegexp(Repository repo, Source source){
+		HashMap<Recording,String> recMatch=new HashMap<Recording,String>();
+		HashMap<Recording, Boolean> activeRecordingOnSourceCache = new HashMap<Recording, Boolean>();
 		Vector<Recording> recordings;
 		recordings = repo.getRecordings(StatRecording.class);
-
-		Matcher matcher;
-		Matcher matcher2;
-
-		if (logger.isEnabledFor(Level.INFO))
-			logger.info("mine called on " + source.getSourceName());
-		Iterator<String> fileVectorIterator = fileVector.iterator();
-		while (fileVectorIterator.hasNext()) {
-			try {
-				if (logger.isDebugEnabled()) {
-					if (logger.isDebugEnabled())
-						logger.debug("++file: " + repo.getBaseSourcePath() + "/" + fileVectorIterator.next());
-				}
-				oneFile = new File(repo.getBaseSourcePath() + "/" + fileVectorIterator.next());
-				flstr = new FileReader(oneFile);
-
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		recordings.addAll(repo.getRecordings(EventRecording.class));
+		StringBuffer sb = new StringBuffer(100);
+		
+		Iterator<Recording> recordingIterator = recordings.iterator();
+		while (recordingIterator.hasNext()) {
+			Recording rec = recordingIterator.next();
+			if (!activeRecordingOnSourceCache.containsKey(rec)) {
+				activeRecordingOnSourceCache.put(rec, source.isActiveRecordingOnSource(rec));
 			}
-
-			buf1st = new BufferedReader(flstr);
-			String line;
-
-			// read one line at a time of the file - will need to be improved to
-			// allow multi
-			try {
-				hashMap = new HashMap();
-				while ((line = buf1st.readLine()) != null) {
-
-					// Iterator patternIt = patternVector.iterator();
-					// check against one Recording pattern at a tim
-					Iterator<Recording> recordingIterator = recordings.iterator();
-					while (recordingIterator.hasNext()) {
-						Recording rec = recordingIterator.next();
-						if (source.isActiveRecordingOnSource(rec)) {
-							if (rec.getIsActive() == true) {
-								// logger.info("1**** regexp: " +
-								// rec.getRegexp());
-								// Pattern pat = Pattern.compile((String)
-								// (rec.getRegexp()));
-
-								matcher = PatternCache.getPattern(rec.getRegexp()).matcher(line);
-								if (matcher.find()) {
-									// logger.info("1**** matched: " + line);
-									Vector recordingItem = ((StatRecording) rec).getRecordingItem();
-									Iterator recItemIte = recordingItem.iterator();
-									String patternString = "";
-
-									int cnt = 0;
-									while (recItemIte.hasNext()) {
-										RecordingItem recItem = (RecordingItem) recItemIte.next();
-										String stBefore = (String) recItem.getBefore();
-										String stType = (String) recItem.getType();
-										String stAfter = (String) recItem.getAfter();
-										if (stType == "date") {
-											patternString += stBefore + "(" + repo.getDateFormat(rec.getDateFormatID()) + ")" + stAfter;
-										} else {
-											patternString += stBefore + "(" + getTypeString(stType) + ")" + stAfter;
-										}
-									}
-									// logger.info("2**** regexp: "
-									// +rec.getRegexp());
-									if (logger.isEnabledFor(Level.INFO))
-										logger.info("2**** " + patternString);
-									if (logger.isEnabledFor(Level.INFO))
-										logger.info("line: " + line);
-									// Pattern pat2 =
-									// Pattern.compile(patternString);
-									// matcher2 = pat2.matcher(line);
-									matcher2 = PatternCache.getPattern(patternString).matcher(line);
-									if (matcher2.find()) {
-										// logger.info("3**** " + line);
-										int count = 1;
-										Date date1 = null;
-										Iterator recItemIte2 = recordingItem.iterator();
-										while (recItemIte2.hasNext()) {
-											RecordingItem recItem2 = (RecordingItem) recItemIte2.next();
-											// logger.info("3A**** " +
-											// recItem2.getType());
-											if (recItem2.getType().equals("date")) {
-												try {
-													DateFormat df = repo.getDateFormat(rec.getDateFormatID());
-													if (logger.isEnabledFor(Level.INFO))
-														logger.info("4**** rec name" + rec.getName() + " df: " + df.getId());
-													simpleDateFormat = new SimpleDateFormat(df.getDateFormat());
-													if (logger.isEnabledFor(Level.INFO))
-														logger.info("4b**** " + df.getDateFormat());
-													date1 = simpleDateFormat.parse(matcher2.group(count));
-													if (logger.isEnabledFor(Level.INFO))
-														logger.info("4b**** " + df.getDateFormat() + " date: " + date1.toString());
-													// logger.info("4**** " +
-													// date1.toString());
-												} catch (ParseException e) {
-													// TODO Auto-generated catch
-													// block
-													e.printStackTrace();
-												}
-											} else {
-												if (recItem2.isSelected()) {
-													if (!hashMap.containsKey(recItem2.getName())) {
-														hashMap.put(recItem2.getName(), new TimeSeries(recItem2.getName(), FixedMillisecond.class));
-														logger.info("5**** Adding record to hashMap: " + recItem2.getName());
-													} else {
-
-														TimeSeries ts = (TimeSeries) hashMap.get(recItem2.getName());
-
-														// logger.info("5A**** date1: "
-														// + date1);
-														FixedMillisecond fMS = new FixedMillisecond(date1);
-
-														ts.add((new TimeSeriesDataItem(fMS, Double.parseDouble(matcher2.group(count)))));
-														// logger.info("6**** "
-														// +
-														// Double.parseDouble(matcher2.group(count))
-														// + " " +
-														// fMS.toString());
-														hashMap.put(recItem2.getName(), ts);
-														// performance add the
-														// TimeSeriesDataItem to
-														// the
-														// TimeSeries instead of
-														// updating
-														// the TimeSeries in the
-														// HashMap
-													}
-												}
-
-											}
-											count++;
-										}
-									}
-								}
+			if (activeRecordingOnSourceCache.get(rec)) {
+				if (rec.getIsActive() == true) {
+						Vector recordingItem = ((Recording) rec).getRecordingItem();
+						Iterator recItemIte = recordingItem.iterator();
+						if (logger.isDebugEnabled()) {
+							logger.debug("Record: " + rec.getName());
+						}
+						sb.setLength(0);
+						int cnt = 0;
+						while (recItemIte.hasNext()) {
+							RecordingItem recItem = (RecordingItem) recItemIte.next();
+							String stBefore = (String) recItem.getBefore();
+							String stType = (String) recItem.getType();
+							String stAfter = (String) recItem.getAfter();
+							if (stType.equals("date")) {
+								sb.append(stBefore);
+								sb.append("(");
+								sb.append(repo.getDateFormat(rec.getDateFormatID()).getPattern());
+								sb.append(")");
+								sb.append(stAfter);
+							} else {
+								sb.append(stBefore);
+								sb.append("(");
+								sb.append(getTypeString(stType));
+								sb.append(")");
+								sb.append(stAfter);
 							}
 						}
-					}
-				}
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				try {
-					buf1st.close();
-					flstr.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		// logger.info("6**** " + hashMap.toString());
-		// logger.info("found group "+key + "with "+groupedFiles.size()
-		// +" files in source "+ src.getSourceName());
-		// logger.info("mine HashMap size: " + hashMap.size());
-		// logger.info("mine HashMap : " + hashMap);
-		return hashMap;
+						recMatch.put(rec, sb.toString());
 
+						// logger.info("2**** regexp: "
+						// +rec.getRegexp());
+						if (logger.isDebugEnabled()) {
+							logger.debug("Pattern: " + sb.toString());
+						}
+				}}}
+		return recMatch;
 	}
-*/
 	
+	/*
+	 * public HashMap serialMine(Vector<String> fileVector, Repository repo,
+	 * Source source) { SimpleDateFormat simpleDateFormat; File oneFile;
+	 * FileReader flstr = null; BufferedReader buf1st; HashMap hashMap = new
+	 * HashMap(); Vector<Recording> recordings; recordings =
+	 * repo.getRecordings(StatRecording.class);
+	 * 
+	 * Matcher matcher; Matcher matcher2;
+	 * 
+	 * if (logger.isEnabledFor(Level.INFO)) logger.info("mine called on " +
+	 * source.getSourceName()); Iterator<String> fileVectorIterator =
+	 * fileVector.iterator(); while (fileVectorIterator.hasNext()) { try { if
+	 * (logger.isDebugEnabled()) { if (logger.isDebugEnabled())
+	 * logger.debug("++file: " + repo.getBaseSourcePath() + "/" +
+	 * fileVectorIterator.next()); } oneFile = new File(repo.getBaseSourcePath()
+	 * + "/" + fileVectorIterator.next()); flstr = new FileReader(oneFile);
+	 * 
+	 * } catch (FileNotFoundException e) { // TODO Auto-generated catch block
+	 * e.printStackTrace(); }
+	 * 
+	 * buf1st = new BufferedReader(flstr); String line;
+	 * 
+	 * // read one line at a time of the file - will need to be improved to //
+	 * allow multi try { hashMap = new HashMap(); while ((line =
+	 * buf1st.readLine()) != null) {
+	 * 
+	 * // Iterator patternIt = patternVector.iterator(); // check against one
+	 * Recording pattern at a tim Iterator<Recording> recordingIterator =
+	 * recordings.iterator(); while (recordingIterator.hasNext()) { Recording
+	 * rec = recordingIterator.next(); if
+	 * (source.isActiveRecordingOnSource(rec)) { if (rec.getIsActive() == true)
+	 * { // logger.info("1**** regexp: " + // rec.getRegexp()); // Pattern pat =
+	 * Pattern.compile((String) // (rec.getRegexp()));
+	 * 
+	 * matcher = PatternCache.getPattern(rec.getRegexp()).matcher(line); if
+	 * (matcher.find()) { // logger.info("1**** matched: " + line); Vector
+	 * recordingItem = ((StatRecording) rec).getRecordingItem(); Iterator
+	 * recItemIte = recordingItem.iterator(); String patternString = "";
+	 * 
+	 * int cnt = 0; while (recItemIte.hasNext()) { RecordingItem recItem =
+	 * (RecordingItem) recItemIte.next(); String stBefore = (String)
+	 * recItem.getBefore(); String stType = (String) recItem.getType(); String
+	 * stAfter = (String) recItem.getAfter(); if (stType == "date") {
+	 * patternString += stBefore + "(" +
+	 * repo.getDateFormat(rec.getDateFormatID()) + ")" + stAfter; } else {
+	 * patternString += stBefore + "(" + getTypeString(stType) + ")" + stAfter;
+	 * } } // logger.info("2**** regexp: " // +rec.getRegexp()); if
+	 * (logger.isEnabledFor(Level.INFO)) logger.info("2**** " + patternString);
+	 * if (logger.isEnabledFor(Level.INFO)) logger.info("line: " + line); //
+	 * Pattern pat2 = // Pattern.compile(patternString); // matcher2 =
+	 * pat2.matcher(line); matcher2 =
+	 * PatternCache.getPattern(patternString).matcher(line); if
+	 * (matcher2.find()) { // logger.info("3**** " + line); int count = 1; Date
+	 * date1 = null; Iterator recItemIte2 = recordingItem.iterator(); while
+	 * (recItemIte2.hasNext()) { RecordingItem recItem2 = (RecordingItem)
+	 * recItemIte2.next(); // logger.info("3A**** " + // recItem2.getType()); if
+	 * (recItem2.getType().equals("date")) { try { DateFormat df =
+	 * repo.getDateFormat(rec.getDateFormatID()); if
+	 * (logger.isEnabledFor(Level.INFO)) logger.info("4**** rec name" +
+	 * rec.getName() + " df: " + df.getId()); simpleDateFormat = new
+	 * SimpleDateFormat(df.getDateFormat()); if
+	 * (logger.isEnabledFor(Level.INFO)) logger.info("4b**** " +
+	 * df.getDateFormat()); date1 =
+	 * simpleDateFormat.parse(matcher2.group(count)); if
+	 * (logger.isEnabledFor(Level.INFO)) logger.info("4b**** " +
+	 * df.getDateFormat() + " date: " + date1.toString()); //
+	 * logger.info("4**** " + // date1.toString()); } catch (ParseException e) {
+	 * // TODO Auto-generated catch // block e.printStackTrace(); } } else { if
+	 * (recItem2.isSelected()) { if (!hashMap.containsKey(recItem2.getName())) {
+	 * hashMap.put(recItem2.getName(), new TimeSeries(recItem2.getName(),
+	 * FixedMillisecond.class)); logger.info("5**** Adding record to hashMap: "
+	 * + recItem2.getName()); } else {
+	 * 
+	 * TimeSeries ts = (TimeSeries) hashMap.get(recItem2.getName());
+	 * 
+	 * // logger.info("5A**** date1: " // + date1); FixedMillisecond fMS = new
+	 * FixedMillisecond(date1);
+	 * 
+	 * ts.add((new TimeSeriesDataItem(fMS,
+	 * Double.parseDouble(matcher2.group(count))))); // logger.info("6**** " //
+	 * + // Double.parseDouble(matcher2.group(count)) // + " " + //
+	 * fMS.toString()); hashMap.put(recItem2.getName(), ts); // performance add
+	 * the // TimeSeriesDataItem to // the // TimeSeries instead of // updating
+	 * // the TimeSeries in the // HashMap } }
+	 * 
+	 * } count++; } } } } } } } } catch (NumberFormatException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); } catch (IOException e) {
+	 * // TODO Auto-generated catch block e.printStackTrace(); } finally { try {
+	 * buf1st.close(); flstr.close(); } catch (IOException e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); } } } //
+	 * logger.info("6**** " + hashMap.toString()); //
+	 * logger.info("found group "+key + "with "+groupedFiles.size() //
+	 * +" files in source "+ src.getSourceName()); //
+	 * logger.info("mine HashMap size: " + hashMap.size()); //
+	 * logger.info("mine HashMap : " + hashMap); return hashMap;
+	 * 
+	 * }
+	 */
+
 	/*
 	 * public HashMap<String,Vector> getSourceFileGroup(Vector<String>
 	 * sourceFiles,Source src) { String patternString = ""; Vector<SourceItem>
@@ -903,7 +860,7 @@ public class DataMiner {
 		case "double":
 			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
 			break;
-		case "long": //keeping for compatibility with older templates
+		case "long": // keeping for compatibility with older templates
 			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
 			break;
 		/*
@@ -981,7 +938,7 @@ public class DataMiner {
 				logger.info(pairs.getKey().toString() + " = " + pairs.getValue());
 				// it.remove(); // avoids a ConcurrentModificationException
 
-				FileMineResultSet fMR= miner.fastMine((Vector<String>) pairs.getValue(), repo, r); 	
+				FileMineResultSet fMR = miner.fastMine((Vector<String>) pairs.getValue(), repo, r);
 
 				expVec.add(fMR.eventGroupTimeSeries);
 				expVec.add(fMR.statGroupTimeSeries);
@@ -990,5 +947,4 @@ public class DataMiner {
 		return expVec;
 	}
 
-	
 }
