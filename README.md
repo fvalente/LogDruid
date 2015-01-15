@@ -30,6 +30,7 @@ Planned improvements:
 	- mass fixing when feasible (eg. Date Formats)
 - add column sorting and filtering to tables
 - One key functionality of the application is that Recording Items are being aggregated through different Recordings if they have the same name. This is useful when there are several version of a recording as it allow charting them in one graph. It is however adding confusion as the information end up as being redundant in such case. One significant improvement will be to allow several sets of RecordingItems for a given Recording.
+- allow combination in charts of recording item from different sources
 - rework of multi-threaded data mining
 - addition of progress bar
 - ability to export the representation of all the charts as shown to one PNG 

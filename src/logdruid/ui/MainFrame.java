@@ -65,7 +65,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.awt.Font;
 import javax.swing.JProgressBar;
 import javax.swing.border.MatteBorder;
@@ -88,7 +88,7 @@ public class MainFrame extends JFrame {
 	private JSpinner startTimeSpinner;
 	private JSpinner.DateEditor timeEditor;
 	private JSpinner endTimeSpinner;
-	private JSpinner.DateEditor timeEditor2; 
+	private JSpinner.DateEditor timeEditor2;
 	public String currentRepositoryFile = "New";
 
 	private MainFrame thiis;
@@ -128,9 +128,9 @@ public class MainFrame extends JFrame {
 		JMenuItem mntmNewSource = new JMenuItem("New");
 		mntmNewSource.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				repository=new Repository();
-				currentRepositoryFile= "New";
-				thiis.setTitle("LogDruid  - " +currentRepositoryFile);
+				repository = new Repository();
+				currentRepositoryFile = "New";
+				thiis.setTitle("LogDruid  - " + currentRepositoryFile);
 				treeSelected();
 			}
 		});
@@ -149,7 +149,7 @@ public class MainFrame extends JFrame {
 					tree.setSelectionPath(tp);
 
 					configFile = fileChooserDialog.getSelectedFile();
-					thiis.setTitle("LogDruid - "  +file.getName() + " - " + repository.getBaseSourcePath());
+					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
 					treeSelected();
 
 				}
@@ -173,7 +173,7 @@ public class MainFrame extends JFrame {
 				FileSaverDialog fileChooserDialog = new FileSaverDialog();
 				if ((fileChooserDialog != null) && (fileChooserDialog.isValidate())) {
 					Persister.save(fileChooserDialog.getSelectedFile(), (Repository) repository);
-					thiis.setTitle("LogDruid - "  +fileChooserDialog.getSelectedFile().getName() + " - " + repository.getBaseSourcePath());
+					thiis.setTitle("LogDruid - " + fileChooserDialog.getSelectedFile().getName() + " - " + repository.getBaseSourcePath());
 					configFile = fileChooserDialog.getSelectedFile();
 					// repository.open(fileChooserDialog.getSelectedFile());
 					// repository=(Repository)persister.open(fileChooserDialog.getSelectedFile());
@@ -261,14 +261,14 @@ public class MainFrame extends JFrame {
 				DMTnode_1 = new DefaultMutableTreeNode("Configuration");
 				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
-			//	DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
-			//	DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
-			//	DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
+				// DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
+				// DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
+				// DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
 				add(DMTnode_1);
 				add(DMTnode_1);
 				add(DMTnode_sources);
 				add(new DefaultMutableTreeNode("Chart"));
-		//		add(new DefaultMutableTreeNode("Report"));
+				// add(new DefaultMutableTreeNode("Report"));
 
 			}
 		}));
@@ -301,7 +301,7 @@ public class MainFrame extends JFrame {
 		timeEditor = new JSpinner.DateEditor(startTimeSpinner, "dd-MM-yyyy HH:mm:ss");
 		startTimeSpinner.setEditor(timeEditor);
 		startTimeSpinner.setValue(new Date());
-		
+
 		panel_2.add(startTimeSpinner);
 
 		endTimeSpinner = new JSpinner(new SpinnerDateModel());
@@ -351,27 +351,27 @@ public class MainFrame extends JFrame {
 		JPanel panel_3 = new JPanel();
 		panel_3.setLayout(new BorderLayout(0, 0));
 		contentPane.add(panel_3, BorderLayout.SOUTH);
-		
+
 		JPanel panel_4 = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panel_4.getLayout();
 		flowLayout_1.setVgap(0);
 		panel_3.add(panel_4, BorderLayout.EAST);
 		MemInspector mi = new MemInspector();
 		panel_4.add(mi);
-		
+
 		JPanel panel_5 = new JPanel();
 		panel_3.add(panel_5, BorderLayout.CENTER);
 		panel_5.setLayout(new BorderLayout(0, 0));
-		
+
 		JPanel panel_6 = new JPanel();
 		panel_5.add(panel_6);
 		GridBagLayout gbl_panel_6 = new GridBagLayout();
-		gbl_panel_6.columnWidths = new int[] {100, 300, 100, 0};
-		gbl_panel_6.rowHeights = new int[] {20, 0};
-		gbl_panel_6.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_panel_6.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panel_6.columnWidths = new int[] { 100, 300, 100, 0 };
+		gbl_panel_6.rowHeights = new int[] { 20, 0 };
+		gbl_panel_6.columnWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_panel_6.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		panel_6.setLayout(gbl_panel_6);
-		
+
 		JProgressBar progressBar = new JProgressBar();
 		GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
@@ -380,17 +380,16 @@ public class MainFrame extends JFrame {
 		gbc_progressBar.gridy = 0;
 		progressBar.setVisible(false);
 		panel_6.add(progressBar, gbc_progressBar);
-		
 
-	/*	startTimeSpinner.setEnabled(false);
-		endTimeSpinner.setEnabled(false);
-		btnReset.setEnabled(false);
-		btnRefresh.setEnabled(false);
-		chckbxRelative.setEnabled(false); */
+		/*
+		 * startTimeSpinner.setEnabled(false); endTimeSpinner.setEnabled(false);
+		 * btnReset.setEnabled(false); btnRefresh.setEnabled(false);
+		 * chckbxRelative.setEnabled(false);
+		 */
 
 	}
 
-	public void updateTreeSources(Vector<Source> sources) {
+	public void updateTreeSources(ArrayList<Source> sources) {
 		TreePath initialTreePath = tree.getSelectionPath();
 		DefaultMutableTreeNode DMTNsources_child;
 		DMTnode_sources.removeAllChildren();
@@ -417,7 +416,6 @@ public class MainFrame extends JFrame {
 		tree.expandPath(initialTreePath);
 		// tree.fireTreeExpanded(initialTreePath);
 
-		
 		tree.revalidate();
 		tree.repaint();
 	}
@@ -427,31 +425,31 @@ public class MainFrame extends JFrame {
 		if (node != null) {
 			logger.info(node.toString());
 			treeSelected = node.toString();
-			if (treeSelected.equals("Sources")){
+			if (treeSelected.equals("Sources")) {
 				panel_1.removeAll();
 				panel_1.add(new SourcePanel(repository, thiis));
 				panel_1.revalidate();
-			} else if(treeSelected.equals("Recordings")){
+			} else if (treeSelected.equals("Recordings")) {
 				panel_1.removeAll();
 				panel_1.add(new NewRecordingList(repository));
 				panel_1.revalidate();
-			} else if(treeSelected.equals("Data")){
+			} else if (treeSelected.equals("Data")) {
 				panel_1.removeAll();
 				panel_1.add(new StatRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-			} else if(treeSelected.equals("Event")){
+			} else if (treeSelected.equals("Event")) {
 				panel_1.removeAll();
 				panel_1.add(new EventRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-			} else if(treeSelected.equals("Identification")){
+			} else if (treeSelected.equals("Identification")) {
 				panel_1.removeAll();
 				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-			} else if(treeSelected.equals("DateFormat")){
+			} else if (treeSelected.equals("DateFormat")) {
 				panel_1.removeAll();
 				panel_1.add(new DateEditor(repository));
 				panel_1.revalidate();
-			} else if(treeSelected.equals("Chart")){
+			} else if (treeSelected.equals("Chart")) {
 				panel_1.removeAll();
 				logger.info("Chart panel loading ");
 				graphPanel = new GraphPanel(repository, panel_2);
@@ -459,18 +457,18 @@ public class MainFrame extends JFrame {
 				panel_1.revalidate();
 				logger.info("Chart panel loaded ");
 			} else {
-				Vector sources=repository.getSources();
-				Iterator it=sources.iterator();
-				while (it.hasNext()){
-					Source src=(Source)it.next();
-					if (src.getSourceName().equals(treeSelected)){
+				ArrayList sources = repository.getSources();
+				Iterator it = sources.iterator();
+				while (it.hasNext()) {
+					Source src = (Source) it.next();
+					if (src.getSourceName().equals(treeSelected)) {
 						panel_1.removeAll();
-						panel_1.add(new SourceInfoPanel(repository,src));
+						panel_1.add(new SourceInfoPanel(repository, src));
 						panel_1.revalidate();
 					}
 				}
 			}
-			
+
 		}
 	}
 }

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,9 +74,10 @@ import javax.swing.JCheckBox;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import java.awt.Font;
 
 public class SourcePanel extends JPanel {
-	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
+	private static Logger logger = Logger.getLogger(SourcePanel.class.getName());
 	private JTextField basePathTextField;
 	boolean DEBUG = false;
 	private JTable table;
@@ -84,7 +85,7 @@ public class SourcePanel extends JPanel {
 	private Repository repository;
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	public MyTableModel2 model;
-	static Vector<Source> sourceVector = null;
+	static ArrayList<Source> sourceArrayList = null;
 	private JTextPane txtpnTest = null;
 	private Document doc;
 	private MainFrame mainFrame;
@@ -147,7 +148,7 @@ public class SourcePanel extends JPanel {
 				File temp = new File(basePathTextField.getText());
 				if (temp.exists()) {
 					repo.setBaseSourcePath(basePathTextField.getText());
-					_mainFrame.setTitle("LogDruid - " +_mainFrame.currentRepositoryFile + " - "+ basePathTextField.getText());
+					_mainFrame.setTitle("LogDruid - " + _mainFrame.currentRepositoryFile + " - " + basePathTextField.getText());
 				}
 			}
 		});
@@ -176,7 +177,7 @@ public class SourcePanel extends JPanel {
 		flowLayout_2.setVgap(10);
 		descriptionPanel.add(panel_3, BorderLayout.WEST);
 
-		JLabel lblBasePath = new JLabel("Base Path:");
+		JLabel lblBasePath = new JLabel("Logs folder:");
 		panel_3.add(lblBasePath);
 		btnFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -193,8 +194,6 @@ public class SourcePanel extends JPanel {
 						repository.setBaseSourcePath(file.getAbsolutePath());
 						basePathTextField.setText(file.getAbsolutePath());
 						repo.setBaseSourcePath(file.getAbsolutePath());
-						_mainFrame.setTitle("LogDruid - " +_mainFrame.currentRepositoryFile + " - "+ file.getAbsolutePath());
-						
 					}
 				}
 			}
@@ -217,7 +216,7 @@ public class SourcePanel extends JPanel {
 
 			public void valueChanged(ListSelectionEvent e) {
 				// model.fireTableDataChanged();
-				int selectedRow = table.getSelectedRow();
+				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				updateSources();
 				mainFrame.updateTreeSources(repository.getSources());
 				reloadTable();
@@ -242,14 +241,11 @@ public class SourcePanel extends JPanel {
 		JButton btnNew = new JButton("New");
 		buttonsPanel.add(btnNew);
 
-		JButton btnDuplicate = new JButton("Duplicate");
-		buttonsPanel.add(btnDuplicate);
-
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow = table.getSelectedRow();
-				repository.deleteSource(table.getSelectedRow());
+				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+				repository.deleteSource(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 				reloadTable();
 				if (selectedRow == table.getRowCount()) {
 					table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
@@ -270,7 +266,7 @@ public class SourcePanel extends JPanel {
 		JButton btnRefresh = new JButton("Refresh");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow = table.getSelectedRow();
+				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				updateSources();
 				reloadTable();
 				if (selectedRow > 0) {
@@ -281,10 +277,9 @@ public class SourcePanel extends JPanel {
 
 			}
 		});
-		btnRefresh.setForeground(Color.BLUE);
-		buttonsPanel.add(btnRefresh);
 
 		chckbxSubfolders = new JCheckBox("sub-folders");
+		chckbxSubfolders.setFont(new Font("Dialog", Font.BOLD, 11));
 		chckbxSubfolders.setSelected(repo.isRecursiveMode());
 		chckbxSubfolders.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -294,6 +289,7 @@ public class SourcePanel extends JPanel {
 		buttonsPanel.add(chckbxSubfolders);
 
 		chckbxOnlyMatches = new JCheckBox("only matches");
+		chckbxOnlyMatches.setFont(new Font("Dialog", Font.BOLD, 11));
 		chckbxOnlyMatches.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				repo.setOnlyMatches(chckbxOnlyMatches.isSelected());
@@ -301,6 +297,20 @@ public class SourcePanel extends JPanel {
 		});
 		buttonsPanel.add(chckbxOnlyMatches);
 		chckbxOnlyMatches.setSelected(repo.isOnlyMatches());
+		btnRefresh.setForeground(Color.BLUE);
+		buttonsPanel.add(btnRefresh);
+
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setOrientation(SwingConstants.VERTICAL);
+		buttonsPanel.add(separator_1);
+
+		JButton btnCheck = new JButton("Get samplings");
+		btnCheck.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// DataMiner.populateRecordingSamples(repo);
+			}
+		});
+		buttonsPanel.add(btnCheck);
 		JPanel panel_1 = new JPanel();
 		fileMatchPanel.add(panel_1, BorderLayout.CENTER);
 		panel_1.setLayout(new BorderLayout(0, 0));
@@ -313,8 +323,8 @@ public class SourcePanel extends JPanel {
 
 		btnNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow = table.getSelectedRow();
-				Source s = new Source("default", ".*", Boolean.TRUE, (Vector<SourceItem>) null);
+				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+				Source s = new Source("default", ".*", Boolean.TRUE, (ArrayList<SourceItem>) null);
 				logger.info(repository);
 				logger.info(s);
 				repository.addSource(s);
@@ -339,17 +349,19 @@ public class SourcePanel extends JPanel {
 	}
 
 	public void refreshList() {
-		// table.getSelectedRow()
+		// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
 		// persist repository
 		// display selected row
 		Matcher matcher;
 		Pattern pattern;
 		List<File> listOfFiles = null;
-		sourceVector = repository.getSources();
-		if (table.getSelectedRow() >= 0) {
+		sourceArrayList = repository.getSources();
+		if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0 && repository.getBaseSourcePath() != null) {
 			/*
 			 * recEditor = new RecordingEditor(repository
-			 * .getRecordings().get(table.getSelectedRow()), repository);
+			 * .getRecordings().get(((
+			 * table.getSelectedRow()!=-1)?table.convertRowIndexToModel
+			 * (table.getSelectedRow()):-1)), repository);
 			 * jPanelDetail.removeAll();
 			 */
 			// jPanelDetail.add(recEditor, gbc_jPanelDetail);
@@ -395,8 +407,8 @@ public class SourcePanel extends JPanel {
 				if (listOfFiles.get(i).isFile()) {
 					if (logger.isDebugEnabled())
 						logger.debug("source File " + listOfFiles.get(i).getName());
-					if (sourceVector != null) {
-						Iterator<Source> it = sourceVector.iterator();
+					if (sourceArrayList != null) {
+						Iterator<Source> it = sourceArrayList.iterator();
 						count = 0;
 						while (it.hasNext()) {
 							String s1 = ((Source) it.next()).getSourcePattern();
@@ -410,7 +422,7 @@ public class SourcePanel extends JPanel {
 							if (matcher.find()) {
 								if (logger.isDebugEnabled())
 									logger.debug("match" + FileListing.getPath(repository, listOfFiles.get(i)));
-								if (count == table.getSelectedRow()) {
+								if (count == ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)) {
 									fileListMatches[i][0] = 1;
 									fileListMatches[i][1] = matcher.start();
 									fileListMatches[i][2] = matcher.end();
@@ -500,11 +512,11 @@ public class SourcePanel extends JPanel {
 	}
 
 	public void reloadTable() {
-		int selectedRow = table.getSelectedRow();
-		sourceVector = repository.getSources();
+		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+		sourceArrayList = repository.getSources();
 		// Collections.sort(records);
-		if (sourceVector != null) {
-			Iterator<Source> it = sourceVector.iterator();
+		if (sourceArrayList != null) {
+			Iterator<Source> it = sourceArrayList.iterator();
 			int count = 0;
 			data.clear();
 			// this.repaint();
@@ -621,9 +633,8 @@ public class SourcePanel extends JPanel {
 	}
 
 	public void Remove() {
-		data.remove(table.getSelectedRow());
-		repository.deleteRecording(table.getSelectedRow());
+		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+		repository.deleteRecording(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
-
 }

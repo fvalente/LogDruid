@@ -38,7 +38,7 @@ import javax.swing.UIManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -64,6 +64,7 @@ import javax.swing.event.CaretEvent;
 import org.apache.log4j.Logger;
 
 import java.awt.Font;
+
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.BevelBorder;
 
@@ -88,11 +89,17 @@ public class EventRecordingEditor extends JPanel {
 
 	// private JList recordingList;
 
+	/*
+	 * public EventRecordingEditor(Repository repository2, String exampleLine,
+	 * String regexp, EventRecording eventRecording) { this(null, repository2,
+	 * exampleLine, regexp, eventRecording); }
+	 */
+
 	/**
 	 * Create the dialog.
 	 */
-	public EventRecordingEditor(MyTableModel2 myTableModel2, EventRecording re, Repository repo) {
-		this(myTableModel2, repo, re.getExampleLine(), re.getRegexp(), re);
+	public EventRecordingEditor(final JPanel newRecordingList, EventRecording re, Repository repo) {
+		this(newRecordingList, repo, re.getExampleLine(), re.getRegexp(), re);
 	}
 
 	/**
@@ -100,12 +107,12 @@ public class EventRecordingEditor extends JPanel {
 	 * 
 	 * @wbp.parser.constructor
 	 */
-	public EventRecordingEditor(final MyTableModel2 myTableModel2, Repository repo, String theLine, String regex, final EventRecording re) {
+	public EventRecordingEditor(final JPanel newRecordingList, Repository repo, String theLine, String regex, final EventRecording re) {
 		// setBounds(0, 0, 1015, 467);
 
 		repository = repo;
 		recording = re;
-
+		// logger.info("myTableModel2 null? "+(newRecordingList==null));
 		BorderLayout borderLayout = new BorderLayout();
 		this.setLayout(borderLayout);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -277,6 +284,15 @@ public class EventRecordingEditor extends JPanel {
 								eventRecordingEditorTablePanel.Remove();
 							}
 						});
+						{
+							JButton btnInsert = new JButton("Insert");
+							btnInsert.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									eventRecordingEditorTablePanel.Insert();
+								}
+							});
+							panel_2.add(btnInsert);
+						}
 						btnRemoveButton.setHorizontalAlignment(SwingConstants.LEFT);
 						panel_2.add(btnRemoveButton);
 					}
@@ -316,20 +332,27 @@ public class EventRecordingEditor extends JPanel {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						Vector rIs = eventRecordingEditorTablePanel.getRecordingItems();
+						ArrayList rIs = eventRecordingEditorTablePanel.getRecordingItems();
 						if (recording == null) {
 							Recording r = new EventRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 									.isSelected(), rIs);
 							repository.addRecording(r);
-							if (myTableModel2 != null) {
+							if (((NewRecordingList) newRecordingList).model != null) {
 								logger.info("RecordingEditor - ok 1");
-								myTableModel2.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
+								((NewRecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(),
+										chckbxActive.isSelected() });
+								((NewRecordingList) newRecordingList).model.fireTableDataChanged();
+								((NewRecordingList) newRecordingList).reloadTable();
 							}
 						} else {
 							((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
+							// newRecordingList.model.updateRow(myTableModel2.,
+							// obj);
+							((NewRecordingList) newRecordingList).model.fireTableDataChanged();
+							((NewRecordingList) newRecordingList).reloadTable();
 							logger.info("RecordingEditor - ok 2");
-							// myTableModel2.updateRow(NewRecordingList.table.getSelectedRow(),new
+							// myTableModel2.updateRow(NewRecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),new
 							// Object[] {
 							// txtName.getText(),txtRegularExp.getText(),chckbxActive.isSelected()
 							// });
@@ -366,13 +389,9 @@ public class EventRecordingEditor extends JPanel {
 			examplePane.setText(re.getExampleLine());
 		}
 		JScrollPane scrollPaneEventRecordingEditorTablePanel = new JScrollPane(eventRecordingEditorTablePanel);
-		//scrollPaneEventRecordingEditorTablePanel.setViewportView(eventRecordingEditorTablePanel);
+		// scrollPaneEventRecordingEditorTablePanel.setViewportView(eventRecordingEditorTablePanel);
 		panel2.add(scrollPaneEventRecordingEditorTablePanel);
 		eventRecordingEditorTablePanel.FixValues();
-	}
-
-	public EventRecordingEditor(Repository repository2, String exampleLine, String regexp, EventRecording eventRecording) {
-		this(null, repository2, exampleLine, regexp, eventRecording);
 	}
 
 }

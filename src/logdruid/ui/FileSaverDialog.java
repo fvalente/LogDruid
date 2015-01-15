@@ -4,8 +4,8 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 /**
- * Titre : CheckNGo Description : Open Tool Copyright : Copyright (c) 2001, 2014 Socit
- * :
+ * Titre : CheckNGo Description : Open Tool Copyright : Copyright (c) 2001, 2014
+ * Socit :
  * 
  * @author Frdric Valente
  * @version 1.0

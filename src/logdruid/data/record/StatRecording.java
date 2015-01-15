@@ -10,20 +10,20 @@
  *******************************************************************************/
 package logdruid.data.record;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 public class StatRecording extends Recording {
 	private static Logger logger = Logger.getLogger(StatRecording.class.getName());
-	private Vector recordingItem;
+	private ArrayList recordingItem;
 	private String dateFormat;
 
 	public String getType() {
 		return "Stat";
 	}
 
-	public StatRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public StatRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
@@ -43,17 +43,17 @@ public class StatRecording extends Recording {
 		this.dateFormat = dateFormat;
 	}
 
-	public Vector getRecordingItem() {
+	public ArrayList getRecordingItem() {
 		// logger.info("***********"+recordingItem.toString()+recordingItem.size());
 		// Thread.currentThread().dumpStack();
 		return recordingItem;
 	}
 
-	public void setRecordingItem(Vector recordingItem) {
+	public void setRecordingItem(ArrayList recordingItem) {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
@@ -64,7 +64,7 @@ public class StatRecording extends Recording {
 
 	public Recording duplicate() {
 
-		Vector _recordingItem = null;
+		ArrayList _recordingItem = null;
 		// might need put back .toString() to those?? *** TBR
 		String _name = getName().toString();
 		String _regexp = getRegexp().toString();
@@ -73,7 +73,7 @@ public class StatRecording extends Recording {
 
 		Boolean _isActive = getIsActive().booleanValue();
 		if (recordingItem != null) {
-			_recordingItem = (Vector) recordingItem.clone();
+			_recordingItem = (ArrayList) recordingItem.clone();
 		}
 		return new StatRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
 	}

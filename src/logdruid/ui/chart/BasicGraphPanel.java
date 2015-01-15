@@ -15,12 +15,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+
+//import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +84,7 @@ public class BasicGraphPanel extends JPanel {
 		XYPlot plot;
 		JFreeChart chart = null;
 		DataMiner miner = new DataMiner();
-		HashMap hashMap;
+		Map Map;
 
 		logger.info("Base file path: " + repo.getBaseSourcePath());
 
@@ -104,7 +107,7 @@ public class BasicGraphPanel extends JPanel {
 
 		while (sourceIterator.hasNext()) {
 			Source r = (Source) sourceIterator.next();
-			Vector<String> sourceFiles = new Vector<String>();
+			ArrayList<String> sourceFiles = new ArrayList<String>();
 			// sourceFiles contains all the matched files for a given source
 
 			if (r.getActive()) {
@@ -140,20 +143,20 @@ public class BasicGraphPanel extends JPanel {
 				}
 				logger.info("matched file: " + sourceFiles.size() + " to source group " + r.getSourceName());
 			}
-			HashMap<String, Vector<String>> sourceFileGroup = miner.getSourceFileGroup(sourceFiles, r, repo);
+			Map<String, ArrayList<String>> sourceFileGroup = miner.getSourceFileGroup(sourceFiles, r, repo);
 			logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + r.getSourceName());
 			Iterator it = sourceFileGroup.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry) it.next();
 				logger.info(pairs.getKey().toString() + " = " + pairs.getValue());
 				// it.remove(); // avoids a ConcurrentModificationException
-				FileMineResultSet fMR = miner.fastMine((Vector<String>) pairs.getValue(), repo, r);
-				HashMap hashMap2;
-				hashMap2 = fMR.statGroupTimeSeries;
+				FileMineResultSet fMR = miner.fastMine((ArrayList<String>) pairs.getValue(), repo, r, false);
+				Map Map2;
+				Map2 = fMR.statGroupTimeSeries;
 
 				TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-				Iterator it2 = hashMap2.entrySet().iterator();
+				Iterator it2 = Map2.entrySet().iterator();
 				while (it2.hasNext()) {
 					dataset = new TimeSeriesCollection();
 					Map.Entry me = (Map.Entry) it2.next();
@@ -212,7 +215,7 @@ public class BasicGraphPanel extends JPanel {
 
 			}
 
-			// hashMap=miner.mine(sourceFiles,repo);
+			// Map=miner.mine(sourceFiles,repo);
 		}
 	}
 }

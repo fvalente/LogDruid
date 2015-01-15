@@ -32,11 +32,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,15 +51,13 @@ import logdruid.util.PatternCache;
 import java.awt.Font;
 import javax.swing.ListSelectionModel;
 
-
-
 public class EventRecordingEditorTable extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private boolean DEBUG = false;
 	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
-	static Vector records = null;
+	static ArrayList records = null;
 	private MyTableModel model;
 	private String[] header = { "Name", "Before", "Type", "Processing", "After", "selected", "Value" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
@@ -80,7 +78,7 @@ public class EventRecordingEditorTable extends JPanel {
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setFont(new Font("SansSerif", Font.PLAIN, 11));
-		//table.setPreferredScrollableViewportSize(new Dimension(500, 200));
+		// table.setPreferredScrollableViewportSize(new Dimension(500, 200));
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 
@@ -218,8 +216,10 @@ public class EventRecordingEditorTable extends JPanel {
 
 	public void setUpProcessingColumn(JTable theTable, TableColumn typeColumn) {
 		JComboBox functionComboBox = new JComboBox();
+		functionComboBox.addItem("capture");
 		functionComboBox.addItem("duration");
-		functionComboBox.addItem("occurences");
+		functionComboBox.addItem("occurrences");
+		functionComboBox.addItem("sum");
 		typeColumn.setCellEditor(new DefaultCellEditor(functionComboBox));
 		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
 		renderer.setToolTipText("Click for combo box");
@@ -231,7 +231,7 @@ public class EventRecordingEditorTable extends JPanel {
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("word");
 		comboBox.addItem("string");
-		comboBox.addItem("integer");
+		comboBox.addItem("long");
 		comboBox.addItem("double");
 		comboBox.addItem("date");
 		comboBox.addItem("percent");
@@ -306,8 +306,8 @@ public class EventRecordingEditorTable extends JPanel {
 
 	}
 
-	public Vector<RecordingItem> getRecordingItems() {
-		Vector<RecordingItem> toReturn = new Vector<RecordingItem>();
+	public ArrayList<RecordingItem> getRecordingItems() {
+		ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>();
 		for (int i = 0; i < data.size(); i++) { // model.getRowCount()
 			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
 					.getValueAt(i, 3), (String) model.getValueAt(i, 4), (Boolean) model.getValueAt(i, 5), (String) model.getValueAt(i, 6)));
@@ -316,12 +316,18 @@ public class EventRecordingEditorTable extends JPanel {
 	}
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "integer", "occurrences", "", Boolean.TRUE, "" });
+		data.add(new Object[] { "", ".*", "long", "occurrences", "", Boolean.TRUE, "" });
+		table.repaint();
+	}
+
+	public void Insert() {
+		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "", ".*", "long", "occurrences",
+				"", Boolean.TRUE, "" });
 		table.repaint();
 	}
 
 	public void Remove() {
-		data.remove(table.getSelectedRow());
+		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
 }

@@ -23,11 +23,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +43,7 @@ public class SourceEditorTable extends JPanel {
 	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
-	static Vector records = null;
+	static ArrayList records = null;
 	private MyTableModel model;
 	private String[] header = { "Name", "Before", "Type", "After", "selected", "Value" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
@@ -185,7 +185,7 @@ public class SourceEditorTable extends JPanel {
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("word");
 		comboBox.addItem("string");
-		comboBox.addItem("integer");
+		comboBox.addItem("long");
 		comboBox.addItem("double");
 		comboBox.addItem("date");
 		comboBox.addItem("percent");
@@ -249,12 +249,12 @@ public class SourceEditorTable extends JPanel {
 	}
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "integer", "", Boolean.TRUE, "" });
+		data.add(new Object[] { "", ".*", "long", "", Boolean.TRUE, "" });
 		table.repaint();
 	}
 
 	public void Remove() {
-		data.remove(table.getSelectedRow());
+		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
 

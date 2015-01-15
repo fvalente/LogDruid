@@ -22,7 +22,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,7 +61,7 @@ public class DateSelector extends JDialog {
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static Collection dateFormats = null;
-	private String[] header = { "name", "pattern", "SimpleDateFormat" };
+	private String[] header = { "name", "pattern", "FastDateFormat" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	private Repository repository = null;
 	private StatRecordingEditor recEditor = null;
@@ -72,6 +72,7 @@ public class DateSelector extends JDialog {
 	private GridBagConstraints gbc_jPanelDetail;
 	private JTextField textField;
 	private final JPanel contentPanel = new JPanel();
+	private JDialog thiis=this;
 
 	/**
 	 * Create the dialog.
@@ -90,12 +91,16 @@ public class DateSelector extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						txtDate.setText(((DateFormat) rep.getDateFormat(table.getSelectedRow())).getDateFormat());
+						txtDate.setText(((DateFormat) rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow())
+								: -1))).getDateFormat());
 						// re.setRegexp(textFieldPattern.getText());
-						// logger.info("dateFormat: "+rep.getDateFormat(table.getSelectedRow()));
-						re.setDateFormatID(rep.getDateFormat(table.getSelectedRow()).getId());
-						logger.info("dateFormat Id: " + rep.getDateFormat(table.getSelectedRow()).getId());
+						// logger.info("dateFormat: "+rep.getDateFormat(((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)));
+						re.setDateFormatID(rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1))
+								.getId());
+						logger.info("dateFormat Id: "
+								+ rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)).getId());
 						logger.info("recording df: " + re.getDateFormatID());
+						thiis.dispose();
 
 					}
 				});
@@ -105,6 +110,11 @@ public class DateSelector extends JDialog {
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						thiis.dispose();
+					}
+				});
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
@@ -138,18 +148,19 @@ public class DateSelector extends JDialog {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				// table.getSelectedRow()
+				// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
 				// persist repository
 				// display selected row
 
-				if (table.getSelectedRow() >= 0) {
+				if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0) {
 					/*
 					 * recEditor = new RecordingEditor(repository
-					 * .getRecordings().get(table.getSelectedRow()),
+					 * .getRecordings().get(((table.getSelectedRow()!=-1)?table.
+					 * convertRowIndexToModel(table.getSelectedRow()):-1)),
 					 * repository); jPanelDetail.removeAll();
 					 */
 					// jPanelDetail.add(recEditor, gbc_jPanelDetail);
-					DateFormat df = repository.getDateFormat(table.getSelectedRow());
+					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 					textFieldName.setText((String) df.getName());
 					textFieldPattern.setText((String) df.getPattern());
 					textField.setText((String) df.getDateFormat());
@@ -186,8 +197,8 @@ public class DateSelector extends JDialog {
 		JButton btnDuplicate = new JButton("Duplicate");
 		btnDuplicate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (table.getSelectedRow() >= 0) {
-					DateFormat df = repository.getDateFormat(table.getSelectedRow());
+				if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0) {
+					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 					repository.addDateFormat(df);
 					data.add(new Object[] { df.getName(), df.getPattern(), df.getDateFormat() });
 					table.repaint();
@@ -199,10 +210,10 @@ public class DateSelector extends JDialog {
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow = table.getSelectedRow();
+				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				if (selectedRow >= 0) {
-					repository.deleteDateFormat(table.getSelectedRow());
-					data.remove(table.getSelectedRow());
+					repository.deleteDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+					data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 					reloadTable();
 					table.setRowSelectionInterval(selectedRow, selectedRow);
 					table.repaint();
@@ -265,7 +276,7 @@ public class DateSelector extends JDialog {
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DateFormat df1 = repository.getDateFormat(table.getSelectedRow());
+				DateFormat df1 = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 				df1.update(textFieldName.getText(), textFieldPattern.getText(), textField.getText());
 				reloadTable();
 			}
@@ -281,8 +292,8 @@ public class DateSelector extends JDialog {
 		gbc_panel_4.gridy = 2;
 		jPanelDetail.add(panel_4, gbc_panel_4);
 
-		JLabel lblSimpledateformat = new JLabel("SimpleDateFormat");
-		panel_4.add(lblSimpledateformat);
+		JLabel lblFastDateFormat = new JLabel("FastDateFormat");
+		panel_4.add(lblFastDateFormat);
 
 		textField = new JTextField();
 		panel_4.add(textField);
@@ -327,7 +338,7 @@ public class DateSelector extends JDialog {
 	}
 
 	public void reloadTable() {
-		int selectedRow = table.getSelectedRow();
+		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		dateFormats = repository.getDates();
 		// Collections.sort(records);
 		if (dateFormats != null) {
@@ -494,33 +505,33 @@ public class DateSelector extends JDialog {
 	 */
 
 	/*
-	 * public Vector<RecordingItem> getRecordingItems() { Vector<RecordingItem>
-	 * toReturn = new Vector<RecordingItem>(); for (int i = 0; i < data.size();
-	 * i++) { // model.getRowCount() toReturn.add(new RecordingItem((String)
-	 * model.getValueAt(i, 0),(String) model.getValueAt(i, 1), (String)
-	 * model.getValueAt(i, 2), (Boolean) model.getValueAt(i, 3)); } return
-	 * toReturn; }
+	 * public ArrayList<RecordingItem> getRecordingItems() {
+	 * ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>(); for
+	 * (int i = 0; i < data.size(); i++) { // model.getRowCount()
+	 * toReturn.add(new RecordingItem((String) model.getValueAt(i, 0),(String)
+	 * model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (Boolean)
+	 * model.getValueAt(i, 3)); } return toReturn; }
 	 */
 
 	/*
-	 * public void Add() { data.add(new Object[] { " ", "", "integer", "",
+	 * public void Add() { data.add(new Object[] { " ", "", "long", "",
 	 * Boolean.TRUE, "" }); table.repaint(); }
 	 */
 
 	public void Remove() {
-		data.remove(table.getSelectedRow());
-		repository.deleteRecording(table.getSelectedRow());
+		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+		repository.deleteRecording(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
 
 	/*
-	 * private Vector<DateFormat> findRecordItems(String theLine) {
-	 * SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+	 * private ArrayList<DateFormat> findRecordItems(String theLine) {
+	 * FastDateFormat FastDateFormat = new FastDateFormat(
 	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
-	 * Vector<RecordingItem> rI = new Vector<RecordingItem>(); for (int i = 0; i
-	 * < rIString.length; i++) { if (i == 0) { String[] splitted =
+	 * ArrayList<RecordingItem> rI = new ArrayList<RecordingItem>(); for (int i
+	 * = 0; i < rIString.length; i++) { if (i == 0) { String[] splitted =
 	 * rIString[i].split(": "); String date = splitted[0]; try {
-	 * simpleDateFormat.parse(date); } catch (ParseException e) { // TODO
+	 * FastDateFormat.parse(date); } catch (ParseException e) { // TODO
 	 * Auto-generated catch block e.printStackTrace(); } } else { if
 	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
 	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new

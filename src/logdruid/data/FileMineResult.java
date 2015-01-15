@@ -11,22 +11,27 @@
 package logdruid.data;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
 public class FileMineResult {
-	// HashMap<Recording, Boolean> activeRecordingOnSourceCache = new
-	// HashMap<Recording, Boolean>();
 	private static Logger logger = Logger.getLogger(FileMineResult.class.getName());
-	public HashMap<String, TimeSeries> statGroupTimeSeries;
-	public HashMap<String, TimeSeries> eventGroupTimeSeries;
+	public Map<String, ExtendedTimeSeries> statGroupTimeSeries;
+	public Map<String, ExtendedTimeSeries> eventGroupTimeSeries;
+	public Map<String, long[]> matchingStats; // 0-> sum of time for success
+												// matching of given recording ;
+												// 1-> sum of time for failed
+												// matching ; 2-> count of match
+												// attempts, 3->count of success
+												// attempts
 	private Date startDate;
 	private Date endDate;
 	private File file;
-	
+
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -35,12 +40,14 @@ public class FileMineResult {
 		return endDate;
 	}
 
-	public FileMineResult(File file1,HashMap<String, TimeSeries> _statGroupTimeSeries, HashMap<String, TimeSeries> _eventGroupTimeSeries, Date startDate2, Date endDate2) {
-		file=file1;
+	public FileMineResult(File file1, Map<String, ExtendedTimeSeries> _statGroupTimeSeries, Map<String, ExtendedTimeSeries> _eventGroupTimeSeries,
+			Map<String, long[]> _matchingStats, Date startDate2, Date endDate2) {
+		file = file1;
 		startDate = startDate2;
 		endDate = endDate2;
 		statGroupTimeSeries = _statGroupTimeSeries;
 		eventGroupTimeSeries = _eventGroupTimeSeries;
+		matchingStats = _matchingStats;
 		if (logger.isDebugEnabled()) {
 			logger.debug("start date: " + startDate2 + " end date: " + endDate2);
 		}

@@ -12,19 +12,25 @@ package logdruid.data;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
 public class FileMineResultSet {
 	private static Logger logger = Logger.getLogger(FileMineResultSet.class.getName());
-	public HashMap<String, TimeSeries> statGroupTimeSeries;
-	public HashMap<String, TimeSeries> eventGroupTimeSeries;
+	public Map<String, ExtendedTimeSeries> statGroupTimeSeries;
+	public Map<String, ExtendedTimeSeries> eventGroupTimeSeries;
+	public Map<String, long[]> matchingStats; // 0-> sum of time for success
+												// matching of given recording ;
+												// 1-> sum of time for failed
+												// matching ; 2-> count of match
+												// attempts, 3->count of success
+												// attempts
 	private Date startDate;
 	private Date endDate;
-	
-	private ArrayList<Object[]> fileDates= new ArrayList<Object[]>();
+
+	private ArrayList<Object[]> fileDates = new ArrayList<Object[]>();
 
 	public Date getStartDate() {
 		return startDate;
@@ -34,16 +40,18 @@ public class FileMineResultSet {
 		return endDate;
 	}
 
-	public ArrayList<Object[]>  getFileDates(){
+	public ArrayList<Object[]> getFileDates() {
 		return fileDates;
 	}
-	
-	public FileMineResultSet( ArrayList<Object[]> _fileDates, HashMap<String, TimeSeries> _statGroupTimeSeries, HashMap<String, TimeSeries> _eventGroupTimeSeries, Date startDate2, Date endDate2) {
+
+	public FileMineResultSet(ArrayList<Object[]> _fileDates, Map<String, ExtendedTimeSeries> statMap, Map<String, ExtendedTimeSeries> eventMap,
+			Map<String, long[]> _timingStatsMap, Date startDate2, Date endDate2) {
 		startDate = startDate2;
 		endDate = endDate2;
-		fileDates=_fileDates;
-		statGroupTimeSeries = _statGroupTimeSeries;
-		eventGroupTimeSeries = _eventGroupTimeSeries;
+		fileDates = _fileDates;
+		statGroupTimeSeries = statMap;
+		eventGroupTimeSeries = eventMap;
+		matchingStats = _timingStatsMap;
 		if (logger.isDebugEnabled()) {
 			logger.debug("start date: " + startDate2 + " end date: " + endDate2);
 		}

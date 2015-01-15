@@ -10,31 +10,33 @@
  *******************************************************************************/
 package logdruid.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
+import java.util.Map;
+import java.util.ArrayList;
 
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 public class ChartData {
-	String name = "test";
-	public Vector<Source> sourceVector;
-	public HashMap<Source, Vector<String>> sourceFileVectorHashMap = new HashMap<Source, Vector<String>>();
-	public Vector<String> selectedSourceFiles;
+	// String name = "test";
+	public ArrayList<Source> sourceArrayList;
+	public Map<Source, ArrayList<String>> sourceFileArrayListMap = new HashMap<Source, ArrayList<String>>();
+	public ArrayList<String> selectedSourceFiles;
 
-	// Vector<HashMap<String, TimeSeries>> hashMapVector = new
-	// Vector<HashMap<String, TimeSeries>>();
+	// ArrayList<Map<String, TimeSeries>> MapArrayList = new
+	// ArrayList<Map<String, TimeSeries>>();
 	public TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-	HashMap<Source, HashMap<String, Vector<String>>> hashMapSourceGroupFilesVector = new HashMap<Source, HashMap<String, Vector<String>>>();
+	Map<Source, Map<String, ArrayList<String>>> MapSourceGroupFilesArrayList = new HashMap<Source, Map<String, ArrayList<String>>>();
 
-	public void setGroupFilesVectorHashMap(Source src, HashMap<String, Vector<String>> sourceFileGroup) {
-		hashMapSourceGroupFilesVector.put(src, sourceFileGroup);
+	public void setGroupFilesArrayListMap(Source src, Map<String, ArrayList<String>> sourceFileGroup) {
+		MapSourceGroupFilesArrayList.put(src, sourceFileGroup);
 		// TODO Auto-generated method stub
 
 	}
 
-	public HashMap<String, Vector<String>> getGroupFilesHashMap(Source src) {
-		return hashMapSourceGroupFilesVector.get(src);
+	public Map<String, ArrayList<String>> getGroupFilesMap(Source src) {
+		return MapSourceGroupFilesArrayList.get(src);
 	}
 }

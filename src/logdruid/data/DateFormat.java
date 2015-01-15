@@ -11,9 +11,9 @@
 package logdruid.data;
 
 import java.lang.String;
-import java.text.SimpleDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import java.util.UUID;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import logdruid.util.DataMiner;
 

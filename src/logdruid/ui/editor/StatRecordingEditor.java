@@ -38,7 +38,7 @@ import javax.swing.UIManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -228,6 +228,15 @@ public class StatRecordingEditor extends JPanel {
 							recordingEditorTablePanel.Remove();
 						}
 					});
+					{
+						JButton btnInsert = new JButton("Insert");
+						btnInsert.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								recordingEditorTablePanel.Insert();
+							}
+						});
+						panel_2.add(btnInsert);
+					}
 					btnRemoveButton.setHorizontalAlignment(SwingConstants.LEFT);
 					panel_2.add(btnRemoveButton);
 				}
@@ -266,7 +275,7 @@ public class StatRecordingEditor extends JPanel {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						Vector rIs = recordingEditorTablePanel.getRecordingItems();
+						ArrayList rIs = recordingEditorTablePanel.getRecordingItems();
 						if (recording == null) {
 							Recording r = new StatRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 									.isSelected(), rIs);
@@ -279,8 +288,10 @@ public class StatRecordingEditor extends JPanel {
 							((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							logger.info("RecordingEditor - ok 2");
-						//	myTableModel2.updateRow(NewRecordingList.table.getSelectedRow(), new Object[] { txtName.getText(), txtRegularExp.getText(),
-						//			chckbxActive.isSelected() });
+							// myTableModel2.updateRow(NewRecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),
+							// new Object[] { txtName.getText(),
+							// txtRegularExp.getText(),
+							// chckbxActive.isSelected() });
 							// myTableModel2.fireTableDataChanged();
 						}
 
@@ -315,7 +326,7 @@ public class StatRecordingEditor extends JPanel {
 			examplePane.repaint();
 		}
 		JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
-	//	scrollPaneRecordingEditorTablePanel.setViewportView(recordingEditorTablePanel);
+		// scrollPaneRecordingEditorTablePanel.setViewportView(recordingEditorTablePanel);
 		panel2.add(scrollPaneRecordingEditorTablePanel);
 		recordingEditorTablePanel.FixValues();
 	}

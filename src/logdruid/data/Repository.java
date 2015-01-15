@@ -13,9 +13,9 @@ package logdruid.data;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import logdruid.data.record.Recording;
@@ -29,19 +29,23 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Repository {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
-	private Vector<Recording> recordings;
-	private Vector<Source> sources;
+	private ArrayList<Recording> recordings;
+	private ArrayList<Source> sources;
 	private String baseSourcePath;
-	private Vector<DateFormat> dates;
+	private ArrayList<DateFormat> dates;
 	private boolean recursiveMode;
 	private boolean onlyMatches;
+	private boolean stats;
+	private boolean timings;
 
 	public Repository() {
-		recordings = new Vector<Recording>();
-		dates = new Vector<DateFormat>();
-		sources = new Vector<Source>();
+		recordings = new ArrayList<Recording>();
+		dates = new ArrayList<DateFormat>();
+		sources = new ArrayList<Source>();
 		recursiveMode = false;
-		// logger.info("repository vector initialized");
+		timings = true;
+		stats = true;
+		// logger.info("repository ArrayList initialized");
 	}
 
 	public boolean isRecursiveMode() {
@@ -53,7 +57,7 @@ public class Repository {
 		this.recursiveMode = recursiveMode;
 	}
 
-	public Vector<Source> getSources() {
+	public ArrayList<Source> getSources() {
 		return sources;
 	}
 
@@ -69,13 +73,13 @@ public class Repository {
 		return (Source) null;
 	}
 
-	public void setSources(Vector<Source> sources) {
+	public void setSources(ArrayList<Source> sources) {
 		this.sources = sources;
 	}
 
 	public void addSource(Source s) {
 		if (sources == null) {
-			sources = new Vector<Source>();
+			sources = new ArrayList<Source>();
 		}
 		sources.add(s);
 	}
@@ -94,14 +98,14 @@ public class Repository {
 		sources.get(id).setActive(active);
 	}
 
-	public Vector<Recording> getRecordings() {
+	public ArrayList<Recording> getRecordings() {
 		// logger.info(xstream.toXML(recordings));
 		return recordings;
 	}
 
-	public Vector<Recording> getRecordings(Class _class) {
+	public ArrayList<Recording> getRecordings(Class _class) {
 
-		Vector<Recording> statRecordingVector = new Vector<Recording>();
+		ArrayList<Recording> statRecordingArrayList = new ArrayList<Recording>();
 		Iterator recordingIterator = recordings.iterator();
 
 		int cnt = 0;
@@ -110,16 +114,16 @@ public class Repository {
 			if (r.getClass().equals(_class)) {
 				// logger.info("getRecordings for type " + _class +
 				// " add " + r.toString());
-				statRecordingVector.add(r);
+				statRecordingArrayList.add(r);
 			}
 		}
 
-		return (Vector<Recording>) statRecordingVector;
+		return (ArrayList<Recording>) statRecordingArrayList;
 	}
 
 	public Recording getRecording(Class _class, int id) {
 
-		Vector<Recording> statRecordingVector = new Vector<Recording>();
+		ArrayList<Recording> statRecordingArrayList = new ArrayList<Recording>();
 		Iterator recordingIterator = recordings.iterator();
 
 		int cnt = 0;
@@ -128,11 +132,11 @@ public class Repository {
 			if (r.getClass().equals(_class)) {
 				// logger.info("getRecording for type " + _class +
 				// " with id: "+id +", adds " + r.toString());
-				statRecordingVector.add(r);
+				statRecordingArrayList.add(r);
 			}
 		}
 
-		return statRecordingVector.get(id);
+		return statRecordingArrayList.get(id);
 	}
 
 	public void addRecording(Recording r) {
@@ -200,7 +204,7 @@ public class Repository {
 		// XStream xstream = new XStream(new StaxDriver());
 		FileOutputStream fos = null;
 		try {
-			recordings = (Vector<Recording>) new XStream(new StaxDriver()).fromXML(file);
+			recordings = (ArrayList<Recording>) new XStream(new StaxDriver()).fromXML(file);
 			/*
 			 * fos = new FileOutputStream(file);
 			 * 
@@ -220,7 +224,7 @@ public class Repository {
 		}
 	}
 
-	public void setRecordings(Vector recordings) {
+	public void setRecordings(ArrayList recordings) {
 		this.recordings = recordings;
 	}
 
@@ -236,17 +240,17 @@ public class Repository {
 		this.baseSourcePath = baseSourcePath;
 	}
 
-	public Vector<DateFormat> getDates() {
+	public ArrayList<DateFormat> getDates() {
 		return dates;
 	}
 
-	public void setDates(Vector<DateFormat> hm) {
+	public void setDates(ArrayList<DateFormat> hm) {
 		dates = hm;
 	}
 
 	public void addDateFormat(DateFormat df) {
 		if (dates == null) {
-			dates = new Vector<DateFormat>();
+			dates = new ArrayList<DateFormat>();
 		}
 		dates.add(df);
 		// logger.info(xstream.toXML(recordings));
@@ -283,5 +287,21 @@ public class Repository {
 
 	public boolean isOnlyMatches() {
 		return onlyMatches;
+	}
+
+	public boolean isStats() {
+		return stats;
+	}
+
+	public void setStats(boolean stats) {
+		this.stats = stats;
+	}
+
+	public boolean isTimings() {
+		return timings;
+	}
+
+	public void setTimings(boolean timings) {
+		this.timings = timings;
 	}
 }

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package logdruid.data;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import logdruid.data.record.Recording;
 import logdruid.util.DataMiner;
@@ -26,15 +26,15 @@ public class Source {
 	private String sourceName;
 	private String sourcePattern;
 	private Boolean active;
-	private Vector<SourceItem> sourceItemVector;
-	private Vector<String> selectedRecordingIds;
+	private ArrayList<SourceItem> sourceItemArrayList;
+	private ArrayList<String> selectedRecordingIds;
 
-	public Source(String name, String pattern, Boolean _active, Vector<SourceItem> _sourceItemVector) {
+	public Source(String name, String pattern, Boolean _active, ArrayList<SourceItem> _sourceItemArrayList) {
 		sourceName = name;
 		sourcePattern = pattern;
-		sourceItemVector = _sourceItemVector;
+		sourceItemArrayList = _sourceItemArrayList;
 		setActive(_active);
-		selectedRecordingIds = new Vector<String>();
+		selectedRecordingIds = new ArrayList<String>();
 
 		logger.info("Source loaded");
 
@@ -95,16 +95,16 @@ public class Source {
 		this.sourceName = sourceName;
 	}
 
-	public void setSourceItem(Vector<SourceItem> sourceItem) {
-		this.sourceItemVector = sourceItem;
+	public void setSourceItem(ArrayList<SourceItem> sourceItem) {
+		this.sourceItemArrayList = sourceItem;
 	}
 
-	public Vector<SourceItem> getSourceItem() {
-		return sourceItemVector;
+	public ArrayList<SourceItem> getSourceItem() {
+		return sourceItemArrayList;
 	}
 
-	public void setFilePattern(Vector<SourceItem> _sourceItem) {
-		sourceItemVector = _sourceItem;
+	public void setFilePattern(ArrayList<SourceItem> _sourceItem) {
+		sourceItemArrayList = _sourceItem;
 	}
 
 	public Boolean getActive() {

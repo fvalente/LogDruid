@@ -40,10 +40,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,16 +67,18 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
+import javax.swing.JSplitPane;
 
 public class EventRecordingSelectorPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(EventRecordingSelectorPanel.class.getName());
 	public static JTable table;
 	JPanel jPanelDetail;
+	EventRecordingSelectorPanel thiis = this;
 	boolean DEBUG = false;
 	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
-	static Vector records = null;
+	static ArrayList records = null;
 	private String[] header = { "name", "regexp", "type", "active" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	private Repository repository = null;
@@ -92,12 +94,6 @@ public class EventRecordingSelectorPanel extends JPanel {
 		model = new logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel(data, header);
 		source = src;
 		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 15, 550, 15 };
-		gridBagLayout.rowHeights = new int[] { 152, 0, 0, 300 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0 };
-		setLayout(gridBagLayout);
 
 		JPanel panel_1 = new JPanel();
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
@@ -105,58 +101,42 @@ public class EventRecordingSelectorPanel extends JPanel {
 		gbc_panel_1.insets = new Insets(5, 0, 5, 5);
 		gbc_panel_1.gridx = 1;
 		gbc_panel_1.gridy = 0;
-		add(panel_1, gbc_panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
 
 		table = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane(table);
 		panel_1.add(scrollPane, BorderLayout.CENTER);
 
-		table.setPreferredScrollableViewportSize(new Dimension(0, 0));
+		table.setPreferredScrollableViewportSize(new Dimension(0, 150));
 		table.setFillsViewportHeight(true);
+		table.setAutoCreateRowSorter(true);
 
 		// Set up column sizes.
 		initColumnSizes(table);
 
 		reloadTable();
-		JPanel panel = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEFT);
-		flowLayout.setVgap(2);
-		flowLayout.setHgap(2);
-		panel_1.add(panel, BorderLayout.SOUTH);
+		setLayout(new BorderLayout(0, 0));
 
-		JSeparator separator = new JSeparator();
-		GridBagConstraints gbc_separator = new GridBagConstraints();
-		gbc_separator.anchor = GridBagConstraints.SOUTHWEST;
-		gbc_separator.fill = GridBagConstraints.HORIZONTAL;
-		gbc_separator.insets = new Insets(0, 0, 5, 5);
-		gbc_separator.gridx = 1;
-		gbc_separator.gridy = 1;
-		add(separator, gbc_separator);
-
-		JSeparator separator_1 = new JSeparator();
-		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
-		gbc_separator_1.insets = new Insets(0, 0, 5, 5);
-		gbc_separator_1.gridx = 1;
-		gbc_separator_1.gridy = 2;
-		add(separator_1, gbc_separator_1);
-
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		add(splitPane);
 		jPanelDetail = new JPanel();
+		splitPane.setBottomComponent(jPanelDetail);
+		splitPane.setTopComponent(panel_1);
+
 		GridBagConstraints gbc_jPanelDetail = new GridBagConstraints();
 		gbc_jPanelDetail.insets = new Insets(0, 0, 0, 5);
 		gbc_jPanelDetail.fill = GridBagConstraints.BOTH;
 		gbc_jPanelDetail.gridx = 1;
 		gbc_jPanelDetail.gridy = 3;
-		add(jPanelDetail, gbc_jPanelDetail);
 		jPanelDetail.setLayout(new BorderLayout(0, 0));
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				// table.getSelectedRow()
+				// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
 				// persist repository
 				// display selected row
-				int selectedRow = table.getSelectedRow();
+				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 
 				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
@@ -191,13 +171,13 @@ public class EventRecordingSelectorPanel extends JPanel {
 		} else if (rec.getClass() == MetadataRecording.class) {
 			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
 		} else if (rec.getClass() == EventRecording.class) {
-			editorPanel = new EventRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
+			editorPanel = new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 		}
 		return editorPanel;
 	}
 
 	public void reloadTable() {
-		int selectedRow = table.getSelectedRow();
+		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		records = repository.getRecordings(EventRecording.class);
 		logger.info("reloadTable - nb records : " + records.size());
 		Iterator it = records.iterator();
@@ -273,33 +253,33 @@ public class EventRecordingSelectorPanel extends JPanel {
 	 */
 
 	/*
-	 * public Vector<RecordingItem> getRecordingItems() { Vector<RecordingItem>
-	 * toReturn = new Vector<RecordingItem>(); for (int i = 0; i < data.size();
-	 * i++) { // model.getRowCount() toReturn.add(new RecordingItem((String)
-	 * model.getValueAt(i, 0),(String) model.getValueAt(i, 1), (String)
-	 * model.getValueAt(i, 2), (Boolean) model.getValueAt(i, 3)); } return
-	 * toReturn; }
+	 * public ArrayList<RecordingItem> getRecordingItems() {
+	 * ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>(); for
+	 * (int i = 0; i < data.size(); i++) { // model.getRowCount()
+	 * toReturn.add(new RecordingItem((String) model.getValueAt(i, 0),(String)
+	 * model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (Boolean)
+	 * model.getValueAt(i, 3)); } return toReturn; }
 	 */
 
 	/*
-	 * public void Add() { data.add(new Object[] { " ", "", "integer", "",
+	 * public void Add() { data.add(new Object[] { " ", "", "long", "",
 	 * Boolean.TRUE, "" }); table.repaint(); }
 	 */
 
 	public void Remove() {
-		data.remove(table.getSelectedRow());
-		repository.deleteRecording(table.getSelectedRow());
+		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+		repository.deleteRecording(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
 
 	/*
-	 * private Vector<RecordingItem> findRecordItems(String theLine) {
-	 * SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+	 * private ArrayList<RecordingItem> findRecordItems(String theLine) {
+	 * FastDateFormat FastDateFormat = new FastDateFormat(
 	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
-	 * Vector<RecordingItem> rI = new Vector<RecordingItem>(); for (int i = 0; i
-	 * < rIString.length; i++) { if (i == 0) { String[] splitted =
+	 * ArrayList<RecordingItem> rI = new ArrayList<RecordingItem>(); for (int i
+	 * = 0; i < rIString.length; i++) { if (i == 0) { String[] splitted =
 	 * rIString[i].split(": "); String date = splitted[0]; try {
-	 * simpleDateFormat.parse(date); } catch (ParseException e) { // TODO
+	 * FastDateFormat.parse(date); } catch (ParseException e) { // TODO
 	 * Auto-generated catch block e.printStackTrace(); } } else { if
 	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
 	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
@@ -429,18 +409,17 @@ public class EventRecordingSelectorPanel extends JPanel {
 	}
 
 	/*
-	 * public Vector<RecordingItem> getRecordingItems() { Vector<RecordingItem>
-	 * toReturn = new Vector<RecordingItem>(); for (int i = 0; i < data.size();
-	 * i++) { // model.getRowCount() toReturn.add(new RecordingItem((String)
-	 * model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String)
-	 * model.getValueAt(i, 2), (String) model .getValueAt(i, 3), (Boolean)
-	 * model.getValueAt(i, 4), (String) model.getValueAt(i, 5))); } return
-	 * toReturn; }
+	 * public ArrayList<RecordingItem> getRecordingItems() {
+	 * ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>(); for
+	 * (int i = 0; i < data.size(); i++) { // model.getRowCount()
+	 * toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String)
+	 * model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
+	 * .getValueAt(i, 3), (Boolean) model.getValueAt(i, 4), (String)
+	 * model.getValueAt(i, 5))); } return toReturn; }
 	 */
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "integer", Boolean.FALSE });
+		data.add(new Object[] { "", ".*", "long", Boolean.FALSE });
 		table.repaint();
 	}
-
 }

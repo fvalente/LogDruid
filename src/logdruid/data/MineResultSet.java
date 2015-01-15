@@ -13,16 +13,17 @@ package logdruid.data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
 public class MineResultSet {
 	private static Logger logger = Logger.getLogger(MineResultSet.class.getName());
-	public HashMap<String, ArrayList<MineResult>> mineResults;
+	public Map<String, Map<String, MineResult>> mineResults;
 	private Date startDate;
 	private Date endDate;
 
@@ -61,7 +62,7 @@ public class MineResultSet {
 	}
 
 	public MineResultSet() {
-		mineResults = new HashMap<String, ArrayList<MineResult>>();
+		mineResults = new HashMap<String, Map<String, MineResult>>();
 	}
 
 }

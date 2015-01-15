@@ -10,7 +10,7 @@
  *******************************************************************************/
 package logdruid.data.record;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,14 +18,14 @@ import org.apache.log4j.Logger;
 
 public class MetadataRecording extends Recording {
 	private static Logger logger = Logger.getLogger(MetadataRecording.class.getName());
-	private Vector recordingItem;
+	private ArrayList recordingItem;
 	private String dateFormat;
 
 	public String getType() {
 		return "Metadata";
 	}
 
-	public MetadataRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public MetadataRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
@@ -35,7 +35,7 @@ public class MetadataRecording extends Recording {
 		super.id = generate();
 		logger.info("New MetadataRecording name: " + _name + ", regexp: " + _regexp + ", id: " + super.id);
 		if (recordingItem != null)
-			logger.info("New MetadataRecording with recordingItem vector: " + recordingItem.toString());
+			logger.info("New MetadataRecording with recordingItem ArrayList: " + recordingItem.toString());
 	}
 
 	public String getDateFormat() {
@@ -46,17 +46,17 @@ public class MetadataRecording extends Recording {
 		this.dateFormat = dateFormat;
 	}
 
-	public Vector getRecordingItem() {
+	public ArrayList getRecordingItem() {
 		// logger.info("***********"+recordingItem.toString()+recordingItem.size());
 		// Thread.currentThread().dumpStack();
-		return (Vector) recordingItem;
+		return (ArrayList) recordingItem;
 	}
 
-	public void setRecordingItem(Vector recordingItem) {
+	public void setRecordingItem(ArrayList recordingItem) {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
@@ -67,7 +67,7 @@ public class MetadataRecording extends Recording {
 
 	public Recording duplicate() {
 
-		Vector _recordingItem = null;
+		ArrayList _recordingItem = null;
 		// might need put back .toString() to those?? *** TBR
 		String _name = getName().toString();
 		String _regexp = getRegexp().toString();
@@ -76,7 +76,7 @@ public class MetadataRecording extends Recording {
 
 		Boolean _isActive = getIsActive().booleanValue();
 		if (getRecordingItem() != null) {
-			_recordingItem = (Vector) getRecordingItem().clone();
+			_recordingItem = (ArrayList) getRecordingItem().clone();
 		}
 		return new MetadataRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
 	}

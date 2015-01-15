@@ -33,7 +33,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +52,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
-	static Vector records = null;
+	static ArrayList records = null;
 	private MyTableModel model;
 	private String[] header = { "Name", "Before", "Type", "After", "selected", "Value" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
@@ -206,7 +206,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("word");
 		comboBox.addItem("string");
-		comboBox.addItem("integer");
+		comboBox.addItem("long");
 		comboBox.addItem("double");
 		comboBox.addItem("date");
 		comboBox.addItem("percent");
@@ -270,8 +270,8 @@ public class MetadataRecordingEditorTable extends JPanel {
 		}
 	}
 
-	public Vector<RecordingItem> getRecordingItems() {
-		Vector<RecordingItem> toReturn = new Vector<RecordingItem>();
+	public ArrayList<RecordingItem> getRecordingItems() {
+		ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>();
 		for (int i = 0; i < data.size(); i++) { // model.getRowCount()
 			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
 					.getValueAt(i, 3), (Boolean) model.getValueAt(i, 4), (String) model.getValueAt(i, 5)));
@@ -280,12 +280,18 @@ public class MetadataRecordingEditorTable extends JPanel {
 	}
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "integer", "", Boolean.TRUE, "" });
+		data.add(new Object[] { "", ".*", "long", "", Boolean.TRUE, "" });
+		table.repaint();
+	}
+
+	public void Insert() {
+		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "", ".*", "long", "",
+				Boolean.TRUE, "" });
 		table.repaint();
 	}
 
 	public void Remove() {
-		data.remove(table.getSelectedRow());
+		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
 

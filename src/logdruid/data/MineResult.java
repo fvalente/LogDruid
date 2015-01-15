@@ -13,10 +13,10 @@ package logdruid.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import logdruid.util.DataMiner;
 
@@ -24,26 +24,32 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
-public class MineResult implements Comparable{
+public class MineResult implements Comparable {
 	private static Logger logger = Logger.getLogger(MineResult.class.getName());
 	private Date startDate;
 	private Date endDate;
 	String source; // Source source; (tuning data size)
-	Vector<File> logFiles;
+	ArrayList<String> logFiles;
 	String group;
-	HashMap<String, TimeSeries> statTimeSeriesHashMap;
-	HashMap<String, TimeSeries> eventTimeSeriesHashMap;
-	private ArrayList<Object[]> fileDates= new ArrayList<Object[]>();
+	Map<String, ExtendedTimeSeries> statTimeSeriesMap;
+	Map<String, ExtendedTimeSeries> eventTimeSeriesMap;
+	Map<String, long[]> matchingStats; // 0-> sum of time for success matching
+										// of given recording ; 1-> sum of time
+										// for failed matching ; 2-> count of
+										// match attempts, 3->count of success
+										// attempts
 
+	private ArrayList<Object[]> fileDates = new ArrayList<Object[]>();
 
-	public MineResult(String _group, FileMineResultSet hm, Vector fileVector, Repository repo, Source _source) {
-		logFiles = fileVector;
+	public MineResult(String _group, FileMineResultSet hm, ArrayList<String> fileArrayList, Repository repo, Source _source) {
+		logFiles = fileArrayList;
 		source = _source.getSourceName();
-		statTimeSeriesHashMap = hm.statGroupTimeSeries;
-		eventTimeSeriesHashMap = hm.eventGroupTimeSeries;
+		statTimeSeriesMap = hm.statGroupTimeSeries;
+		eventTimeSeriesMap = hm.eventGroupTimeSeries;
+		matchingStats = hm.matchingStats;
 		startDate = hm.getStartDate();
 		endDate = hm.getEndDate();
-		fileDates=hm.getFileDates();
+		fileDates = hm.getFileDates();
 		group = _group;
 	}
 
@@ -55,7 +61,7 @@ public class MineResult implements Comparable{
 		return source;
 	}
 
-	public Vector<File> getLogFiles() {
+	public ArrayList<String> getLogFiles() {
 		return logFiles;
 	}
 
@@ -63,34 +69,39 @@ public class MineResult implements Comparable{
 		return group;
 	}
 
-	public HashMap<String, TimeSeries> getStatTimeseriesHashMap() {
-		return statTimeSeriesHashMap;
+	public Map<String, ExtendedTimeSeries> getStatTimeseriesMap() {
+		return statTimeSeriesMap;
 	}
 
-	public HashMap<String, TimeSeries> getEventTimeseriesHashMap() {
-		return eventTimeSeriesHashMap;
+	public Map<String, ExtendedTimeSeries> getEventTimeseriesMap() {
+		return eventTimeSeriesMap;
+	}
+
+	public Map<String, long[]> getMatchingStats() {
+		return matchingStats;
 	}
 
 	public Date getEndDate() {
 		return endDate;
-		
+
 	}
-	public File getFileForDate(Date date){
-		Iterator it=fileDates.iterator();
-		while (it.hasNext())
-		{
-			 Object[] obj=( Object[] )it.next();
-			 if (logger.isDebugEnabled()) logger.debug("1: "+(Date)obj[0]+"2: "+(Date)obj[1]+"3: "+(File)obj[2]);
-			if (date.after((Date)obj[0]) && date.before((Date)obj[1]))
-				return (File)obj[2];
+
+	public File getFileForDate(Date date) {
+		Iterator<Object[]> it = fileDates.iterator();
+		while (it.hasNext()) {
+			Object[] obj = it.next();
+			if (logger.isDebugEnabled())
+				logger.debug("1: " + (Date) obj[0] + "2: " + (Date) obj[1] + "3: " + (File) obj[2]);
+			if (date.after((Date) obj[0]) && date.before((Date) obj[1]))
+				return (File) obj[2];
 		}
 		return null;
 	}
 
 	@Override
 	public int compareTo(Object o) {
-		String local = source+group;
-		String remote=((MineResult)o).getSourceID()+((MineResult)o).getGroup();
+		String local = source + group;
+		String remote = ((MineResult) o).getSourceID() + ((MineResult) o).getGroup();
 		return remote.compareTo(local);
 	}
 }

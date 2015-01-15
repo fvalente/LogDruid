@@ -11,7 +11,7 @@
 package logdruid.data.record;
 
 import java.util.UUID;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.DataFormatException;
 
@@ -23,8 +23,8 @@ public abstract class Recording {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private String name;
 	private String regexp;
-	protected Vector recordingItem;
-	private String simpleDateFormat;
+	protected ArrayList recordingItem;
+	private String FastDateFormat;
 	private String exampleLine;
 	private Boolean isActive;
 	protected String id;
@@ -40,7 +40,7 @@ public abstract class Recording {
 		return generatedUniqueId;
 	}
 
-	public Vector getRecordingItem() {
+	public ArrayList getRecordingItem() {
 		// logger.info("***********"+recordingItem.toString()+recordingItem.size());
 		// Thread.currentThread().dumpStack();
 		return recordingItem;

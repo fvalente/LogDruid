@@ -10,7 +10,7 @@
  *******************************************************************************/
 package logdruid.data.record;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -18,7 +18,7 @@ public class EventRecording extends Recording {
 	private static Logger logger = Logger.getLogger(EventRecording.class.getName());
 	private String dateFormat;
 
-	public EventRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public EventRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
@@ -28,7 +28,7 @@ public class EventRecording extends Recording {
 		super.id = generate();
 		logger.info("New EventRecording name: " + _name + ", regexp: " + _regexp + ", id: " + super.id);
 		if (recordingItem != null)
-			logger.info("New EventRecording with recordingItem vector: " + recordingItem.toString());
+			logger.info("New EventRecording with recordingItem ArrayList: " + recordingItem.toString());
 	}
 
 	public String getType() {
@@ -43,11 +43,11 @@ public class EventRecording extends Recording {
 		this.dateFormat = dateFormat;
 	}
 
-	public void setRecordingItem(Vector recordingItem) {
+	public void setRecordingItem(ArrayList recordingItem) {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Vector _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
@@ -61,7 +61,7 @@ public class EventRecording extends Recording {
 
 	public Recording duplicate() {
 
-		Vector _recordingItem = null;
+		ArrayList _recordingItem = null;
 		// might need put back .toString() to those?? *** TBR
 		String _name = getName().toString();
 		String _regexp = getRegexp().toString();
@@ -70,7 +70,7 @@ public class EventRecording extends Recording {
 
 		Boolean _isActive = getIsActive().booleanValue();
 		if (recordingItem != null) {
-			_recordingItem = (Vector) recordingItem.clone();
+			_recordingItem = (ArrayList) recordingItem.clone();
 		}
 		return new EventRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
 	}
