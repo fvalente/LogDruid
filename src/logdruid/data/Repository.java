@@ -43,7 +43,7 @@ public class Repository {
 	public Repository() {
 		preferences = new HashMap<String, String>();
 		preferences.put("timings", "false");
-		preferences.put("stats", "false");
+		preferences.put("stats", "true");
 		preferences.put("chartSize", "350");
 		recordings = new ArrayList<Recording>();
 		dates = new ArrayList<DateFormat>();
@@ -158,7 +158,7 @@ public String getPreference (String key){
 		preferences.put("timings", "false");}
 		if (!preferences.containsKey("stats")){
 			logger.info("stats set to false");
-		preferences.put("stats", "false");}
+		preferences.put("stats", "true");}
 		if (!preferences.containsKey("chartSize")){
 		preferences.put("chartSize", "350");}
 		return preferences;
