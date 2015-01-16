@@ -234,10 +234,7 @@ public class DataMiner {
 					tasks.add(new Callable<MineResult>() {
 
 						public MineResult call() throws Exception {
-							// logger.info("HEEERE2:"+miner.fastMine((ArrayList<String>)
-							// pairs.getValue(), repo, source));
-							return DataMiner.mine((String) pairs.getKey(), (ArrayList<String>) pairs.getValue(), repo, source, false, false); // repo.isStats()
-
+							return DataMiner.mine((String) pairs.getKey(), (ArrayList<String>) pairs.getValue(), repo, source, repo.isStats(), repo.isTimings()); 
 						}
 
 					});

@@ -108,6 +108,7 @@ public final class GraphPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private JScrollPane scrollPane;
 	private JPanel panel;
+	private Repository repo;
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
 			new Color(60, 179, 113) };
@@ -144,6 +145,7 @@ public final class GraphPanel extends JPanel {
 
 		setLayout(new BorderLayout(0, 0));
 		startTime = System.currentTimeMillis();
+		this.repo=repo;
 		mineResultSet = DataMiner.gatherMineResultSet(repo);
 		DataVault.mineResultSet = mineResultSet;
 		panel = new JPanel();
@@ -417,8 +419,9 @@ public final class GraphPanel extends JPanel {
 							}
 
 							JPanel pan = new JPanel();
+							
 							pan.setLayout(new BorderLayout());
-							pan.setPreferredSize(new Dimension(600, 350));
+							pan.setPreferredSize(new Dimension(600, Integer.parseInt((String)repo.getPreference("chartSize"))));
 							// pan.setPreferredSize(panelSize);
 							panel.add(pan);
 							final ChartPanel cpanel = new ChartPanel(chart);

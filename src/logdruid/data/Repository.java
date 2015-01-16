@@ -13,6 +13,7 @@ package logdruid.data;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -35,22 +36,31 @@ public class Repository {
 	private ArrayList<DateFormat> dates;
 	private boolean recursiveMode;
 	private boolean onlyMatches;
-	private boolean stats;
-	private boolean timings;
+	private boolean stats; //unused
+	private boolean timings; //unused
+	private HashMap<String,String> preferences;
 
 	public Repository() {
+		preferences = new HashMap<String, String>();
+		preferences.put("timings", "false");
+		preferences.put("stats", "false");
+		preferences.put("chartSize", "350");
 		recordings = new ArrayList<Recording>();
 		dates = new ArrayList<DateFormat>();
 		sources = new ArrayList<Source>();
 		recursiveMode = false;
-		timings = true;
-		stats = true;
 		// logger.info("repository ArrayList initialized");
 	}
 
 	public boolean isRecursiveMode() {
 		return recursiveMode;
 	}
+public void setPreference (String key, String value){
+	preferences.put(key, value);
+}
+public String getPreference (String key){
+	return getPreferences().get(key);
+}
 
 	public void setRecursiveMode(boolean recursiveMode) {
 		// logger.info("recursive mode is :"+recursiveMode);
@@ -137,6 +147,21 @@ public class Repository {
 		}
 
 		return statRecordingArrayList.get(id);
+	}
+
+	public HashMap<String, String> getPreferences() {
+		if (preferences==null) {
+			preferences=new HashMap<String, String>();
+			logger.info("new preferences");
+		}
+		if (!preferences.containsKey("timings")){
+		preferences.put("timings", "false");}
+		if (!preferences.containsKey("stats")){
+			logger.info("stats set to false");
+		preferences.put("stats", "false");}
+		if (!preferences.containsKey("chartSize")){
+		preferences.put("chartSize", "350");}
+		return preferences;
 	}
 
 	public void addRecording(Recording r) {
@@ -290,18 +315,18 @@ public class Repository {
 	}
 
 	public boolean isStats() {
-		return stats;
+		return Boolean.parseBoolean(getPreference("stats"));
 	}
 
 	public void setStats(boolean stats) {
-		this.stats = stats;
+		setPreference("stats", Boolean.toString(stats));
 	}
 
 	public boolean isTimings() {
-		return timings;
+		return Boolean.parseBoolean(getPreference("timings"));
 	}
 
 	public void setTimings(boolean timings) {
-		this.timings = timings;
+		setPreference("timings", Boolean.toString(timings));
 	}
 }

@@ -49,6 +49,7 @@ import logdruid.ui.NewRecordingList;
 import logdruid.ui.chart.GraphPanel;
 import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
 import logdruid.ui.mainpanel.MetadataRecordingSelectorPanel;
+import logdruid.ui.mainpanel.PreferencePanel;
 import logdruid.ui.mainpanel.SourceInfoPanel;
 import logdruid.ui.mainpanel.SourcePanel;
 import logdruid.ui.mainpanel.StatRecordingSelectorPanel;
@@ -67,11 +68,15 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.awt.Font;
+
 import javax.swing.JProgressBar;
 import javax.swing.border.MatteBorder;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+
 import javax.swing.BoxLayout;
+
 import java.awt.Insets;
 
 public class MainFrame extends JFrame {
@@ -260,6 +265,7 @@ public class MainFrame extends JFrame {
 				DefaultMutableTreeNode DMTconfiguration;
 				DMTnode_1 = new DefaultMutableTreeNode("Configuration");
 				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
+				DMTnode_1.add(new DefaultMutableTreeNode("Preferences"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
 				// DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
 				// DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
@@ -433,7 +439,12 @@ public class MainFrame extends JFrame {
 				panel_1.removeAll();
 				panel_1.add(new NewRecordingList(repository));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("Data")) {
+			} else if (treeSelected.equals("Preferences")) {
+				panel_1.removeAll();
+				panel_1.add(new PreferencePanel(repository));
+				panel_1.revalidate();
+			}
+			else if (treeSelected.equals("Data")) {
 				panel_1.removeAll();
 				panel_1.add(new StatRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
