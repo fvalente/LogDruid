@@ -45,7 +45,7 @@ import java.awt.event.MouseEvent;
 
 import logdruid.data.Repository;
 import logdruid.data.Source;
-import logdruid.ui.NewRecordingList;
+import logdruid.ui.RecordingList;
 import logdruid.ui.chart.GraphPanel;
 import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
 import logdruid.ui.mainpanel.MetadataRecordingSelectorPanel;
@@ -437,7 +437,7 @@ public class MainFrame extends JFrame {
 				panel_1.revalidate();
 			} else if (treeSelected.equals("Recordings")) {
 				panel_1.removeAll();
-				panel_1.add(new NewRecordingList(repository));
+				panel_1.add(new RecordingList(repository));
 				panel_1.revalidate();
 			} else if (treeSelected.equals("Preferences")) {
 				panel_1.removeAll();

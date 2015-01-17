@@ -54,8 +54,8 @@ import logdruid.data.Repository;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.ui.DateSelector;
-import logdruid.ui.NewRecordingList;
-import logdruid.ui.NewRecordingList.MyTableModel2;
+import logdruid.ui.RecordingList;
+import logdruid.ui.RecordingList.MyTableModel2;
 import logdruid.ui.table.MetadataRecordingEditorTable;
 import logdruid.ui.table.StatRecordingEditorTable;
 import logdruid.util.DataMiner;
@@ -93,7 +93,7 @@ public class MetadataRecordingEditor extends JPanel {
 	/**
 	 * Create the dialog.
 	 */
-	public MetadataRecordingEditor(logdruid.ui.NewRecordingList.MyTableModel2 myTableModel2, MetadataRecording re, Repository repo) {
+	public MetadataRecordingEditor(logdruid.ui.RecordingList.MyTableModel2 myTableModel2, MetadataRecording re, Repository repo) {
 		this(myTableModel2, repo, re.getExampleLine(), re.getRegexp(), re);
 	}
 
@@ -106,7 +106,7 @@ public class MetadataRecordingEditor extends JPanel {
 	 * 
 	 * @wbp.parser.constructor
 	 */
-	public MetadataRecordingEditor(final logdruid.ui.NewRecordingList.MyTableModel2 myTableModel2, Repository repo, String theLine, String regex,
+	public MetadataRecordingEditor(final logdruid.ui.RecordingList.MyTableModel2 myTableModel2, Repository repo, String theLine, String regex,
 			final MetadataRecording re) {
 		// setBounds(0, 0, 1015, 467);
 
@@ -285,7 +285,7 @@ public class MetadataRecordingEditor extends JPanel {
 							logger.info("RecordingEditor - ok 2");
 							if (myTableModel2 != null) {
 								myTableModel2.updateRow(
-										((NewRecordingList.table.getSelectedRow() != -1) ? NewRecordingList.table.convertRowIndexToModel(NewRecordingList.table
+										((RecordingList.table.getSelectedRow() != -1) ? RecordingList.table.convertRowIndexToModel(RecordingList.table
 												.getSelectedRow()) : -1),
 										new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 								// myTableModel2.fireTableDataChanged();

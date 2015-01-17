@@ -52,8 +52,8 @@ import logdruid.data.Repository;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.Recording;
 import logdruid.ui.DateSelector;
-import logdruid.ui.NewRecordingList;
-import logdruid.ui.NewRecordingList.MyTableModel2;
+import logdruid.ui.RecordingList;
+import logdruid.ui.RecordingList.MyTableModel2;
 import logdruid.ui.table.EventRecordingEditorTable;
 import logdruid.util.DataMiner;
 
@@ -337,22 +337,22 @@ public class EventRecordingEditor extends JPanel {
 							Recording r = new EventRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 									.isSelected(), rIs);
 							repository.addRecording(r);
-							if (((NewRecordingList) newRecordingList).model != null) {
+							if (((RecordingList) newRecordingList).model != null) {
 								logger.info("RecordingEditor - ok 1");
-								((NewRecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(),
+								((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(),
 										chckbxActive.isSelected() });
-								((NewRecordingList) newRecordingList).model.fireTableDataChanged();
-								((NewRecordingList) newRecordingList).reloadTable();
+								((RecordingList) newRecordingList).model.fireTableDataChanged();
+								((RecordingList) newRecordingList).reloadTable();
 							}
 						} else {
 							((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							// newRecordingList.model.updateRow(myTableModel2.,
 							// obj);
-							((NewRecordingList) newRecordingList).model.fireTableDataChanged();
-							((NewRecordingList) newRecordingList).reloadTable();
+							((RecordingList) newRecordingList).model.fireTableDataChanged();
+							((RecordingList) newRecordingList).reloadTable();
 							logger.info("RecordingEditor - ok 2");
-							// myTableModel2.updateRow(NewRecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),new
+							// myTableModel2.updateRow(RecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),new
 							// Object[] {
 							// txtName.getText(),txtRegularExp.getText(),chckbxActive.isSelected()
 							// });

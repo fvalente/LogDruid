@@ -71,11 +71,11 @@ import org.apache.log4j.Logger;
 
 import javax.swing.JSplitPane;
 
-public class NewRecordingList extends JPanel {
+public class RecordingList extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	public static JTable table;
 	JPanel jPanelDetail;
-	private NewRecordingList thiis = this;
+	private RecordingList thiis = this;
 	boolean DEBUG = false;
 	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
@@ -94,7 +94,7 @@ public class NewRecordingList extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public NewRecordingList(final Repository rep) {
+	public RecordingList(final Repository rep) {
 		repository = rep;
 		model = new MyTableModel2(data, header);
 
@@ -160,7 +160,7 @@ public class NewRecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
 				Recording re = new MetadataRecording("name", "regex", "example line", "", true, null);
-				recEditor = new MetadataRecordingEditor((logdruid.ui.NewRecordingList.MyTableModel2) table.getModel(), repository, "the line", "regex",
+				recEditor = new MetadataRecordingEditor((logdruid.ui.RecordingList.MyTableModel2) table.getModel(), repository, "the line", "regex",
 						(MetadataRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);

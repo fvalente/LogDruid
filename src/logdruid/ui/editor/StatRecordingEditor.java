@@ -52,8 +52,8 @@ import logdruid.data.Repository;
 import logdruid.data.record.Recording;
 import logdruid.data.record.StatRecording;
 import logdruid.ui.DateSelector;
-import logdruid.ui.NewRecordingList;
-import logdruid.ui.NewRecordingList.MyTableModel2;
+import logdruid.ui.RecordingList;
+import logdruid.ui.RecordingList.MyTableModel2;
 import logdruid.ui.table.StatRecordingEditorTable;
 import logdruid.util.DataMiner;
 
@@ -288,7 +288,7 @@ public class StatRecordingEditor extends JPanel {
 							((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							logger.info("RecordingEditor - ok 2");
-							// myTableModel2.updateRow(NewRecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),
+							// myTableModel2.updateRow(RecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),
 							// new Object[] { txtName.getText(),
 							// txtRegularExp.getText(),
 							// chckbxActive.isSelected() });

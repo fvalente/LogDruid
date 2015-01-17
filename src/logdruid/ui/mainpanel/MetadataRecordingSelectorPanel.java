@@ -54,8 +54,8 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
-import logdruid.ui.NewRecordingList;
-import logdruid.ui.NewRecordingList.MyTableModel2;
+import logdruid.ui.RecordingList;
+import logdruid.ui.RecordingList.MyTableModel2;
 import logdruid.ui.editor.EventRecordingEditor;
 import logdruid.ui.editor.MetadataRecordingEditor;
 import logdruid.ui.editor.StatRecordingEditor;
@@ -156,7 +156,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	private JPanel getEditor(Recording rec) {
 		JPanel editorPanel = null;
 		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor((logdruid.ui.NewRecordingList.MyTableModel2) table.getModel(), repository, rec.getExampleLine(),
+			editorPanel = new StatRecordingEditor((logdruid.ui.RecordingList.MyTableModel2) table.getModel(), repository, rec.getExampleLine(),
 					rec.getRegexp(), ((StatRecording) rec));
 		} else if (rec.getClass() == MetadataRecording.class) {
 			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
