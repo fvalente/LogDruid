@@ -40,10 +40,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.text.ParseException;
+
 import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,6 +70,7 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
+
 import javax.swing.JSplitPane;
 
 public class MetadataRecordingSelectorPanel extends JPanel {
@@ -79,7 +83,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	static Matcher m;
 	static ArrayList records = null;
 	private String[] header = { "name", "regexp", "type", "active" };
-	private ArrayList<Object[]> data = new ArrayList<Object[]>();
+	private Vector<Object[]> data = new Vector<Object[]>();
 	private Repository repository = null;
 	private JPanel recEditor = null;
 	public logdruid.ui.mainpanel.MetadataRecordingSelectorPanel.MyTableModel model;
@@ -90,8 +94,17 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	 */
 	public MetadataRecordingSelectorPanel(Repository rep, Source src) {
 		repository = rep;
-		model = new logdruid.ui.mainpanel.MetadataRecordingSelectorPanel.MyTableModel(data, header);
 		source = src;
+		records = rep.getRecordings(MetadataRecording.class);
+		// Collections.sort(records);
+		Iterator it = records.iterator();
+		while (it.hasNext()) {
+			Recording record = (Recording) it.next();
+				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), src.isActiveRecordingOnSource(record) });
+			}
+		
+		model = new logdruid.ui.mainpanel.MetadataRecordingSelectorPanel.MyTableModel(data, header);
+
 		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
 		setLayout(new BorderLayout(0, 0));
 
@@ -207,33 +220,18 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 			column = theTable.getColumnModel().getColumn(i);
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
-
 			cellWidth = comp.getPreferredSize().width;
-
-			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
-			}
-
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 		}
 	}
 
-	/*
-	 * public void Remove() {
-	 * data.remove(((table.getSelectedRow()!=-1)?table.convertRowIndexToModel
-	 * (table.getSelectedRow()):-1));
-	 * repository.deleteRecording(((table.getSelectedRow
-	 * ()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1));
-	 * table.repaint(); }
-	 */
-
 	class MyTableModel extends AbstractTableModel {
 		private String[] header;
-		private ArrayList<Object[]> data;
+		private Vector<Object[]> data;
 
-		public MyTableModel(ArrayList<Object[]> data, String[] header) {
+		public MyTableModel(Vector<Object[]> data2, String[] header) {
 			this.header = header;
-			this.data = data;
+			this.data = data2;
 		}
 
 		@Override
@@ -251,32 +249,33 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return data.size();
+			return repository.getRecordings(MetadataRecording.class).size();
 		}
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			if (source != null) {
-				// logger.info("source not null");
-			}
-			if (column == 3 && source != null) {
+			if (column == 0 ) {
+				return repository.getRecording(MetadataRecording.class,row).getName();
+			} else if (column == 1 ) {
+				return repository.getRecording(MetadataRecording.class,row).getRegexp();
+			} else if (column == 2 ) {
+				return repository.getRecording(MetadataRecording.class,row).getType();
+			} else if (column == 3 ) {
 				logger.info("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row)).getName());
 				logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));
 				return source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row));
-			} else {
-				// logger.info("source null");
-				return data.get(row)[column];
 			}
+			else return 0;
 		}
 
 		public void addRow(Object[] obj) {
 			data.add(obj);
-			table.repaint();
+	//		table.repaint();
 		}
 
 		public void updateRow(int rowId, Object[] obj) {
 			data.set(rowId, obj);
-			table.repaint();
+	//		table.repaint();
 		}
 
 		@Override

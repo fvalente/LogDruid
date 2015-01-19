@@ -156,9 +156,11 @@ public String getPreference (String key){
 		}
 		if (!preferences.containsKey("timings")){
 		preferences.put("timings", "false");}
+		
 		if (!preferences.containsKey("stats")){
-			logger.info("stats set to false");
+			logger.info("stats set to true");
 		preferences.put("stats", "true");}
+		
 		if (!preferences.containsKey("chartSize")){
 		preferences.put("chartSize", "350");}
 		return preferences;

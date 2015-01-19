@@ -90,8 +90,18 @@ public class StatRecordingSelectorPanel extends JPanel {
 	 */
 	public StatRecordingSelectorPanel(final Repository rep, Source src) {
 		repository = rep;
-		model = new logdruid.ui.mainpanel.StatRecordingSelectorPanel.MyTableModel(data, header);
 		source = src;
+		records = rep.getRecordings(StatRecording.class);
+		// Collections.sort(records);
+		Iterator it = records.iterator();
+		while (it.hasNext()) {
+			Recording record = (Recording) it.next();
+				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), src.isActiveRecordingOnSource(record) });
+			}
+		
+		
+		model = new logdruid.ui.mainpanel.StatRecordingSelectorPanel.MyTableModel(data, header);
+
 		StatRecordingSelectorPanel thiis = this;
 		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
 		setLayout(new BorderLayout(0, 0));
@@ -108,7 +118,6 @@ public class StatRecordingSelectorPanel extends JPanel {
 		table.setAutoCreateRowSorter(true);
 		// Set up column sizes.
 		initColumnSizes(table);
-		reloadTable();
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -121,14 +130,9 @@ public class StatRecordingSelectorPanel extends JPanel {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
-				// persist repository
-				// display selected row
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-
 				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
-
 					if (jPanelDetail != null) {
 						logger.info("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
@@ -136,32 +140,22 @@ public class StatRecordingSelectorPanel extends JPanel {
 						if (recEditor != null) {
 							jPanelDetail.add(recEditor, BorderLayout.CENTER);
 						}
-						reloadTable();
 						jPanelDetail.revalidate();
 					}
 				}
 			}
 		});
 		if (repository.getRecordings(StatRecording.class).size() > 0) {
-			recEditor = getEditor(repository.getRecording(0));
+			recEditor = getEditor(repository.getRecording(StatRecording.class,0));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
-		reloadTable();
-		// jPanelDetail.revalidate();
-
 	}
 
 	private JPanel getEditor(Recording rec) {
-		JPanel editorPanel = null;
-		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
-		} else if (rec.getClass() == MetadataRecording.class) {
-			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
-		}
-		return editorPanel;
+		return new StatRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
 	}
-
+/*
 	public void reloadTable() {
 		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		records = repository.getRecordings(StatRecording.class);
@@ -187,27 +181,19 @@ public class StatRecordingSelectorPanel extends JPanel {
 		this.revalidate();
 
 	}
-
+*/
 	private void initColumnSizes(JTable theTable) {
-		MyTableModel model = (MyTableModel) theTable.getModel();
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
 		int cellWidth = 0;
-		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
 		for (int i = 0; i < 4; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
-
 			cellWidth = comp.getPreferredSize().width;
-
-			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
-			}
-
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 		}
 	}
@@ -236,32 +222,33 @@ public class StatRecordingSelectorPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return data.size();
+			return repository.getRecordings(StatRecording.class).size();
 		}
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			if (source != null) {
-				// logger.info("source not null");
-			}
-			if (column == 3 && source != null) {
+			if (column == 0 ) {
+				return repository.getRecording(StatRecording.class,row).getName();
+			} else if (column == 1 ) {
+				return repository.getRecording(StatRecording.class,row).getRegexp();
+			} else if (column == 2 ) {
+				return repository.getRecording(StatRecording.class,row).getType();
+			} else if (column == 3 ) {
 				logger.info("getvalueat name" + ((StatRecording) repository.getRecording(StatRecording.class, row)).getName());
 				logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(StatRecording.class, row)));
 				return source.isActiveRecordingOnSource(repository.getRecording(StatRecording.class, row));
-			} else {
-				// logger.info("source null");
-				return data.get(row)[column];
 			}
+			else return 0;
 		}
 
 		public void addRow(Object[] obj) {
 			data.add(obj);
-			table.repaint();
+	//		table.repaint();
 		}
 
 		public void updateRow(int rowId, Object[] obj) {
 			data.set(rowId, obj);
-			table.repaint();
+//			table.repaint();
 		}
 
 		@Override
@@ -273,8 +260,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
-
-				data.get(row)[column] = value;
+				((Object[]) data.get(row))[column] = value;
 				fireTableCellUpdated(row, column);
 			}
 			table.repaint();

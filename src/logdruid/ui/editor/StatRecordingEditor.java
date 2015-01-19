@@ -283,6 +283,7 @@ public class StatRecordingEditor extends JPanel {
 							if (myTableModel2 != null) {
 								logger.info("RecordingEditor - ok 1");
 								myTableModel2.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
+								 myTableModel2.fireTableDataChanged();
 							}
 						} else {
 							((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
@@ -292,7 +293,7 @@ public class StatRecordingEditor extends JPanel {
 							// new Object[] { txtName.getText(),
 							// txtRegularExp.getText(),
 							// chckbxActive.isSelected() });
-							// myTableModel2.fireTableDataChanged();
+							 myTableModel2.fireTableDataChanged();
 						}
 
 						if (contentPanel.getParent().getParent().getParent().getParent().getClass().equals(JDialog.class)) {

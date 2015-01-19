@@ -278,17 +278,18 @@ public class MetadataRecordingEditor extends JPanel {
 							if (myTableModel2 != null) {
 								logger.info("RecordingEditor - ok 1");
 								myTableModel2.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
+								myTableModel2.fireTableDataChanged();
 							}
 						} else {
 							((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							logger.info("RecordingEditor - ok 2");
 							if (myTableModel2 != null) {
-								myTableModel2.updateRow(
+						/*		myTableModel2.updateRow(
 										((RecordingList.table.getSelectedRow() != -1) ? RecordingList.table.convertRowIndexToModel(RecordingList.table
 												.getSelectedRow()) : -1),
-										new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
-								// myTableModel2.fireTableDataChanged();
+										new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });*/
+								 myTableModel2.fireTableDataChanged();
 							}
 						}
 

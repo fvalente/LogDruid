@@ -342,21 +342,12 @@ public class EventRecordingEditor extends JPanel {
 								((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(),
 										chckbxActive.isSelected() });
 								((RecordingList) newRecordingList).model.fireTableDataChanged();
-								((RecordingList) newRecordingList).reloadTable();
 							}
 						} else {
 							((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
-							// newRecordingList.model.updateRow(myTableModel2.,
-							// obj);
 							((RecordingList) newRecordingList).model.fireTableDataChanged();
-							((RecordingList) newRecordingList).reloadTable();
 							logger.info("RecordingEditor - ok 2");
-							// myTableModel2.updateRow(RecordingList.((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1),new
-							// Object[] {
-							// txtName.getText(),txtRegularExp.getText(),chckbxActive.isSelected()
-							// });
-							// myTableModel2.fireTableDataChanged();
 						}
 
 						if (contentPanel.getParent().getParent().getParent().getParent().getClass().equals(JDialog.class)) {

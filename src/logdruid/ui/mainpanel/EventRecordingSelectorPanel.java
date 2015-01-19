@@ -40,13 +40,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.text.ParseException;
+
 import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import logdruid.data.DataVault;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.record.EventRecording;
@@ -67,6 +71,7 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
+
 import javax.swing.JSplitPane;
 
 public class EventRecordingSelectorPanel extends JPanel {
@@ -80,7 +85,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 	static Matcher m;
 	static ArrayList records = null;
 	private String[] header = { "name", "regexp", "type", "active" };
-	private ArrayList<Object[]> data = new ArrayList<Object[]>();
+	private Vector<Object[]> data = new Vector<Object[]>();
 	private Repository repository = null;
 	private JPanel recEditor = null;
 	public logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel model;
@@ -91,10 +96,17 @@ public class EventRecordingSelectorPanel extends JPanel {
 	 */
 	public EventRecordingSelectorPanel(final Repository rep, Source src) {
 		repository = rep;
-		model = new logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel(data, header);
 		source = src;
+		records = rep.getRecordings(EventRecording.class);
+		// Collections.sort(records);
+		Iterator it = records.iterator();
+		while (it.hasNext()) {
+			Recording record = (Recording) it.next();
+				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), src.isActiveRecordingOnSource(record) });
+			}
+		
+		model = new logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel(data, header);
 		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
-
 		JPanel panel_1 = new JPanel();
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
@@ -114,7 +126,6 @@ public class EventRecordingSelectorPanel extends JPanel {
 		// Set up column sizes.
 		initColumnSizes(table);
 
-		reloadTable();
 		setLayout(new BorderLayout(0, 0));
 
 		JSplitPane splitPane = new JSplitPane();
@@ -133,14 +144,9 @@ public class EventRecordingSelectorPanel extends JPanel {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
-				// persist repository
-				// display selected row
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-
 				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
-
 					if (jPanelDetail != null) {
 						logger.info("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
@@ -148,7 +154,6 @@ public class EventRecordingSelectorPanel extends JPanel {
 						if (recEditor != null) {
 							jPanelDetail.add(recEditor, BorderLayout.CENTER);
 						}
-						reloadTable();
 						jPanelDetail.revalidate();
 					}
 				}
@@ -159,23 +164,12 @@ public class EventRecordingSelectorPanel extends JPanel {
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
-		reloadTable();
-		// jPanelDetail.revalidate();
-
 	}
 
 	private JPanel getEditor(Recording rec) {
-		JPanel editorPanel = null;
-		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
-		} else if (rec.getClass() == MetadataRecording.class) {
-			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
-		} else if (rec.getClass() == EventRecording.class) {
-			editorPanel = new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
-		}
-		return editorPanel;
+			return new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 	}
-
+/*
 	public void reloadTable() {
 		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		records = repository.getRecordings(EventRecording.class);
@@ -205,95 +199,36 @@ public class EventRecordingSelectorPanel extends JPanel {
 		this.revalidate();
 
 	}
-
+*/
 	private void initColumnSizes(JTable theTable) {
-		logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel model = (logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel) theTable
-				.getModel();
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
 		int cellWidth = 0;
-		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
 		for (int i = 0; i < 4; i++) {
 			column = theTable.getColumnModel().getColumn(i);
-
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
-
-			/*
-			 * comp = table.getDefaultRenderer(model.getColumnClass(i)).
-			 * getTableCellRendererComponent( table, longValues[i], false,
-			 * false, 0, i);
-			 */
 			cellWidth = comp.getPreferredSize().width;
-
-			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
-			}
-
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 		}
 	}
-
-	/**
-	 * Create the GUI and show it. For thread safety, this method should be
-	 * invoked from the event-dispatching thread.
-	 * 
-	 * private static void createAndShowGUI() { // Create and set up the window.
-	 * JFrame frame = new JFrame("RecordingEditorTable");
-	 * frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	 * 
-	 * // Create and set up the content pane. RecordingList newContentPane = new
-	 * RecordingList(null, repository); newContentPane.setOpaque(true); //
-	 * content panes must be opaque frame.setContentPane(newContentPane);
-	 * 
-	 * // Display the window. frame.pack(); frame.setVisible(true); }
-	 */
-
-	/*
-	 * public ArrayList<RecordingItem> getRecordingItems() {
-	 * ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>(); for
-	 * (int i = 0; i < data.size(); i++) { // model.getRowCount()
-	 * toReturn.add(new RecordingItem((String) model.getValueAt(i, 0),(String)
-	 * model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (Boolean)
-	 * model.getValueAt(i, 3)); } return toReturn; }
-	 */
-
-	/*
-	 * public void Add() { data.add(new Object[] { " ", "", "long", "",
-	 * Boolean.TRUE, "" }); table.repaint(); }
-	 */
-
+	
 	public void Remove() {
 		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		repository.deleteRecording(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
 
-	/*
-	 * private ArrayList<RecordingItem> findRecordItems(String theLine) {
-	 * FastDateFormat FastDateFormat = new FastDateFormat(
-	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
-	 * ArrayList<RecordingItem> rI = new ArrayList<RecordingItem>(); for (int i
-	 * = 0; i < rIString.length; i++) { if (i == 0) { String[] splitted =
-	 * rIString[i].split(": "); String date = splitted[0]; try {
-	 * FastDateFormat.parse(date); } catch (ParseException e) { // TODO
-	 * Auto-generated catch block e.printStackTrace(); } } else { if
-	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
-	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
-	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
-	 * return rI; }
-	 */
-
 	class MyTableModel extends AbstractTableModel {
 		private String[] header;
-		private ArrayList<Object[]> data;
+		private Vector<Object[]> data;
 
-		public MyTableModel(ArrayList<Object[]> data, String[] header) {
+		public MyTableModel(Vector<Object[]> data2, String[] header) {
 			this.header = header;
-			this.data = data;
+			this.data = data2;
 		}
 
 		@Override
@@ -311,32 +246,33 @@ public class EventRecordingSelectorPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return data.size();
+			return repository.getRecordings(EventRecording.class).size();
 		}
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			if (source != null) {
-				// logger.info("source not null");
-			}
-			if (column == 3 && source != null) {
+			if (column == 0 ) {
+				return repository.getRecording(EventRecording.class,row).getName();
+			} else if (column == 1 ) {
+				return repository.getRecording(EventRecording.class,row).getRegexp();
+			} else if (column == 2 ) {
+				return repository.getRecording(EventRecording.class,row).getType();
+			} else if (column == 3 ) {
 				logger.info("getvalueat name" + ((EventRecording) repository.getRecording(EventRecording.class, row)).getName());
 				logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(EventRecording.class, row)));
 				return source.isActiveRecordingOnSource(repository.getRecording(EventRecording.class, row));
-			} else {
-				// logger.info("source null");
-				return data.get(row)[column];
 			}
+			else return 0;
 		}
 
 		public void addRow(Object[] obj) {
 			data.add(obj);
-			table.repaint();
+			//table.repaint();
 		}
 
 		public void updateRow(int rowId, Object[] obj) {
 			data.set(rowId, obj);
-			table.repaint();
+			//table.repaint();
 		}
 
 		@Override
@@ -348,9 +284,8 @@ public class EventRecordingSelectorPanel extends JPanel {
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
-
-				data.get(row)[column] = value;
-				fireTableCellUpdated(row, column);
+				((Object[]) data.get(row))[column] = value;
+					fireTableCellUpdated(row, column);
 			}
 			table.repaint();
 		}
@@ -380,43 +315,8 @@ public class EventRecordingSelectorPanel extends JPanel {
 				return false;
 			}
 		}
-
-		/*
-		 * Don't need to implement this method unless your table's data can
-		 * change.
-		 */
-
-		/*
-		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " + value +
-		 * " (an instance of " + value.getClass() + ")"); } if(4 == col) {}
-		 * 
-		 * }
-		 */
-		/*
-		 * data[row][col] = value; fireTableCellUpdated(row, col);
-		 * 
-		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
-		 * 
-		 * private void printDebugData() { int numRows = getRowCount(); int
-		 * numCols = getColumnCount();
-		 * 
-		 * for (int i=0; i < numRows; i++) { System.out.print("    row " + i +
-		 * ":"); for (int j=0; j < numCols; j++) { System.out.print("  " +
-		 * data[i][j]); } logger.info(); }
-		 * logger.info("--------------------------"); }
-		 */
 	}
 
-	/*
-	 * public ArrayList<RecordingItem> getRecordingItems() {
-	 * ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>(); for
-	 * (int i = 0; i < data.size(); i++) { // model.getRowCount()
-	 * toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String)
-	 * model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
-	 * .getValueAt(i, 3), (Boolean) model.getValueAt(i, 4), (String)
-	 * model.getValueAt(i, 5))); } return toReturn; }
-	 */
 
 	public void Add() {
 		data.add(new Object[] { "", ".*", "long", Boolean.FALSE });
