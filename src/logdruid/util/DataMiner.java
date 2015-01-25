@@ -470,9 +470,9 @@ public class DataMiner {
 			while ((line = buf1st.readLine()) != null) {
 				// Iterator patternIt = patternArrayList.iterator();
 				// check against one Recording pattern at a tim
-				if (logger.isDebugEnabled()) {
-					logger.debug("line " + line);
-				}
+				//if (logger.isDebugEnabled()) {
+				//	logger.debug("line " + line);
+				//}
 				Iterator recMatchIte = recMatch.entrySet().iterator();
 				while (recMatchIte.hasNext()) {
 					if (timings) {

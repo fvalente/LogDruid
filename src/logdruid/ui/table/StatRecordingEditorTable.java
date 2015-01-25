@@ -135,7 +135,7 @@ public class StatRecordingEditorTable extends JPanel {
 	public void FixValues() {
 		String patternString = "";
 		Matcher matcher;
-
+		PatternCache patternCache=new PatternCache();
 		Iterator it = data.iterator();
 		Object[] obj;
 
@@ -158,7 +158,7 @@ public class StatRecordingEditorTable extends JPanel {
 		try {
 			logger.info("theLine: " + examplePane.getText());
 			logger.info("patternString: " + patternString);
-			matcher = PatternCache.getPattern(patternString).matcher(examplePane.getText());
+			matcher = patternCache.getPattern(patternString).matcher(examplePane.getText());
 			Highlighter h = examplePane.getHighlighter();
 			h.removeAllHighlights();
 			int currIndex = 0;

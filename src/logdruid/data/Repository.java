@@ -296,11 +296,7 @@ public String getPreference (String key){
 		int cnt = 0;
 		while (dateFormatIterator.hasNext()) {
 			DateFormat df = (DateFormat) dateFormatIterator.next();
-			if (logger.isEnabledFor(Level.TRACE))
-				logger.trace("getDateFormat " + df.getId());
 			if (df.getId() == id) {
-				if (logger.isEnabledFor(Level.TRACE))
-					logger.trace("getDateFormat found");
 				return df;
 			}
 		}
