@@ -48,6 +48,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
@@ -304,7 +305,7 @@ public final class GraphPanel extends JPanel {
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
 								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
 								XYPlot plot1 = chart.getXYPlot();
-
+						//		LogarithmicAxis axis4 = new LogarithmicAxis(me.getKey().toString());
 								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
 								axis4.setAutoRange(true);
 								axis4.setAxisLineVisible(true);
@@ -366,7 +367,7 @@ public final class GraphPanel extends JPanel {
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
 								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
 								XYPlot plot2 = chart.getXYPlot();
-
+							//	LogarithmicAxis axis4 = new LogarithmicAxis(me.getKey().toString());
 								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
 								axis4.setAutoRange(true);
 								// axis4.setInverted(true);

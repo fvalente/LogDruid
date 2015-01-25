@@ -70,6 +70,7 @@ public class DataMiner {
 	// static DataMiner miner = new DataMiner();
 
 	public static ChartData gatherSourceData(final Repository repo) {
+		PatternCache patternCache=new PatternCache();
 		ChartData cd = new ChartData();
 		List<File> listOfFiles = null;
 		// final DataMiner miner = new DataMiner();
@@ -102,7 +103,7 @@ public class DataMiner {
 					if (listOfFiles.get(i).isFile()) {
 						;
 						String s1 = source.getSourcePattern();
-						Matcher matcher = PatternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
+						Matcher matcher = patternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
 						if (logger.isDebugEnabled()) {
 							logger.debug("matching file: " + listOfFiles.get(i).getName() + " with pattern: " + s1);
 						}
@@ -145,6 +146,7 @@ public class DataMiner {
 	}
 
 	public static MineResultSet gatherMineResultSet(final Repository repo) {
+		PatternCache patternCache=new PatternCache();
 		ChartData cd = new ChartData();
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
@@ -176,7 +178,7 @@ public class DataMiner {
 				for (int i = 0; i < listOfFiles.size(); i++) {
 					if (listOfFiles.get(i).isFile()) {
 						String s1 = source.getSourcePattern();
-						Matcher matcher = PatternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
+						Matcher matcher = patternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
 						if (logger.isDebugEnabled()) {
 							logger.debug("matching file: " + listOfFiles.get(i).getName() + " with pattern: " + s1);
 						}
@@ -274,7 +276,6 @@ public class DataMiner {
 				mineResultSet.mineResults.get(mineRes.getSourceID()).put(mineRes.getSourceID() + mineRes.getGroup(), mineRes);
 			}
 		}
-		logger.debug(PatternCache.getSize());
 		return mineResultSet;
 
 	}
@@ -425,6 +426,7 @@ public class DataMiner {
 	// handle gathering for a single file
 	public static FileMineResult fileMine(File file, Repository repo, Source source, boolean stats, boolean timings) {
 		ExtendedTimeSeries ts = null;
+		PatternCache patternCache=new PatternCache();
 		Date startDate = null;
 		Date endDate = null;
 
@@ -473,10 +475,12 @@ public class DataMiner {
 				}
 				Iterator recMatchIte = recMatch.entrySet().iterator();
 				while (recMatchIte.hasNext()) {
-					recordingMatchStart = ManagementFactory.getThreadMXBean().getThreadCpuTime(Thread.currentThread().getId());
+					if (timings) {
+						recordingMatchStart = ManagementFactory.getThreadMXBean().getThreadCpuTime(Thread.currentThread().getId());
+					}
 					Map.Entry me = (Map.Entry) recMatchIte.next();
 					Recording rec = (Recording) me.getKey();
-					matcher = PatternCache.getPattern((String) (rec.getRegexp())).matcher(line);
+					matcher = patternCache.getPattern((String) (rec.getRegexp())).matcher(line);
 					if (matcher.find()) {
 						if (stats) {
 							if (rec.getClass().equals(StatRecording.class)) {
@@ -488,7 +492,7 @@ public class DataMiner {
 						// logger.info("1**** matched: " + line);
 						ArrayList recordingItem = ((Recording) rec).getRecordingItem();
 						int cnt = 0;
-						matcher2 = PatternCache.getPattern((String) me.getValue()).matcher(line);
+						matcher2 = patternCache.getPattern((String) me.getValue()).matcher(line);
 						successMatch = false;
 						if (matcher2.find()) {
 							if (stats) {
@@ -986,6 +990,7 @@ public class DataMiner {
 	 * @param repo
 	 */
 	public static Map<String, ArrayList<String>> getSourceFileGroup(ArrayList<String> sourceFiles, Source src, Repository repo) {
+		PatternCache patternCache=new PatternCache();
 		String patternString = "";
 		Map<String, ArrayList<String>> sourceFileGroup = new HashMap<String, ArrayList<String>>();
 		ArrayList<String> groupedFiles = new ArrayList<String>();
@@ -1031,7 +1036,7 @@ public class DataMiner {
 							// Pattern pattern = Pattern.compile(patternString +
 							// ".*");
 							// Matcher matcher = pattern.matcher(fileName);
-							matcher = PatternCache.getPattern(patternString + ".*").matcher(fileName);
+							matcher = patternCache.getPattern(patternString + ".*").matcher(fileName);
 
 							if (matcher.find()) {
 								if (logger.isDebugEnabled())
@@ -1126,6 +1131,7 @@ public class DataMiner {
 	}
 
 	public static ArrayList<Map> exportData(Repository repo) {
+		PatternCache patternCache=new PatternCache();
 		Matcher matcher = null;
 		ArrayList<Map> expVec = new ArrayList<Map>();
 		File folder = new File(repo.getBaseSourcePath());
@@ -1158,7 +1164,7 @@ public class DataMiner {
 						// logger.info("File " +
 						// listOfFiles.get(i).getName());
 						String s1 = r.getSourcePattern();
-						matcher = PatternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
+						matcher = patternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
 						if (matcher.find()) {
 							try {
 								sourceFiles.add(new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI())
