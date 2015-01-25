@@ -207,7 +207,6 @@ public final class GraphPanel extends JPanel {
 			Set<String> mrss = mrArrayList.keySet();
 			mineResultGroup.addAll(mrss);
 			Collections.sort(mineResultGroup, new AlphanumComparator());
-			Iterator mineResultGroupIterator = mineResultGroup.iterator();
 
 			// Collections.sort(mrArrayList);
 			Iterator mrArrayListIterator = mineResultGroup.iterator();
@@ -226,7 +225,14 @@ public final class GraphPanel extends JPanel {
 				logger.debug("mineResultSet (Date)jsp2.getValue(): " + (Date) endDateJSPinner.getValue());
 				if (mr.getStartDate() != null && mr.getEndDate() != null) {
 					if ((mr.getStartDate().before((Date) endDateJSPinner.getValue())) && (mr.getEndDate().after((Date) startDateJSpinner.getValue()))) {
-						Iterator statMapIterator = statMap.entrySet().iterator();
+						
+						ArrayList<String> mineResultGroup2 = new ArrayList<String>();
+						Set<String> mrss2 = statMap.keySet();
+						mineResultGroup2.addAll(mrss2);
+						Collections.sort(mineResultGroup2, new AlphanumComparator());
+						Iterator statMapIterator = mineResultGroup2.iterator();
+						
+		//				Iterator statMapIterator = statMap.entrySet().iterator();
 						if (!statMap.entrySet().isEmpty() || !eventMap.entrySet().isEmpty()) {
 							JPanel checkboxPanel = new JPanel(new WrapLayout());
 
@@ -294,25 +300,26 @@ public final class GraphPanel extends JPanel {
 							while (statMapIterator.hasNext()) {
 
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
-								Map.Entry me = (Map.Entry) statMapIterator.next();
-								ExtendedTimeSeries ts = (ExtendedTimeSeries) me.getValue();
+								String me = (String) statMapIterator.next();
+								
+								ExtendedTimeSeries ts = (ExtendedTimeSeries) statMap.get(me);
 								// logger.info(((TimeSeries)
 								// me.getValue()).getMaxY());
-								if (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY() > 0)
+								if (((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMaxY() > 0)
 									dataset.addSeries(ts.getTimeSeries());
-								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
-										+ ((ExtendedTimeSeries) me.getValue()).getTimeSeries().getItemCount());
-								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
-								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
+								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me + " nb records: "
+										+ ((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getItemCount());
+								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMaxY()));
+								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMinY()));
 								XYPlot plot1 = chart.getXYPlot();
 						//		LogarithmicAxis axis4 = new LogarithmicAxis(me.getKey().toString());
-								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
+								NumberAxis axis4 = new NumberAxis(me.toString());
 								axis4.setAutoRange(true);
 								axis4.setAxisLineVisible(true);
 								axis4.setAutoRangeIncludesZero(false);
 								plot1.setDomainCrosshairVisible(true);
 								plot1.setRangeCrosshairVisible(true);
-								axis4.setRange(new Range(((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY(), ((ExtendedTimeSeries) me.getValue())
+								axis4.setRange(new Range(((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMinY(), ((ExtendedTimeSeries) statMap.get(me))
 										.getTimeSeries().getMaxY()));
 								axis4.setLabelPaint(colors[count]);
 								axis4.setTickLabelPaint(colors[count]);
@@ -327,7 +334,7 @@ public final class GraphPanel extends JPanel {
 								final XYAreaRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
 																						// also
 																						// nice
-								if ((((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY() - ((ExtendedTimeSeries) me.getValue()).getTimeSeries()
+								if ((((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMaxY() - ((ExtendedTimeSeries) statMap.get(me)).getTimeSeries()
 										.getMinY()) > 0) {
 
 									// renderer.setToolTipGenerator(new
@@ -340,10 +347,10 @@ public final class GraphPanel extends JPanel {
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								plot1.setRenderer(count, renderer);
 								int hits = 0; // ts.getStat()[1]
-								if (((ExtendedTimeSeries) me.getValue()).getStat() != null) {
-									hits = ((ExtendedTimeSeries) me.getValue()).getStat()[1];
+								if (((ExtendedTimeSeries) statMap.get(me)).getStat() != null) {
+									hits = ((ExtendedTimeSeries) statMap.get(me)).getStat()[1];
 								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(renderer, me.getKey().toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(renderer, me.toString() + "(" + hits + ")", 0));
 								Boolean selected = true;
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
