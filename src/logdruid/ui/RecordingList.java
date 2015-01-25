@@ -45,6 +45,7 @@ import java.text.ParseException;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -63,6 +64,8 @@ import logdruid.ui.editor.MetadataRecordingEditor;
 import logdruid.ui.editor.StatRecordingEditor;
 import logdruid.util.DataMiner;
 
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
 import javax.swing.JComboBox;
@@ -130,7 +133,7 @@ public class RecordingList extends JPanel {
 		panel_1.setLayout(new BorderLayout(0, 0));
 
 		table = new JTable(model);
-		JScrollPane scrollPane = new JScrollPane(table);
+		JScrollPane scrollPane = new JScrollPane(table);int column;
 		panel_1.add(scrollPane);
 
 		table.setPreferredScrollableViewportSize(new Dimension(0, 150));
@@ -139,6 +142,12 @@ public class RecordingList extends JPanel {
 		// Set up column sizes.
 		initColumnSizes(table);
 		table.setAutoCreateRowSorter(true);
+	//	RowSorter sorter = table.getRowSorter();
+//		sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+		if (model.getRowCount()>0){
+			table.getRowSorter().toggleSortOrder(0);
+		table.getRowSorter().toggleSortOrder(2);
+		}
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
