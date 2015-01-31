@@ -1,10 +1,13 @@
 LogDruid: Chart statistics and events retrieved in logs files through configurable regular expressions
 
-![Alt text](logdruid-charts.png?raw=true "screenshot")
+![Alt text](doc/LD-charts.png?raw=true "screenshot")
 
 LogDruid is an application to gather, aggregate and chart information originating from any log files in a given folder.
 Templates can be easily created to gather information in any type of log files.
 It uses regular expressions that are constructed graphically and can be verified in the application against data samples.
+
+![Alt text](doc/LD-regexp.png?raw=true "screenshot")
+
 This facility is at the core of the application and is used both to group files depending on any path/filename criteria (such as PID) and to mine data items from the files.
 The information is aggregated for each groups and displayed in time series chart. it is possible to toggle the display of any recordings and to zoom or go to a specific time period for all the charts at the same time.
 Once configured for a specific type of logs set, the gathering and display of the information can be done in one click. The application is multi-threaded at its core and can handle quickly significant amounts of data.   
