@@ -36,15 +36,17 @@ public class Repository {
 	private ArrayList<DateFormat> dates;
 	private boolean recursiveMode;
 	private boolean onlyMatches;
-	private boolean stats; //unused
-	private boolean timings; //unused
-	private HashMap<String,String> preferences;
+	private boolean stats; // unused
+	private boolean timings; // unused
+	private HashMap<String, String> preferences;
 
 	public Repository() {
 		preferences = new HashMap<String, String>();
 		preferences.put("timings", "false");
 		preferences.put("stats", "true");
 		preferences.put("chartSize", "350");
+		preferences.put("GroupThreadPool", "4");
+		preferences.put("FileThreadPool", "8");
 		recordings = new ArrayList<Recording>();
 		dates = new ArrayList<DateFormat>();
 		sources = new ArrayList<Source>();
@@ -55,12 +57,14 @@ public class Repository {
 	public boolean isRecursiveMode() {
 		return recursiveMode;
 	}
-public void setPreference (String key, String value){
-	preferences.put(key, value);
-}
-public String getPreference (String key){
-	return getPreferences().get(key);
-}
+
+	public void setPreference(String key, String value) {
+		preferences.put(key, value);
+	}
+
+	public String getPreference(String key) {
+		return getPreferences().get(key);
+	}
 
 	public void setRecursiveMode(boolean recursiveMode) {
 		// logger.info("recursive mode is :"+recursiveMode);
@@ -150,19 +154,30 @@ public String getPreference (String key){
 	}
 
 	public HashMap<String, String> getPreferences() {
-		if (preferences==null) {
-			preferences=new HashMap<String, String>();
+		if (preferences == null) {
+			preferences = new HashMap<String, String>();
 			logger.info("new preferences");
 		}
-		if (!preferences.containsKey("timings")){
-		preferences.put("timings", "false");}
-		
-		if (!preferences.containsKey("stats")){
+		if (!preferences.containsKey("timings")) {
+			preferences.put("timings", "false");
+		}
+
+		if (!preferences.containsKey("stats")) {
 			logger.info("stats set to true");
-		preferences.put("stats", "true");}
-		
-		if (!preferences.containsKey("chartSize")){
-		preferences.put("chartSize", "350");}
+			preferences.put("stats", "true");
+		}
+
+		if (!preferences.containsKey("chartSize")) {
+			preferences.put("chartSize", "350");
+		}
+
+		if (!preferences.containsKey("GroupThreadPool")) {
+			preferences.put("GroupThreadPool", "4");
+		}
+		if (!preferences.containsKey("FileThreadPool")) {
+			preferences.put("FileThreadPool", "8");
+		}
+
 		return preferences;
 	}
 
