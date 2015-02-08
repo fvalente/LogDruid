@@ -54,6 +54,7 @@ import logdruid.data.record.Recording;
 import logdruid.ui.DateSelector;
 import logdruid.ui.RecordingList;
 import logdruid.ui.RecordingList.MyTableModel2;
+import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
 import logdruid.ui.table.EventRecordingEditorTable;
 import logdruid.util.DataMiner;
 
@@ -102,6 +103,9 @@ public class EventRecordingEditor extends JPanel {
 		this(newRecordingList, repo, re.getExampleLine(), re.getRegexp(), re);
 	}
 
+	public EventRecordingEditor(Repository repository2, String exampleLine, String regexp, EventRecording eventRecording) {
+		this(null, repository2, exampleLine, regexp, eventRecording);
+	}
 	/**
 	 * Create the dialog.
 	 * 
@@ -333,26 +337,52 @@ public class EventRecordingEditor extends JPanel {
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						ArrayList rIs = eventRecordingEditorTablePanel.getRecordingItems();
-						if (recording == null) {
+						if (newRecordingList.getClass()==RecordingList.class) {
+							if (recording == null){
+							logger.info("RecordingEditor - ok 1");
 							Recording r = new EventRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 									.isSelected(), rIs);
 							repository.addRecording(r);
+							logger.info("RecordingEditor - ok 1");
+							if (newRecordingList.getClass()==RecordingList.class){
+								logger.info("RecordingEditor - ok 1");
 							if (((RecordingList) newRecordingList).model != null) {
 								logger.info("RecordingEditor - ok 1");
-								((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(),
-										chckbxActive.isSelected() });
+								((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 								((RecordingList) newRecordingList).model.fireTableDataChanged();
-							}
-						} else {
+							
+						}}} else {
+							int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
+							//int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((RecordingList) newRecordingList).table.convertRowIndexToModel(((RecordingList) newRecordingList).table.getSelectedRow()) : -1);
 							((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
 							((RecordingList) newRecordingList).model.fireTableDataChanged();
-							logger.info("RecordingEditor - ok 2");
+							logger.info("RecordingEditor - row Updated");
+							((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
+						}}
+						else
+						{
+							int rowCount = ((EventRecordingSelectorPanel) newRecordingList).table.getRowCount();
+							if (recording == null){
+								int selectedRow = ((((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((EventRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
+							if (((EventRecordingSelectorPanel) newRecordingList).model != null) {
+								logger.info("RecordingEditor - ok 1");
+								((EventRecordingSelectorPanel) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
+								((EventRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
+								((EventRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
+							}}
+						 else {
+							int selectedRow = ((((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((EventRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
+							((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
+									chckbxActive.isSelected(), rIs);
+							logger.info("RecordingEditor - NEVER HERE row Updated");
+							((EventRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
+							((EventRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 						}
-
-						if (contentPanel.getParent().getParent().getParent().getParent().getClass().equals(JDialog.class)) {
+						}
+		/*				if (contentPanel.getParent().getParent().getParent().getParent().getClass().equals(JDialog.class)) {
 							((JDialog) contentPanel.getParent().getParent().getParent().getParent()).dispose();
-						}
+						}*/
 						//
 					}
 				});

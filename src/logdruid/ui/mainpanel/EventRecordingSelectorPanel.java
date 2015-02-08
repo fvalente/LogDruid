@@ -167,7 +167,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 	}
 
 	private JPanel getEditor(Recording rec) {
-			return new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
+			return new EventRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 	}
 /*
 	public void reloadTable() {
@@ -222,7 +222,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 		table.repaint();
 	}
 
-	class MyTableModel extends AbstractTableModel {
+	public class MyTableModel extends AbstractTableModel {
 		private String[] header;
 		private Vector<Object[]> data;
 

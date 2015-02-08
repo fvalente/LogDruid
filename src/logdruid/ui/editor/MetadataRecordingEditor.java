@@ -53,11 +53,13 @@ import logdruid.data.Repository;
 
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
+import logdruid.data.record.RecordingItem;
 import logdruid.ui.DateSelector;
 import logdruid.ui.RecordingList;
 import logdruid.ui.RecordingList.MyTableModel2;
+import logdruid.ui.mainpanel.MetadataRecordingSelectorPanel;
+import logdruid.ui.mainpanel.StatRecordingSelectorPanel;
 import logdruid.ui.table.MetadataRecordingEditorTable;
-import logdruid.ui.table.StatRecordingEditorTable;
 import logdruid.util.DataMiner;
 
 import javax.swing.SwingConstants;
@@ -67,6 +69,7 @@ import javax.swing.event.CaretEvent;
 import org.apache.log4j.Logger;
 
 import java.awt.Font;
+
 import javax.swing.ScrollPaneConstants;
 
 public class MetadataRecordingEditor extends JPanel {
@@ -93,8 +96,8 @@ public class MetadataRecordingEditor extends JPanel {
 	/**
 	 * Create the dialog.
 	 */
-	public MetadataRecordingEditor(logdruid.ui.RecordingList.MyTableModel2 myTableModel2, MetadataRecording re, Repository repo) {
-		this(myTableModel2, repo, re.getExampleLine(), re.getRegexp(), re);
+	public MetadataRecordingEditor(final JPanel newRecordingList, MetadataRecording re, Repository repo) {
+		this(newRecordingList, repo, re.getExampleLine(), re.getRegexp(), re);
 	}
 
 	public MetadataRecordingEditor(Repository repo, String theLine, String regex, MetadataRecording re) {
@@ -106,7 +109,7 @@ public class MetadataRecordingEditor extends JPanel {
 	 * 
 	 * @wbp.parser.constructor
 	 */
-	public MetadataRecordingEditor(final logdruid.ui.RecordingList.MyTableModel2 myTableModel2, Repository repo, String theLine, String regex,
+	public MetadataRecordingEditor(final JPanel newRecordingList, Repository repo, String theLine, String regex,
 			final MetadataRecording re) {
 		// setBounds(0, 0, 1015, 467);
 
@@ -270,32 +273,51 @@ public class MetadataRecordingEditor extends JPanel {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						ArrayList rIs = recordingEditorTablePanel.getRecordingItems();
-						if (recording == null) {
-							Recording r = new MetadataRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-									chckbxActive.isSelected(), rIs);
+						ArrayList<RecordingItem> rIs = recordingEditorTablePanel.getRecordingItems();
+						if (newRecordingList.getClass()==RecordingList.class) {
+							if (recording == null){
+							logger.info("RecordingEditor - ok 1");
+							Recording r = new MetadataRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
+									.isSelected(), rIs);
 							repository.addRecording(r);
-							if (myTableModel2 != null) {
+							logger.info("RecordingEditor - ok 1");
+							if (newRecordingList.getClass()==RecordingList.class){
 								logger.info("RecordingEditor - ok 1");
-								myTableModel2.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
-								myTableModel2.fireTableDataChanged();
-							}
-						} else {
+							if (((RecordingList) newRecordingList).model != null) {
+								logger.info("RecordingEditor - ok 1");
+								((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
+								((RecordingList) newRecordingList).model.fireTableDataChanged();
+							
+						}}} else {
+							int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 							((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 									chckbxActive.isSelected(), rIs);
-							logger.info("RecordingEditor - ok 2");
-							if (myTableModel2 != null) {
-						/*		myTableModel2.updateRow(
-										((RecordingList.table.getSelectedRow() != -1) ? RecordingList.table.convertRowIndexToModel(RecordingList.table
-												.getSelectedRow()) : -1),
-										new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });*/
-								 myTableModel2.fireTableDataChanged();
-							}
+							((RecordingList) newRecordingList).model.fireTableDataChanged();
+							logger.info("RecordingEditor - row Updated");
+							((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
+						}}
+						else
+						{
+							if (recording == null){
+								int selectedRow = ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((StatRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
+							if (((MetadataRecordingSelectorPanel) newRecordingList).model != null) {
+								logger.info("RecordingEditor - ok 1");
+								((MetadataRecordingSelectorPanel) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
+								((MetadataRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
+								((MetadataRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
+							}}
+						 else {
+							int selectedRow = ((((MetadataRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((MetadataRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((MetadataRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
+							((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
+									chckbxActive.isSelected(), rIs);
+							logger.info("RecordingEditor - row Updated");
+							((MetadataRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
+							((MetadataRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 						}
-
-						if (contentPanel.getParent().getParent().getParent().getParent().getClass().equals(JDialog.class)) {
+						}
+				/*		if (contentPanel.getParent().getParent().getParent().getParent().getClass().equals(JDialog.class)) {
 							((JDialog) contentPanel.getParent().getParent().getParent().getParent()).dispose();
-						}
+						}*/
 						//
 					}
 				});

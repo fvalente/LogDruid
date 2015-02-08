@@ -167,14 +167,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	}
 
 	private JPanel getEditor(Recording rec) {
-		JPanel editorPanel = null;
-		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor((logdruid.ui.RecordingList.MyTableModel2) table.getModel(), repository, rec.getExampleLine(),
-					rec.getRegexp(), ((StatRecording) rec));
-		} else if (rec.getClass() == MetadataRecording.class) {
-			editorPanel = new MetadataRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
-		}
-		return editorPanel;
+		return new MetadataRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
 	}
 
 	public void reloadTable() {
@@ -225,7 +218,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		}
 	}
 
-	class MyTableModel extends AbstractTableModel {
+	public class MyTableModel extends AbstractTableModel {
 		private String[] header;
 		private Vector<Object[]> data;
 

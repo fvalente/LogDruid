@@ -153,7 +153,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 	}
 
 	private JPanel getEditor(Recording rec) {
-		return new StatRecordingEditor(repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
+		return new StatRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
 	}
 /*
 	public void reloadTable() {
@@ -198,7 +198,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 		}
 	}
 
-	class MyTableModel extends AbstractTableModel {
+	public class MyTableModel extends AbstractTableModel {
 		private String[] header;
 		private ArrayList<Object[]> data;
 

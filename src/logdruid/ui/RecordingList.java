@@ -181,11 +181,12 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
 				Recording re = new MetadataRecording("name", "regex", "example line", "", true, null);
-				recEditor = new MetadataRecordingEditor((logdruid.ui.RecordingList.MyTableModel2) table.getModel(), repository, "the line", "regex",
+				recEditor = new MetadataRecordingEditor(thiis, repository, "the line", "regex",
 						(MetadataRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
+				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
 				logger.info("New record - row count : " + rowCount);
 			}
@@ -208,10 +209,11 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
 				Recording re = new StatRecording("name", "regex", "example line", "", true, null);
-				recEditor = new StatRecordingEditor((MyTableModel2) table.getModel(), repository, "the line", "regex", (StatRecording) re);
+				recEditor = new StatRecordingEditor(thiis, repository, "the line", "regex", (StatRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
+				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
 				logger.info("New record - row count : " + rowCount);
 			}
@@ -229,6 +231,7 @@ public class RecordingList extends JPanel {
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
+				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
 				logger.info("New record - row count : " + rowCount);
 			}
@@ -239,18 +242,27 @@ public class RecordingList extends JPanel {
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int rowCount = table.getRowCount();
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				;
+				int realSelectedRow=table.getSelectedRow() ;
 				logger.info("selectedRow : " + selectedRow + ", row count: " + table.getRowCount());
+				if (rowCount!=0){
 				repository.deleteRecording(selectedRow);
-				table.remove(selectedRow);
+				model.fireTableRowsDeleted(selectedRow, selectedRow);
+	//			table.remove(selectedRow);
+				if (realSelectedRow!= -1){
+					if (realSelectedRow!= 0)table.setRowSelectionInterval(realSelectedRow-1, realSelectedRow-1);
+					else if (realSelectedRow >0)table.setRowSelectionInterval(realSelectedRow, realSelectedRow);
+					else if (rowCount>1) table.setRowSelectionInterval(0, 0);
+				}
 /*				if (table.getRowCount() > 0) {
 					if (selectedRow == table.getRowCount()) {
 						table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
 					} else
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 				}*/
-			}
+			}}
 		});
 		panel.add(btnDelete);
 		setLayout(new BorderLayout(0, 0));
@@ -279,9 +291,9 @@ public class RecordingList extends JPanel {
 	private JPanel getEditor(Recording rec) {
 		JPanel editorPanel = null;
 		if (rec.getClass() == StatRecording.class) {
-			editorPanel = new StatRecordingEditor((MyTableModel2) table.getModel(), repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
+			editorPanel = new StatRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
 		} else if (rec.getClass() == MetadataRecording.class) {
-			editorPanel = new MetadataRecordingEditor((MyTableModel2) table.getModel(), repository, rec.getExampleLine(), rec.getRegexp(),
+			editorPanel = new MetadataRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(),
 					((MetadataRecording) rec));
 		} else if (rec.getClass() == EventRecording.class) {
 			editorPanel = new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
