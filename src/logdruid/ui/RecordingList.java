@@ -195,11 +195,12 @@ public class RecordingList extends JPanel {
 		JButton btnDuplicate = new JButton("Duplicate");
 		btnDuplicate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int rowCount = table.getRowCount();
+				int selectRow = ((table.getSelectedRow() != -1) ? table.getSelectedRow() : -1);
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				;
-				if (repository.getRecording(selectedRow).getType() == "Metadata") {
-					repository.addRecording(repository.getRecording(selectedRow).duplicate());
-				}
+					repository.addRecording(repository.getRecording(table.convertRowIndexToModel(table.getSelectedRow())).duplicate());
+					model.fireTableRowsInserted(rowCount, rowCount);
+					table.setRowSelectionInterval(selectRow, selectRow);
 			}
 		});
 
