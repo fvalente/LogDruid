@@ -161,7 +161,10 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
-		reloadTable();
+		if (model.getRowCount()>0){
+			table.getRowSorter().toggleSortOrder(0);
+		}
+		//reloadTable();
 		// jPanelDetail.revalidate();
 
 	}

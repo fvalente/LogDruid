@@ -164,6 +164,9 @@ public class EventRecordingSelectorPanel extends JPanel {
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
+		if (model.getRowCount()>0){
+			table.getRowSorter().toggleSortOrder(0);
+		}
 	}
 
 	private JPanel getEditor(Recording rec) {
