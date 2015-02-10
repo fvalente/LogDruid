@@ -72,6 +72,8 @@ public class EventRecording extends Recording {
 		if (recordingItem != null) {
 			_recordingItem = (ArrayList) recordingItem.clone();
 		}
-		return new EventRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		EventRecording eR=new EventRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		eR.setDateFormatID(this.getDateFormatID());
+		return eR;
 	}
 }

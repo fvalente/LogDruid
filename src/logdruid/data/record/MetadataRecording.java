@@ -78,7 +78,11 @@ public class MetadataRecording extends Recording {
 		if (getRecordingItem() != null) {
 			_recordingItem = (ArrayList) getRecordingItem().clone();
 		}
-		return new MetadataRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		
+		MetadataRecording eR=new MetadataRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		eR.setDateFormatID(this.getDateFormatID());
+		return eR;
+		
 	}
 
 }

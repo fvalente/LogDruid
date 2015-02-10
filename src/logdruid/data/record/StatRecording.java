@@ -75,6 +75,9 @@ public class StatRecording extends Recording {
 		if (recordingItem != null) {
 			_recordingItem = (ArrayList) recordingItem.clone();
 		}
-		return new StatRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		StatRecording eR=new StatRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		eR.setDateFormatID(this.getDateFormatID());
+		return eR;
+		
 	}
 }
