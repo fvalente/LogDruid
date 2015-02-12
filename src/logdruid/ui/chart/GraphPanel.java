@@ -99,6 +99,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 
 import javax.swing.BoxLayout;
@@ -109,6 +110,7 @@ public final class GraphPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private JScrollPane scrollPane;
 	private JPanel panel;
+	private JPanel panel_1;
 	private Repository repo;
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
@@ -142,11 +144,15 @@ public final class GraphPanel extends JPanel {
 	 * @param panel_2
 	 */
 
-	public GraphPanel(final Repository repo, JPanel panel_2) {
+	public GraphPanel(final Repository repo, final JPanel panel_2) {
 
 		setLayout(new BorderLayout(0, 0));
 		startTime = System.currentTimeMillis();
 		this.repo=repo;
+		
+		panel_1 = new JPanel();
+		add(panel_1, BorderLayout.NORTH);
+		
 		mineResultSet = DataMiner.gatherMineResultSet(repo);
 		DataVault.mineResultSet = mineResultSet;
 		panel = new JPanel();
@@ -164,6 +170,26 @@ public final class GraphPanel extends JPanel {
 			// removeAll();
 			scrollPane = new JScrollPane(panel);
 			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+			
+			Iterator mineResultSetIterator = mineResultSet.mineResults.entrySet().iterator();
+			logger.info("mineResultSet size: " + mineResultSet.mineResults.size());
+			while (mineResultSetIterator.hasNext()) {
+				Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
+				Map mrArrayList = (Map<String, MineResult>) pairs.getValue();
+				
+				JCheckBox chckbxGroup = new JCheckBox(pairs.getKey()+"("+mrArrayList.size()+")");
+				chckbxGroup.setFont(new Font("Dialog", Font.BOLD, 11));
+				chckbxGroup.setSelected(true);
+				panel_1.add(chckbxGroup);
+				chckbxGroup.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						load(panel_2);
+
+					}
+				});
+			}
+			
 			load(panel_2);
 		}
 
@@ -196,18 +222,23 @@ public final class GraphPanel extends JPanel {
 		// Persister.save(new File("/home/fred/git/LogDruid/mineResultSet"),
 		// mineResultSet);
 		Iterator mineResultSetIterator = mineResultSet.mineResults.entrySet().iterator();
-
+		int ite=0;
 		logger.info("mineResultSet size: " + mineResultSet.mineResults.size());
 		while (mineResultSetIterator.hasNext()) {
 			Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
 			logger.info("mineResultSet key/source: " + pairs.getKey());
+			JCheckBox checkBox=(JCheckBox)panel_1.getComponent(ite++);
+			logger.info("checkbox: "+checkBox.getText()+", "+ checkBox.isSelected() );
+			if (checkBox.isSelected()){
+				
 			Map mrArrayList = (Map<String, MineResult>) pairs.getValue();
-
 			ArrayList<String> mineResultGroup = new ArrayList<String>();
 			Set<String> mrss = mrArrayList.keySet();
 			mineResultGroup.addAll(mrss);
 			Collections.sort(mineResultGroup, new AlphanumComparator());
 
+			
+			
 			// Collections.sort(mrArrayList);
 			Iterator mrArrayListIterator = mineResultGroup.iterator();
 			while (mrArrayListIterator.hasNext()) {
@@ -502,7 +533,7 @@ public final class GraphPanel extends JPanel {
 					logger.debug("mr dates null: " + mr.getGroup() + mr.getSourceID() + mr.getLogFiles());
 				}
 			}
-		}
+		}}
 		// Map=miner.mine(sourceFiles,repo);
 		estimatedTime = System.currentTimeMillis() - startTime;
 
