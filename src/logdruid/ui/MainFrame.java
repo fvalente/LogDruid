@@ -333,6 +333,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (treeSelected.equals("Chart")) {
 					graphPanel.resetTimePeriod(panel_2);
+					graphPanel.loadGroupCheckbox(panel_2);
 					graphPanel.load(panel_2);
 					;
 				}
@@ -346,6 +347,7 @@ public class MainFrame extends JFrame {
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (treeSelected.equals("Chart")) {
+					graphPanel.loadGroupCheckbox(panel_2);
 					graphPanel.load(panel_2);
 					;
 				}

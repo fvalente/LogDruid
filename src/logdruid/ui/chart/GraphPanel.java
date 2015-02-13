@@ -18,6 +18,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
@@ -121,7 +122,7 @@ public final class GraphPanel extends JPanel {
 	// 40), new Color(65, 90, 220), new Color(70, 255, 62), Color.magenta,
 	// Color.orange, Color.pink,
 	// new Color(65, 90, 220), new Color(107, 255, 102) };
-
+	private HashMap<String, Boolean> groupCheckBox = new HashMap<String, Boolean>();
 	JSpinner startDateJSpinner;
 	JSpinner endDateJSPinner;
 	MineResultSet mineResultSet;
@@ -150,7 +151,7 @@ public final class GraphPanel extends JPanel {
 		startTime = System.currentTimeMillis();
 		this.repo=repo;
 		
-		panel_1 = new JPanel();
+		panel_1 = new JPanel(new WrapLayout());
 		add(panel_1, BorderLayout.NORTH);
 		
 		mineResultSet = DataMiner.gatherMineResultSet(repo);
@@ -170,26 +171,7 @@ public final class GraphPanel extends JPanel {
 			// removeAll();
 			scrollPane = new JScrollPane(panel);
 			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-			
-			Iterator mineResultSetIterator = mineResultSet.mineResults.entrySet().iterator();
-			logger.info("mineResultSet size: " + mineResultSet.mineResults.size());
-			while (mineResultSetIterator.hasNext()) {
-				Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
-				Map mrArrayList = (Map<String, MineResult>) pairs.getValue();
-				
-				JCheckBox chckbxGroup = new JCheckBox(pairs.getKey()+"("+mrArrayList.size()+")");
-				chckbxGroup.setFont(new Font("Dialog", Font.BOLD, 11));
-				chckbxGroup.setSelected(true);
-				panel_1.add(chckbxGroup);
-				chckbxGroup.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						
-						load(panel_2);
-
-					}
-				});
-			}
-			
+			loadGroupCheckbox(panel_2);
 			load(panel_2);
 		}
 
@@ -206,6 +188,72 @@ public final class GraphPanel extends JPanel {
 			endDateJSPinner.setValue(maximumDate);
 	}
 
+	public void loadGroupCheckbox(final JPanel panel_2){
+		panel_1.removeAll();
+		Iterator mineResultSetIterator = mineResultSet.mineResults.entrySet().iterator();
+		logger.info("mineResultSet size: " + mineResultSet.mineResults.size());
+		while (mineResultSetIterator.hasNext()) {
+			
+			int groupCount=0;
+			int totalGroupCount=0;
+			Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
+			Map mrArrayList = (Map<String, MineResult>) pairs.getValue();
+			ArrayList<String> mineResultGroup = new ArrayList<String>();
+			Set<String> mrss = mrArrayList.keySet();
+			mineResultGroup.addAll(mrss);
+			Collections.sort(mineResultGroup, new AlphanumComparator());
+
+			Iterator mrArrayListIterator = mineResultGroup.iterator();
+			while (mrArrayListIterator.hasNext()) {
+				String key = (String) mrArrayListIterator.next();
+				final MineResult mr = (MineResult) mrArrayList.get(key);
+				Map<String, ExtendedTimeSeries> statMap = mr.getStatTimeseriesMap();
+				Map<String, ExtendedTimeSeries> eventMap = mr.getEventTimeseriesMap();
+				if (!statMap.entrySet().isEmpty() || !eventMap.entrySet().isEmpty()) {
+				if (mr.getStartDate() != null && mr.getEndDate() != null) {
+					if ((mr.getStartDate().before((Date) endDateJSPinner.getValue())) && (mr.getEndDate().after((Date) startDateJSpinner.getValue()))) {
+						groupCount++;
+						}
+					}}
+			}
+			Iterator mrArrayListIterator2 = mineResultGroup.iterator();
+			while (mrArrayListIterator2.hasNext()) {
+				String key = (String) mrArrayListIterator2.next();
+				final MineResult mr = (MineResult) mrArrayList.get(key);
+				Map<String, ExtendedTimeSeries> statMap = mr.getStatTimeseriesMap();
+				Map<String, ExtendedTimeSeries> eventMap = mr.getEventTimeseriesMap();
+				if (!statMap.entrySet().isEmpty() || !eventMap.entrySet().isEmpty()) {
+				if (mr.getStartDate() != null && mr.getEndDate() != null) {
+					if ((mr.getStartDate().before((Date) maximumDate)) && (mr.getEndDate().after((Date) minimumDate))) {
+						totalGroupCount++;
+						}
+					}}
+			}
+			boolean selected=true;
+			if (groupCheckBox.containsKey((String)pairs.getKey())){
+				selected=groupCheckBox.get((String)pairs.getKey());
+			} else {
+				groupCheckBox.put((String)pairs.getKey(),selected);
+				
+			}
+			
+			JCheckBox chckbxGroup = new JCheckBox(pairs.getKey()+"("+groupCount+"/"+totalGroupCount+")");
+			chckbxGroup.setFont(new Font("Dialog", Font.BOLD, 11));
+			chckbxGroup.setSelected(selected);				
+			panel_1.add(chckbxGroup);
+			chckbxGroup.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JCheckBox chkBox= ((JCheckBox)e.getSource());
+					groupCheckBox.put((String)chkBox.getText().substring(0, ((String)chkBox.getText()).indexOf("(")),!groupCheckBox.get((String)chkBox.getText().substring(0, ((String)chkBox.getText()).indexOf("("))));
+					loadGroupCheckbox(panel_2);
+					load(panel_2);
+					//logger.info("checkBox:"+ chkBox.getText()+","+chkBox.isSelected()+","+groupCheckBox);
+					//logger.info("checkBox2:"+((String)chkBox.getText())+", "+((String)chkBox.getText()).indexOf("(")+", "+groupCheckBox.get((String)chkBox.getText().substring(0, ((String)chkBox.getText()).indexOf("(")))); 
+				}
+			});
+		}
+	}
+	
 	public void load(JPanel panel_2) {
 		startDateJSpinner = (JSpinner) panel_2.getComponent(2);
 		endDateJSPinner = (JSpinner) panel_2.getComponent(3);
@@ -237,8 +285,6 @@ public final class GraphPanel extends JPanel {
 			mineResultGroup.addAll(mrss);
 			Collections.sort(mineResultGroup, new AlphanumComparator());
 
-			
-			
 			// Collections.sort(mrArrayList);
 			Iterator mrArrayListIterator = mineResultGroup.iterator();
 			while (mrArrayListIterator.hasNext()) {
