@@ -48,6 +48,7 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Document;
 import javax.swing.text.Highlighter;
 
+import logdruid.data.DataVault;
 import logdruid.data.Repository;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.Recording;
@@ -68,6 +69,9 @@ import java.awt.Font;
 
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.BevelBorder;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 public class EventRecordingEditor extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -87,7 +91,7 @@ public class EventRecordingEditor extends JPanel {
 	private JLabel nameLabel;
 	private JLabel regularExpressionLabel;
 	private JLabel dateFormatLabel;
-
+	JTextPane textPane ;
 	// private JList recordingList;
 
 	/*
@@ -125,11 +129,20 @@ public class EventRecordingEditor extends JPanel {
 		{
 			JPanel panel_1 = new JPanel();
 			contentPanel.add(panel_1, BorderLayout.CENTER);
-
-			panel_1.setLayout(new BorderLayout(0, 0));
+			GridBagLayout gbl_panel_1 = new GridBagLayout();
+			gbl_panel_1.columnWidths = new int[]{0, 0};
+			gbl_panel_1.rowHeights = new int[]{0, 0, 0};
+			gbl_panel_1.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+			gbl_panel_1.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+			panel_1.setLayout(gbl_panel_1);
 			{
 				JPanel panel = new JPanel();
-				panel_1.add(panel, BorderLayout.CENTER);
+				GridBagConstraints gbc_panel = new GridBagConstraints();
+				gbc_panel.fill = GridBagConstraints.BOTH;
+				gbc_panel.insets = new Insets(0, 0, 5, 0);
+				gbc_panel.gridx = 0;
+				gbc_panel.gridy = 0;
+				panel_1.add(panel, gbc_panel);
 				panel.setLayout(new BorderLayout(0, 0));
 				{
 					JScrollPane scrollPane = new JScrollPane();
@@ -140,6 +153,21 @@ public class EventRecordingEditor extends JPanel {
 						scrollPane.setViewportView(examplePane);
 					}
 				}
+			}
+			{
+				JPanel panel = new JPanel();
+				GridBagConstraints gbc_panel = new GridBagConstraints();
+				gbc_panel.fill = GridBagConstraints.BOTH;
+				gbc_panel.gridx = 0;
+				gbc_panel.gridy = 1;
+				panel_1.add(panel, gbc_panel);
+					panel.setLayout(new BorderLayout(0, 0));
+				
+				
+					textPane = new JTextPane();
+					JScrollPane scrollPane = new JScrollPane(textPane);
+					panel.add(scrollPane);
+				
 			}
 		}
 		{
@@ -185,23 +213,32 @@ public class EventRecordingEditor extends JPanel {
 						txtRegularExp.addCaretListener(new CaretListener() {
 							public void caretUpdate(CaretEvent e) {
 								doc = examplePane.getDocument();
-
-								Pattern pattern = Pattern.compile(txtRegularExp.getText());
-								Matcher matcher = pattern.matcher(examplePane.getText());
+								
 								Highlighter h = examplePane.getHighlighter();
 								h.removeAllHighlights();
-								if (matcher.find()) {
-									// int currIndex=doc.getLength();
-									// doc.insertString(doc.getLength(),line+"\n",
-									// null);
-
-									try {
-										h.addHighlight(matcher.start(), matcher.end(), DefaultHighlighter.DefaultPainter);
-									} catch (BadLocationException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
+								Pattern pattern = Pattern.compile(txtRegularExp.getText());
+								String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
+								int currIndex = 0;
+								if (lines.length>=1){
+								for (int i=0; i<lines.length ; i++)
+								{
+									logger.info("line: "+lines[i]);
+									
+									Matcher matcher = pattern.matcher(lines[i]);
+									if (matcher.find()) {
+										// int currIndex=doc.getLength();
+										// doc.insertString(doc.getLength(),line+"\n",
+										// null);
+										try {
+											h.addHighlight(currIndex+matcher.start(), currIndex+matcher.end(), DefaultHighlighter.DefaultPainter);
+										} catch (BadLocationException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
 									}
-
+									logger.info("currIndex: "+currIndex+",length: "+lines[i].length());
+									currIndex +=lines[i].length()+1 ;
+								}
 								}
 							}
 						});
@@ -401,6 +438,13 @@ public class EventRecordingEditor extends JPanel {
 			txtRegularExp.setText(re.getRegexp());
 			txtDate.setText(((EventRecording) re).getDateFormat());
 			examplePane.setText(re.getExampleLine());
+			if (DataVault.getMatchedLines(re)!=null){
+				examplePane.setText(DataVault.getMatchedLines(re));
+			}
+			if (DataVault.getUnmatchedLines(re)!=null){
+				textPane.setText(DataVault.getUnmatchedLines(re));
+			}
+			  
 		}
 		JScrollPane scrollPaneEventRecordingEditorTablePanel = new JScrollPane(eventRecordingEditorTablePanel);
 		// scrollPaneEventRecordingEditorTablePanel.setViewportView(eventRecordingEditorTablePanel);

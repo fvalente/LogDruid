@@ -163,7 +163,7 @@ public class SourceInfoPanel extends JPanel {
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
 					Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
-						filesDoc.insertString(filesDoc.getLength(), vecIt.next() + "\n", null);
+						filesDoc.insertString(filesDoc.getLength(),"- "+ vecIt.next() + "\n", null);
 					}
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block

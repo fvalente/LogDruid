@@ -307,7 +307,7 @@ public class SourcePanel extends JPanel {
 		JButton btnCheck = new JButton("Get samplings");
 		btnCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// DataMiner.populateRecordingSamples(repo);
+				 DataMiner.populateRecordingSamples(repo);
 			}
 		});
 		buttonsPanel.add(btnCheck);

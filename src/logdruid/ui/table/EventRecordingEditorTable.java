@@ -143,7 +143,7 @@ public class EventRecordingEditorTable extends JPanel {
 
 	public void FixValues() {
 		String patternString = "";
-		Matcher matcher;
+		Matcher matcher = null;
 		PatternCache patternCache=new PatternCache();
 		Iterator it = data.iterator();
 		Object[] obj;
@@ -167,21 +167,29 @@ public class EventRecordingEditorTable extends JPanel {
 		try {
 			logger.info("theLine: " + examplePane.getText());
 			logger.info("patternString: " + patternString);
-			matcher = patternCache.getPattern(patternString).matcher(examplePane.getText());
 			Highlighter h = examplePane.getHighlighter();
 			h.removeAllHighlights();
 			int currIndex = 0;
+			
+			String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
+			if (lines.length>=1){
+			for (int i=0; i<lines.length ; i++){
+				matcher = patternCache.getPattern(patternString).matcher(lines[i]);
 			if (matcher.find()) {
 				// int currIndex = 0;
 				// doc.insertString(doc.getLength(),line+"\n", null);
 
-				for (int i = 1; i <= matcher.groupCount(); i++) {
-					model.setValueAt(matcher.group(i), i - 1, 6);
-					h.addHighlight(matcher.start(i), +matcher.end(i), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
-					logger.info("matcher.start(i): " + matcher.start(i) + "matcher.end(i): " + matcher.end(i));
+				for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
+					model.setValueAt(matcher.group(i2), i2 - 1, 6);
+					h.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
 				}
-
+				}
+			logger.info("currIndex: " + currIndex + "matcher.end(i2): " + lines[i].length()+",l: "+lines[i]);
+			currIndex += lines[i].length()+1 ;
 			}
+			}
+
+			
 
 		} catch (Exception e1) {
 			e1.printStackTrace();

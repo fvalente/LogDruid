@@ -1,7 +1,11 @@
 package logdruid.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import logdruid.data.record.Recording;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -9,7 +13,8 @@ import org.apache.log4j.Logger;
 public class DataVault {
 	static public MineResultSet mineResultSet;
 	private static Logger logger = Logger.getLogger(DataVault.class.getName());
-
+	static private  Map<Recording,ArrayList<String>> recordingMatchedLines = new HashMap<Recording,ArrayList<String>>();
+	static private  Map<Recording,ArrayList<String>> recordingUnmatchedLines = new HashMap<Recording,ArrayList<String>>();
 	public static MineResultSet getMineResultSet() {
 		return mineResultSet;
 	}
@@ -22,6 +27,59 @@ public class DataVault {
 		// TODO Auto-generated constructor stub
 	}
 
+	public static String getMatchedLines(Recording rec){
+		ArrayList aL=recordingMatchedLines.get(rec);
+		String returned="";
+		if (aL!=null){
+		Iterator ite= aL.iterator();
+		
+		while (ite.hasNext()){
+			returned+=ite.next()+System.getProperty("line.separator");
+		}}
+		return returned;
+	}
+	
+	public static void addMatchedLines(Recording rec,String line){
+		ArrayList<String> al=null;
+		if (recordingMatchedLines.get(rec)==null)
+				{
+			al=new ArrayList<String>();
+			recordingMatchedLines.put(rec,al);
+				}
+		if (recordingMatchedLines.get(rec)!=null ){
+			if (recordingMatchedLines.get(rec).size()<5){
+				recordingMatchedLines.get(rec).add(line);	
+			}}
+	//	recordingMatchedLines.put(rec,al);
+	}
+	
+	public static String getUnmatchedLines(Recording rec){
+		ArrayList aL=recordingUnmatchedLines.get(rec);
+
+		String returned="";
+		if (aL!=null){
+			Iterator ite= aL.iterator();
+			while (ite.hasNext()){
+			returned+=ite.next()+System.getProperty("line.separator");;
+		}}
+		return returned;
+	}
+	public static void addUnmatchedLines(Recording rec,String line){
+		ArrayList<String> al=null;
+		if (recordingUnmatchedLines.get(rec)==null)
+				{
+			al=new ArrayList<String>();
+			recordingUnmatchedLines.put(rec,al);
+				}
+		if (recordingUnmatchedLines.get(rec)!=null ){
+			if (recordingUnmatchedLines.get(rec).size()<5){
+				recordingUnmatchedLines.get(rec).add(line);	
+			}
+			
+	//	recordingMatchedLines.put(rec,al);
+		}
+	}
+	
 	public static long[] getRecordingStats(String recording) {
 		if (mineResultSet == null)
 			return null;
