@@ -282,8 +282,9 @@ public class RecordingList extends JPanel {
 		splitPane.setTopComponent(panel_1);
 		jPanelDetail.setLayout(new BorderLayout(0, 0));
 		if (repository.getRecordingCount() > 0) {
-			recEditor = getEditor(repository.getRecording(0));
-			jPanelDetail.add(recEditor, BorderLayout.CENTER);
+			//recEditor = getEditor(repository.getRecording(0));
+			//jPanelDetail.add(recEditor, BorderLayout.CENTER);
+			table.setRowSelectionInterval(0, 0);
 		}
 		jPanelDetail.revalidate();
 
