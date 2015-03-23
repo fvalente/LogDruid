@@ -32,6 +32,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import logdruid.data.ChartData;
+import logdruid.data.FileRecord;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.util.DataMiner;
@@ -149,7 +150,7 @@ public class SourceInfoPanel extends JPanel {
 
 		if (repo != null && repo.getBaseSourcePath() != null) {
 			ChartData cd = DataMiner.gatherSourceData(repo);
-			Map<String, ArrayList<String>> hm = cd.getGroupFilesMap(src);
+			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
 			filesDoc = textPane.getDocument();
 			Iterator it = hm.entrySet().iterator();
 			int nbFiles = 0;
@@ -163,7 +164,7 @@ public class SourceInfoPanel extends JPanel {
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
 					Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
-						filesDoc.insertString(filesDoc.getLength(),"- "+ vecIt.next() + "\n", null);
+						filesDoc.insertString(filesDoc.getLength(),"- "+ ((FileRecord)vecIt.next()).getFile().getName() + "\n", null);
 					}
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block

@@ -21,22 +21,21 @@ import org.jfree.data.time.TimeSeriesCollection;
 public class ChartData {
 	// String name = "test";
 	public ArrayList<Source> sourceArrayList;
-	public Map<Source, ArrayList<String>> sourceFileArrayListMap = new HashMap<Source, ArrayList<String>>();
-	public ArrayList<String> selectedSourceFiles;
+	public Map<Source, Map<Integer,FileRecord>> sourceFileArrayListMap = new HashMap<Source, Map<Integer,FileRecord>>();
+	public Map<Integer,FileRecord> selectedSourceFiles;
 
 	// ArrayList<Map<String, TimeSeries>> MapArrayList = new
 	// ArrayList<Map<String, TimeSeries>>();
 	public TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-	Map<Source, Map<String, ArrayList<String>>> MapSourceGroupFilesArrayList = new HashMap<Source, Map<String, ArrayList<String>>>();
+	Map<Source, Map<String, ArrayList<FileRecord>>> MapSourceGroupFilesArrayList = new HashMap<Source, Map<String, ArrayList<FileRecord>>>();
 
-	public void setGroupFilesArrayListMap(Source src, Map<String, ArrayList<String>> sourceFileGroup) {
+	public void setGroupFilesArrayListMap(Source src, Map<String, ArrayList<FileRecord>> sourceFileGroup) {
 		MapSourceGroupFilesArrayList.put(src, sourceFileGroup);
 		// TODO Auto-generated method stub
-
 	}
 
-	public Map<String, ArrayList<String>> getGroupFilesMap(Source src) {
+	public Map<String, ArrayList<FileRecord>> getGroupFilesMap(Source src) {
 		return MapSourceGroupFilesArrayList.get(src);
 	}
 }

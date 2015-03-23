@@ -43,6 +43,7 @@ import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.ui.RecordingList;
@@ -122,14 +123,14 @@ public class MainFrame extends JFrame {
 		thiis = this;
 		repository = new Repository();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 600);
-
+		setBounds(100, 100, 800, 800);
+		Preferences.load();
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
-
+		
 		JMenuItem mntmNewSource = new JMenuItem("New");
 		mntmNewSource.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -188,7 +189,7 @@ public class MainFrame extends JFrame {
 
 		mnFile.add(mntmSaveAs);
 
-		JMenuItem mntmExportData = new JMenuItem("Export Data");
+/*		JMenuItem mntmExportData = new JMenuItem("Export Data");
 		mntmExportData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				FileSaverDialog fileChooserDialog = new FileSaverDialog();
@@ -200,7 +201,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		mnFile.add(mntmExportData);
-
+*/
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mnFile.add(mntmExit);
 

@@ -13,6 +13,7 @@ package logdruid.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 
 import logdruid.util.DataMiner;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
@@ -28,9 +30,11 @@ public class MineResult implements Comparable {
 	private static Logger logger = Logger.getLogger(MineResult.class.getName());
 	private Date startDate;
 	private Date endDate;
-	String source; // Source source; (tuning data size)
-	ArrayList<String> logFiles;
+	Source source; // Source source; (tuning data size)
+	ArrayList<FileRecord> logFiles;
+	
 	String group;
+	Map<String, Map<Date,FileLine>> fileLine = new HashMap<String, Map<Date,FileLine>>();
 	Map<String, ExtendedTimeSeries> statTimeSeriesMap;
 	Map<String, ExtendedTimeSeries> eventTimeSeriesMap;
 	Map<String, long[]> matchingStats; // 0-> sum of time for success matching
@@ -41,27 +45,31 @@ public class MineResult implements Comparable {
 
 	private ArrayList<Object[]> fileDates = new ArrayList<Object[]>();
 
-	public MineResult(String _group, FileMineResultSet hm, ArrayList<String> fileArrayList, Repository repo, Source _source) {
-		logFiles = fileArrayList;
-		source = _source.getSourceName();
+	public MineResult(String _group, FileMineResultSet hm, ArrayList<FileRecord> arrayList, Repository repo, Source _source) {
+		logFiles = arrayList;
+		source = _source;
 		statTimeSeriesMap = hm.statGroupTimeSeries;
 		eventTimeSeriesMap = hm.eventGroupTimeSeries;
 		matchingStats = hm.matchingStats;
+		fileLine=hm.fileLineDateMap;
 		startDate = hm.getStartDate();
 		endDate = hm.getEndDate();
 		fileDates = hm.getFileDates();
 		group = _group;
 	}
 
+	public Source getSource() {
+		return source;
+	}
 	public Date getStartDate() {
 		return startDate;
 	}
 
 	public String getSourceID() {
-		return source;
+		return source.getSourceName();
 	}
 
-	public ArrayList<String> getLogFiles() {
+	public ArrayList<FileRecord> getLogFiles() {
 		return logFiles;
 	}
 
@@ -91,17 +99,34 @@ public class MineResult implements Comparable {
 		while (it.hasNext()) {
 			Object[] obj = it.next();
 			if (logger.isDebugEnabled())
-				logger.debug("1: " + (Date) obj[0] + "2: " + (Date) obj[1] + "3: " + (File) obj[2]);
+				logger.debug("1: " + (Date) obj[0] + "2: " + (Date) obj[1] + "3: " + ((FileRecord) obj[2]).getFile());
 			if (date.after((Date) obj[0]) && date.before((Date) obj[1]))
-				return (File) obj[2];
+				return (File) ((FileRecord) obj[2]).getFile();
 		}
 		return null;
 	}
 
+	public FileLine getFileLineForDate(Date date,String _group) {
+	//	logger.info(group+","+date);
+		if (date!=null && _group !=null){
+			if(fileLine.containsKey(_group)){
+			Map<Date,FileLine> map= fileLine.get(_group);	
+			if(map.containsKey(date)){
+			return fileLine.get(_group).get(date);		
+			}
+			}else 
+		//		logger.info("null");
+			return null;
+				}
+		// logger.info("null");
+		 return null;
+	}
 	@Override
 	public int compareTo(Object o) {
-		String local = source + group;
+		String local = source.getSourceName() + group;
 		String remote = ((MineResult) o).getSourceID() + ((MineResult) o).getGroup();
-		return remote.compareTo(local);
+		//return remote.compareTo(local);
+		return this.getStartDate().compareTo(((MineResult) o).getStartDate());
+
 	}
 }

@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
+import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.ui.WrapLayout;
 
@@ -38,8 +39,8 @@ public class PreferencePanel extends JPanel {
 		add(panel_2, BorderLayout.CENTER);
 		
 		//HashMap<String, String> 
-		if (repository.getPreferences()!=null){
-		Iterator ite=repository.getPreferences().keySet().iterator();
+		if (Preferences.getPreferences()!=null){
+		Iterator ite=Preferences.getPreferences().keySet().iterator();
 		while (ite.hasNext()){
 			String key=(String) ite.next();
 			JPanel panel = new JPanel();
@@ -49,7 +50,7 @@ public class PreferencePanel extends JPanel {
 			textField = new JTextField();
 			panel.add(textField);
 			textField.setColumns(30);
-			textField.setText(repository.getPreference(key));
+			textField.setText(Preferences.getPreference(key));
 		}
 		}
 		JButton btnSave = new JButton("Save");
@@ -59,10 +60,12 @@ public class PreferencePanel extends JPanel {
 				int i=0;
 				while (i<comp.length){
 					logger.info(comp.toString());
-				repository.setPreference(((JLabel)((JPanel)comp[i]).getComponents()[0]).getText(), ((JTextField)((JPanel)comp[i]).getComponents()[1]).getText());
-			
+					logger.info(Preferences.getPreferences());
+					logger.info(((JLabel)((JPanel)comp[i]).getComponents()[0]).getText()+", "+((JTextField)((JPanel)comp[i]).getComponents()[1]).getText());
+					Preferences.setPreference(((JLabel)((JPanel)comp[i]).getComponents()[0]).getText(), ((JTextField)((JPanel)comp[i]).getComponents()[1]).getText());
 					i++;
 				}
+				Preferences.persist();
 			}
 		});
 		panel_2.setLayout(new WrapLayout(WrapLayout.CENTER, 5, 5));

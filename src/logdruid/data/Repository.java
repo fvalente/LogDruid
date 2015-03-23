@@ -45,8 +45,9 @@ public class Repository {
 		preferences.put("timings", "false");
 		preferences.put("stats", "true");
 		preferences.put("chartSize", "350");
-		preferences.put("GroupThreadPool", "4");
-		preferences.put("FileThreadPool", "8");
+		preferences.put("ThreadPool_Group", "4");
+		preferences.put("ThreadPool_File", "8");
+		preferences.put("editorCommand", "gvim -R +$line $file");
 		recordings = new ArrayList<Recording>();
 		dates = new ArrayList<DateFormat>();
 		sources = new ArrayList<Source>();
@@ -171,13 +172,16 @@ public class Repository {
 			preferences.put("chartSize", "350");
 		}
 
-		if (!preferences.containsKey("GroupThreadPool")) {
-			preferences.put("GroupThreadPool", "4");
+		if (!preferences.containsKey("ThreadPool_Group")) {
+			preferences.put("ThreadPool_Group", "4");
 		}
-		if (!preferences.containsKey("FileThreadPool")) {
-			preferences.put("FileThreadPool", "8");
+		if (!preferences.containsKey("ThreadPool_File")) {
+			preferences.put("ThreadPool_File", "8");
 		}
-
+		if (!preferences.containsKey("editorCommand")) {
+			preferences.put("editorCommand", "gvim -R +$line $file");
+		}
+		
 		return preferences;
 	}
 
@@ -200,7 +204,7 @@ public class Repository {
 
 	public Recording getRecording(String _id) {
 		Iterator recordingIterator = recordings.iterator();
-		Recording recReturn = null;
+		Recording recReturn = null; 
 		int cnt = 0;
 		while (recordingIterator.hasNext()) {
 			Recording r = (Recording) recordingIterator.next();

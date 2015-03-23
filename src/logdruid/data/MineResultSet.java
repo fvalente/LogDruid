@@ -23,7 +23,7 @@ import org.jfree.data.time.TimeSeries;
 
 public class MineResultSet {
 	private static Logger logger = Logger.getLogger(MineResultSet.class.getName());
-	public Map<String, Map<String, MineResult>> mineResults;
+	public Map<Source, Map<String, MineResult>> mineResults;
 	private Date startDate;
 	private Date endDate;
 
@@ -62,7 +62,7 @@ public class MineResultSet {
 	}
 
 	public MineResultSet() {
-		mineResults = new HashMap<String, Map<String, MineResult>>();
+		mineResults = new HashMap<Source, Map<String, MineResult>>();
 	}
 
 }

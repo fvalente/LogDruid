@@ -53,6 +53,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import logdruid.data.DataVault;
+import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
@@ -101,7 +102,7 @@ public class RecordingList extends JPanel {
 	 */
 	public RecordingList(final Repository rep) {
 		
-	if (rep.getPreference("timings").equals("true")){
+	if (Preferences.getPreference("timings").equals("true")){
 		header= (String[]) new String[]{ "name", "regexp", "type", "active", "success time", "failed time", "match attempt", "success match" };}
 	else {
 		header= (String[]) new String[]{ "name", "regexp", "type", "active"};

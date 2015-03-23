@@ -21,6 +21,7 @@ public class FileMineResultSet {
 	private static Logger logger = Logger.getLogger(FileMineResultSet.class.getName());
 	public Map<String, ExtendedTimeSeries> statGroupTimeSeries;
 	public Map<String, ExtendedTimeSeries> eventGroupTimeSeries;
+	public Map<String,Map<Date, FileLine>> fileLineDateMap;
 	public Map<String, long[]> matchingStats; // 0-> sum of time for success
 												// matching of given recording ;
 												// 1-> sum of time for failed
@@ -45,12 +46,13 @@ public class FileMineResultSet {
 	}
 
 	public FileMineResultSet(ArrayList<Object[]> _fileDates, Map<String, ExtendedTimeSeries> statMap, Map<String, ExtendedTimeSeries> eventMap,
-			Map<String, long[]> _timingStatsMap, Date startDate2, Date endDate2) {
+			Map<String, long[]> _timingStatsMap, Map<String, Map<Date, FileLine>> fileLineMap, Date startDate2, Date endDate2) {
 		startDate = startDate2;
 		endDate = endDate2;
 		fileDates = _fileDates;
 		statGroupTimeSeries = statMap;
 		eventGroupTimeSeries = eventMap;
+		fileLineDateMap=fileLineMap;
 		matchingStats = _timingStatsMap;
 		if (logger.isDebugEnabled()) {
 			logger.debug("start date: " + startDate2 + " end date: " + endDate2);
