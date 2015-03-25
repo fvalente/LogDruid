@@ -127,20 +127,6 @@ public class EventRecordingEditor extends JPanel {
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new BorderLayout(0, 0));
-		{
-			{
-				if (re == null) {
-					eventRecordingEditorTablePanel = new EventRecordingEditorTable(examplePane);
-					logger.info("RecordingEditor - re=null");
-				} else {
-					eventRecordingEditorTablePanel = new EventRecordingEditorTable(repo, re, examplePane);
-					logger.info("RecordingEditor - re!=null");
-				}
-				eventRecordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
-				eventRecordingEditorTablePanel.setOpaque(true);
-				eventRecordingEditorTablePanel.setVisible(true);
-			}
-		}
 
 		{
 			JSplitPane splitPane = new JSplitPane();
@@ -396,8 +382,7 @@ public class EventRecordingEditor extends JPanel {
 						}
 					}
 				}
-				JScrollPane scrollPaneEventRecordingEditorTablePanel = new JScrollPane(eventRecordingEditorTablePanel);
-				panel2.add(scrollPaneEventRecordingEditorTablePanel);
+
 			}
 			{
 				JPanel panel_1 = new JPanel();
@@ -453,14 +438,31 @@ public class EventRecordingEditor extends JPanel {
 			txtRegularExp.setText(re.getRegexp());
 			txtDate.setText(((EventRecording) re).getDateFormat());
 			examplePane.setText(re.getExampleLine());
-			if (DataVault.getMatchedLines(re)!=null){
+			if (DataVault.getMatchedLines(re)!=null && !DataVault.getMatchedLines(re).equals("") ){
 				examplePane.setText(DataVault.getMatchedLines(re));
 			}
-			if (DataVault.getUnmatchedLines(re)!=null){
+			if (DataVault.getUnmatchedLines(re)!=null  && !DataVault.getUnmatchedLines(re).equals("") ){
 				textPane.setText(DataVault.getUnmatchedLines(re));
 			}
 			  
 		}
+		
+		{
+			{
+				if (re == null) {
+					eventRecordingEditorTablePanel = new EventRecordingEditorTable(examplePane);
+					logger.info("RecordingEditor - re=null");
+				} else {
+					eventRecordingEditorTablePanel = new EventRecordingEditorTable(repo, re, examplePane);
+					logger.info("RecordingEditor - re!=null");
+				}
+				eventRecordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
+				eventRecordingEditorTablePanel.setOpaque(true);
+				eventRecordingEditorTablePanel.setVisible(true);
+			}
+		}
+		JScrollPane scrollPaneEventRecordingEditorTablePanel = new JScrollPane(eventRecordingEditorTablePanel);
+		panel2.add(scrollPaneEventRecordingEditorTablePanel);
 		eventRecordingEditorTablePanel.FixValues();
 	}
 }

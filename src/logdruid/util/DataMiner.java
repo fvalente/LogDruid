@@ -132,7 +132,7 @@ public class DataMiner {
 				if (!mineResultSet.mineResults.keySet().contains(mineRes.getSource())) {
 					mineResultSet.mineResults.put(mineRes.getSource(), new HashMap<String, MineResult>());
 				}
-				mineResultSet.mineResults.get(mineRes.getSource()).put(mineRes.getSource() + mineRes.getGroup(), mineRes);
+				mineResultSet.mineResults.get(mineRes.getSource()).put(mineRes.getSource().getSourceName() + mineRes.getGroup(), mineRes);
 			}
 		}
 		return mineResultSet;
@@ -724,7 +724,7 @@ public class DataMiner {
 							// Pattern pattern = Pattern.compile(patternString +
 							// ".*");
 							// Matcher matcher = pattern.matcher(fileName);
-							matcher = patternCache.getPattern(patternString + ".*").matcher(fileName.getFile().getName());
+							matcher = patternCache.getPattern(patternString + ".*").matcher(new File(repo.getBaseSourcePath()).toURI().relativize(new File(fileName.getFile().getCanonicalPath()).toURI()).getPath());
 //***
 							if (matcher.find()) {
 								if (logger.isDebugEnabled())
@@ -905,26 +905,30 @@ public class DataMiner {
 				for (int i = 0; i < listOfFiles.size(); i++) {
 					if (listOfFiles.get(i).isFile()) {
 						String s1 = source.getSourcePattern();
-						Matcher matcher = patternCache.getPattern(s1).matcher(listOfFiles.get(i).getName());
-						if (logger.isDebugEnabled()) {
-							logger.debug(i+" matching file: " + listOfFiles.get(i).getName() + " with pattern: " + s1);
-						}
+						try {	
+							Matcher matcher = patternCache.getPattern(s1).matcher(new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
+							
+							if (logger.isDebugEnabled()) {
+								logger.debug(i+" matching file: " + new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath() + " with pattern: " + s1);
+							}
+						
 						if (matcher.find()) {
-							try {		
+	
 								FileRecord tempFileRecord=new FileRecord(i, new File((String) listOfFiles.get(i).getCanonicalPath()));
 								cd.selectedSourceFiles.put(i,tempFileRecord);
-								logger.debug(i+""+ tempFileRecord.getFile());
 								if (logger.isDebugEnabled()) {
+									
 									logger.debug("Source: " + source.getSourceName() + " file: " + listOfFiles.get(i).getCanonicalPath());
 									logger.debug(" Graphpanel file: "
 											+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
 									logger.debug(tempFileRecord.getCompletePath());
 								}
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+
 						}
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}	
 					}
 				}
 				if (logger.isEnabledFor(Level.INFO))
@@ -995,7 +999,7 @@ public class DataMiner {
 			while (fileArrayListIterator.hasNext()) {
 				final FileRecord fileName = fileArrayListIterator.next();
 				try {
-					flstr = new FileReader(new File(repo.getBaseSourcePath() + "/" + fileName.toString()));
+					flstr = new FileReader(new File(fileName.getCompletePath()));
 				} catch (FileNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

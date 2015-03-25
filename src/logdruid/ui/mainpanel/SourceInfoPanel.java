@@ -49,6 +49,8 @@ import org.apache.log4j.Logger;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.io.File;
+import java.io.IOException;
 
 public class SourceInfoPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(SourceInfoPanel.class.getName());
@@ -151,6 +153,7 @@ public class SourceInfoPanel extends JPanel {
 		if (repo != null && repo.getBaseSourcePath() != null) {
 			ChartData cd = DataMiner.gatherSourceData(repo);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
+			logger.info("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
 			filesDoc = textPane.getDocument();
 			Iterator it = hm.entrySet().iterator();
 			int nbFiles = 0;
@@ -158,13 +161,15 @@ public class SourceInfoPanel extends JPanel {
 				try {
 					final Map.Entry sourcePairs = (Map.Entry) it.next();
 					final String groupString = (String) sourcePairs.getKey();
+					logger.debug("groupString: "+groupString);
 					ArrayList files = (ArrayList) sourcePairs.getValue();
 					nbFiles += files.size();
 					groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + ")\n", null);
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
 					Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
-						filesDoc.insertString(filesDoc.getLength(),"- "+ ((FileRecord)vecIt.next()).getFile().getName() + "\n", null);
+						filesDoc.insertString(filesDoc.getLength(),"- "+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath()+ "\n", null);
+						
 					}
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block

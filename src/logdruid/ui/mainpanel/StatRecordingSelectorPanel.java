@@ -134,7 +134,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
 					if (jPanelDetail != null) {
-						logger.info("ListSelectionListener - valueChanged");
+						logger.debug("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
 						recEditor = getEditor(repository.getRecording(StatRecording.class, selectedRow));
 						if (recEditor != null) {
@@ -152,6 +152,8 @@ public class StatRecordingSelectorPanel extends JPanel {
 		}
 		if (model.getRowCount()>0){
 			table.getRowSorter().toggleSortOrder(0);
+			table.setRowSelectionInterval(0, 0);
+			
 		}
 	}
 
@@ -237,8 +239,8 @@ public class StatRecordingSelectorPanel extends JPanel {
 			} else if (column == 2 ) {
 				return repository.getRecording(StatRecording.class,row).getType();
 			} else if (column == 3 ) {
-				logger.info("getvalueat name" + ((StatRecording) repository.getRecording(StatRecording.class, row)).getName());
-				logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(StatRecording.class, row)));
+				logger.debug("getvalueat name" + ((StatRecording) repository.getRecording(StatRecording.class, row)).getName());
+				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(StatRecording.class, row)));
 				return source.isActiveRecordingOnSource(repository.getRecording(StatRecording.class, row));
 			}
 			else return 0;
@@ -257,7 +259,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			if (column == 3 && source != null) {
-				logger.info("setValueAt calls setActiveRecording");
+				logger.debug("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(StatRecording.class, row));
 				fireTableCellUpdated(row, column);
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,

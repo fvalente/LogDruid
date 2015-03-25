@@ -119,7 +119,7 @@ public final class GraphPanel extends JPanel {
 	private Repository repo;
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
-			new Color(60, 179, 113) };
+			new Color(60, 179, 113),new Color(179,60 , 113)  };
 	// private Color[] colors = { new Color(65,171,93),new Color(254,196,79),new
 	// Color(65,171,93), new Color(239,59,44), new Color(65,182,196),new
 	// Color(5,112,176), new Color(254,178,76),Color.blue, new Color(255, 40,
@@ -293,6 +293,7 @@ public final class GraphPanel extends JPanel {
 			while (mrArrayListIterator.hasNext()) {
 
 				String key = (String) mrArrayListIterator.next();
+				logger.info(key);
 				final MineResult mr = (MineResult) mrArrayList.get(key);
 				Map<String, ExtendedTimeSeries> statMap = mr.getStatTimeseriesMap();
 				Map<String, ExtendedTimeSeries> eventMap = mr.getEventTimeseriesMap();

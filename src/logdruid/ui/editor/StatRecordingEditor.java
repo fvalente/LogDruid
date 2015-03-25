@@ -118,20 +118,7 @@ public class StatRecordingEditor extends JPanel {
 		txtName.setColumns(10);
 		txtRegularExp = new JTextField();
 
-		{
-			{
-				if (re == null) {
-					recordingEditorTablePanel = new StatRecordingEditorTable(examplePane);
-					logger.info("RecordingEditor - re=null");
-				} else {
-					recordingEditorTablePanel = new StatRecordingEditorTable(repo, re, examplePane);
-					logger.info("RecordingEditor - re!=null");
-				}
-				recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
-				recordingEditorTablePanel.setOpaque(true);
-				recordingEditorTablePanel.setVisible(true);
-			}
-		}
+
 
 		{
 			JSplitPane splitPane = new JSplitPane();
@@ -228,9 +215,6 @@ public class StatRecordingEditor extends JPanel {
 			panel2 = new JPanel();
 			topPanel.add(panel2, BorderLayout.CENTER);
 			panel2.setLayout(new BorderLayout(0, 0));
-			JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
-			// scrollPaneRecordingEditorTablePanel.setViewportView(recordingEditorTablePanel);
-			panel2.add(scrollPaneRecordingEditorTablePanel);
 			examplePane = new JTextPane();
 			textPane = new JTextPane();
 			if (re != null) {
@@ -238,11 +222,14 @@ public class StatRecordingEditor extends JPanel {
 				txtRegularExp.setText(re.getRegexp());
 				txtDate.setText(((StatRecording) re).getDateFormat());
 				examplePane.setText(re.getExampleLine());
-				if (DataVault.getMatchedLines(re)!=null){
+				logger.info("examplePane.setText with recording re.getExampleLine(): "+re.getExampleLine());
+				if (DataVault.getMatchedLines(re)!=null && !DataVault.getMatchedLines(re).equals("")){
 					examplePane.setText(DataVault.getMatchedLines(re));
+					logger.info("examplePane.setText with DataVault.getMatchedLines(re): "+DataVault.getMatchedLines(re));
 				}
-				if (DataVault.getUnmatchedLines(re)!=null){
+				if (DataVault.getUnmatchedLines(re)!=null && !DataVault.getUnmatchedLines(re).equals("")){
 					textPane.setText(DataVault.getUnmatchedLines(re));
+					logger.info("examplePane.setText with DataVault.getUnmatchedLines(re): "+DataVault.getUnmatchedLines(re));
 				}
 			}
 							{
@@ -406,6 +393,22 @@ public class StatRecordingEditor extends JPanel {
 				}
 			}
 		}
+		{
+			{
+				if (re == null) {
+					recordingEditorTablePanel = new StatRecordingEditorTable(examplePane);
+					logger.info("RecordingEditor - re=null");
+				} else {
+					recordingEditorTablePanel = new StatRecordingEditorTable(repo, re, examplePane);
+					logger.info("RecordingEditor - re!=null");
+				}
+				recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
+				recordingEditorTablePanel.setOpaque(true);
+				recordingEditorTablePanel.setVisible(true);
+			}
+		}
+		JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
+		panel2.add(scrollPaneRecordingEditorTablePanel);
 		recordingEditorTablePanel.FixValues();
 	}
 

@@ -144,7 +144,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				if (selectedRow >= 0) {
 
 					if (jPanelDetail != null) {
-						logger.info("ListSelectionListener - valueChanged");
+						logger.debug("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
 						recEditor = getEditor(repository.getRecording(MetadataRecording.class, selectedRow));
 						if (recEditor != null) {
@@ -163,6 +163,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		}
 		if (model.getRowCount()>0){
 			table.getRowSorter().toggleSortOrder(0);
+			table.setRowSelectionInterval(0, 0);
 		}
 		//reloadTable();
 		// jPanelDetail.revalidate();
@@ -182,23 +183,23 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		data.clear();
 		// this.repaint();
 
-		logger.info("reloadTable - 1");
+		logger.debug("reloadTable - 1");
 		while (it.hasNext()) {
 			Boolean bool = false;
 			Recording record = (Recording) it.next();
 			if (source != null) {
 				bool = source.isActiveRecordingOnSource(record);
-				logger.info("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
+				logger.debug("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
 			}
 			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), bool });
 			logger.info("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
 		}
 		// model.fireTableDataChanged();
-		logger.info("reloadTable - 2");
+		logger.debug("reloadTable - 2");
 		// this.repaint();
 		table.repaint();
 
-		logger.info("reloadTable - 3");
+		logger.debug("reloadTable - 3");
 		this.revalidate();
 
 	}
@@ -257,8 +258,8 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 			} else if (column == 2 ) {
 				return repository.getRecording(MetadataRecording.class,row).getType();
 			} else if (column == 3 ) {
-				logger.info("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row)).getName());
-				logger.info("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));
+				logger.debug("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row)).getName());
+				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));
 				return source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row));
 			}
 			else return 0;
@@ -277,7 +278,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			if (column == 3 && source != null) {
-				logger.info("setValueAt calls setActiveRecording");
+				logger.debug("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(MetadataRecording.class, row));
 				fireTableCellUpdated(row, column);
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,

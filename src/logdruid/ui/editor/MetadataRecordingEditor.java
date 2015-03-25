@@ -124,16 +124,7 @@ public class MetadataRecordingEditor extends JPanel {
 		this.add(contentPanel, BorderLayout.CENTER);
 		JPanel panel = new JPanel();
 		contentPanel.setLayout(new BorderLayout(0, 0));
-		if (re == null) {
-			recordingEditorTablePanel = new MetadataRecordingEditorTable(examplePane);
-			logger.info("RecordingEditor - re=null");
-		} else {
-			recordingEditorTablePanel = new MetadataRecordingEditorTable(repo, re, examplePane);
-			logger.info("RecordingEditor - re!=null examplePane: " + examplePane.getText());
-		}
-		recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
-		recordingEditorTablePanel.setOpaque(true);
-		recordingEditorTablePanel.setVisible(true);
+
 		JPanel panel_1_1 = new JPanel();
 		{
 
@@ -229,8 +220,7 @@ public class MetadataRecordingEditor extends JPanel {
 							panel2 = new JPanel();
 							panel_3.add(panel2, BorderLayout.CENTER);
 							panel2.setLayout(new BorderLayout(0, 0));
-							JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
-							panel2.add(scrollPaneRecordingEditorTablePanel);
+
 							{
 								panel_2 = new JPanel();
 								panel_3.add(panel_2, BorderLayout.SOUTH);
@@ -386,6 +376,19 @@ public class MetadataRecordingEditor extends JPanel {
 				splitPane.setBottomComponent(panel_1_1);
 			}
 		}
+		
+		if (re == null) {
+			recordingEditorTablePanel = new MetadataRecordingEditorTable(examplePane);
+			logger.info("RecordingEditor - re=null");
+		} else {
+			recordingEditorTablePanel = new MetadataRecordingEditorTable(repo, re, examplePane);
+			logger.info("RecordingEditor - re!=null examplePane: " + examplePane.getText());
+		}
+		recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
+		recordingEditorTablePanel.setOpaque(true);
+		recordingEditorTablePanel.setVisible(true);
+		JScrollPane scrollPaneRecordingEditorTablePanel = new JScrollPane(recordingEditorTablePanel);
+		panel2.add(scrollPaneRecordingEditorTablePanel);
 		recordingEditorTablePanel.FixValues();
 	}
 }
