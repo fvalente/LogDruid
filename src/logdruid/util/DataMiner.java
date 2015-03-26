@@ -311,6 +311,30 @@ public class DataMiner {
 		return new FileMineResultSet(fileDates, statMap, eventMap, timingStatsMap,fileLine, startDate, endDate);
 	}
 
+	
+	public static String readFileLine(Source src, FileLine fileLine, ChartData cd){
+		FileReader flstr = null;
+		String line = "";
+		FileRecord fileRecord = cd.sourceFileArrayListMap.get(src).get(fileLine.getFileId());
+		try {
+			flstr = new FileReader( fileRecord.getCompletePath());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		BufferedReader r = new BufferedReader(flstr);
+		for (int i = 0; i < fileLine.getLineNumber(); i++)
+		{
+		   try {
+			line=r.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		}
+		return line;
+		
+	}
 	// handle gathering for a single file
 	public static FileMineResult fileMine(FileRecord fileRecord, Repository repo, Source source, boolean stats, boolean timings) {
 		ExtendedTimeSeries ts = null;

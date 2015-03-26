@@ -21,7 +21,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
 
-public class Source {
+public class Source implements Comparable{
 	private static Logger logger = Logger.getLogger(Source.class.getName());
 	private String sourceName;
 	private String sourcePattern;
@@ -113,6 +113,15 @@ public class Source {
 
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		String local = getSourceName();
+		String remote = ((Source)o).getSourceName();
+		//return remote.compareTo(local);
+		return local.compareTo(remote);
+
 	}
 
 }
