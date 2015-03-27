@@ -97,6 +97,7 @@ import javax.swing.JScrollPane;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -447,7 +448,7 @@ public final class GraphPanel extends JPanel {
 								if (((ExtendedTimeSeries) statMap.get(me)).getStat() != null) {
 									hits = ((ExtendedTimeSeries) statMap.get(me)).getStat()[1];
 								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(axis4,renderer, me.toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,axis4,renderer, me.toString() + "(" + hits + ")", 0));
 								Boolean selected = true;
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
@@ -514,7 +515,7 @@ public final class GraphPanel extends JPanel {
 								}
 								// ((ExtendedTimeSeries)
 								// me.getValue()).getStat()[1]
-								JCheckBox jcb = new JCheckBox(new VisibleAction(axis4,rend, me.getKey().toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,axis4,rend, me.getKey().toString() + "(" + hits + ")", 0));
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
@@ -630,25 +631,49 @@ public final class GraphPanel extends JPanel {
 		private XYItemRenderer renderer;
 		NumberAxis localAxis;
 		private int i;
+		JPanel jpanel;
 
-		public VisibleAction(NumberAxis axis, XYItemRenderer renderer, String name, int i) {
+		public VisibleAction(JPanel panel,NumberAxis axis, XYItemRenderer renderer, String name, int i) {
 			super(name);
 			this.renderer = renderer;
 			this.localAxis=axis;
 			this.i = i;
+			jpanel=panel;
 		}
 
-		public VisibleAction(NumberAxis axis, XYBarRenderer renderer, String name, int i) {
+		public VisibleAction(JPanel panel,NumberAxis axis, XYBarRenderer renderer, String name, int i) {
 			super(name);
 			this.renderer = renderer;
 			this.localAxis=axis;
 			this.i = i;
+			jpanel=panel;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
-			localAxis.setVisible(!localAxis.isVisible());
+			logger.debug(e.getActionCommand());
+		//	renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
+		//	localAxis.setVisible(!localAxis.isVisible());
+			Component[] comp=jpanel.getComponents();
+			int i=0;
+			while (i<comp.length){
+				logger.debug(comp[i].toString());
+				if (comp[i].getClass().equals(JPanel.class)){
+					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxisCount();
+					logger.debug(nbAxis);
+					logger.debug(((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getTitle().getText());
+					int i2=0;
+					while (i2<nbAxis){
+						logger.debug(localAxis.getLabel());
+						if (((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
+							((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
+							((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
+						}
+						i2++;
+						}
+				}
+				i++;
+			}
 		}
 
 	}

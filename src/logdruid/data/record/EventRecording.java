@@ -18,7 +18,7 @@ public class EventRecording extends Recording {
 	private static Logger logger = Logger.getLogger(EventRecording.class.getName());
 	private String dateFormat;
 
-	public EventRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
+	public EventRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
@@ -39,15 +39,15 @@ public class EventRecording extends Recording {
 		return dateFormat;
 	}
 
-	public void setDelimitator(String delimitator) {
+	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 
-	public void setRecordingItem(ArrayList recordingItem) {
+	public void setRecordingItem(ArrayList<RecordingItem> recordingItem) {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
@@ -61,7 +61,7 @@ public class EventRecording extends Recording {
 
 	public Recording duplicate() {
 
-		ArrayList _recordingItem = null;
+		ArrayList<RecordingItem> _recordingItem = null;
 		// might need put back .toString() to those?? *** TBR
 		String _name = getName().toString();
 		String _regexp = getRegexp().toString();
@@ -70,7 +70,7 @@ public class EventRecording extends Recording {
 
 		Boolean _isActive = getIsActive().booleanValue();
 		if (recordingItem != null) {
-			_recordingItem = (ArrayList) recordingItem.clone();
+			_recordingItem = (ArrayList<RecordingItem>) recordingItem.clone();
 		}
 		EventRecording eR=new EventRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
 		eR.setDateFormatID(this.getDateFormatID());

@@ -86,12 +86,12 @@ public class DataMiner {
 		Iterator<Source> sourceIterator2 = repo.getSources().iterator();
 
 		while (sourceIterator2.hasNext()) {
-			final Source source = (Source) sourceIterator2.next();
+			final Source source = sourceIterator2.next();
 			// sourceFiles contains all the matched files for a given source
 			if (source.getActive()) {
-				Iterator it = cd.getGroupFilesMap(source).entrySet().iterator();
+				Iterator<Entry<String, ArrayList<FileRecord>>> it = cd.getGroupFilesMap(source).entrySet().iterator();
 				while (it.hasNext()) {
-					final Map.Entry pairs = (Map.Entry) it.next();
+					final Map.Entry<String, ArrayList<FileRecord>> pairs = (Map.Entry<String, ArrayList<FileRecord>>) it.next();
 					 logger.debug("Source:" + source.getSourceName()+", group: " +  pairs.getKey() + " = " + pairs.getValue().toString());
 					tasks.add(new Callable<MineResult>() {
 						public MineResult call() throws Exception {
@@ -227,7 +227,7 @@ public class DataMiner {
 				fileDates.add(new Object[] { fMR.getStartDate(), fMR.getEndDate(), fMR.getFile() });
 			}
 
-			Map tempStatMap = fMR.statGroupTimeSeries;
+			Map<String, ExtendedTimeSeries> tempStatMap = fMR.statGroupTimeSeries;
 			tempStatMap.entrySet();
 			Iterator it = tempStatMap.entrySet().iterator();
 			while (it.hasNext()) {
@@ -402,7 +402,7 @@ public class DataMiner {
 							}
 						}
 						// logger.info("1**** matched: " + line);
-						ArrayList recordingItem = ((Recording) rec).getRecordingItem();
+						ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 						int cnt = 0;
 						matcher2 = patternCache.getPattern((String) me.getValue()).matcher(line);
 						successMatch = false;
@@ -417,9 +417,9 @@ public class DataMiner {
 							int count = 1;
 							Date date1 = null;
 							
-							Iterator recItemIte2 = recordingItem.iterator();
+							Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
 							while (recItemIte2.hasNext()) {
-								RecordingItem recItem2 = (RecordingItem) recItemIte2.next();
+								RecordingItem recItem2 = recItemIte2.next();
 								// logger.info("3A**** " +
 								// recItem2.getType());
 								if (recItem2.getType().equals("date")) {
@@ -443,7 +443,7 @@ public class DataMiner {
 										if (logger.isDebugEnabled()) {
 											logger.debug("FileRecord: "+fileRecord.getFile().getName()+", Source: "+source.getSourceName()+", "+recItem2.getName()+", "+fileRecord.getFile().getName()+", "+lineCount);
 										}
-										Map dateFileLineMap=null;
+										Map<Date, FileLine> dateFileLineMap=null;
 										if (RIFileLineDateMap.containsKey(recItem2.getName())) {
 											dateFileLineMap = RIFileLineDateMap.get(recItem2.getName());
 										} else {
@@ -858,15 +858,15 @@ public class DataMiner {
 			}
 			if (activeRecordingOnSourceCache.get(rec)) {
 				if (rec.getIsActive() == true) {
-					ArrayList recordingItem = ((Recording) rec).getRecordingItem();
-					Iterator recItemIte = recordingItem.iterator();
+					ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
+					Iterator<RecordingItem> recItemIte = recordingItem.iterator();
 					if (logger.isDebugEnabled()) {
 						logger.debug("Record: " + rec.getName());
 					}
 					sb.setLength(0);
 					int cnt = 0;
 					while (recItemIte.hasNext()) {
-						RecordingItem recItem = (RecordingItem) recItemIte.next();
+						RecordingItem recItem = recItemIte.next();
 						String stBefore = (String) recItem.getBefore();
 						String stType = (String) recItem.getType();
 						String stAfter = (String) recItem.getAfter();
@@ -922,7 +922,7 @@ public class DataMiner {
 		Iterator<Source> sourceIterator = cd.sourceArrayList.iterator();
 
 		while (sourceIterator.hasNext()) {
-			final Source source = (Source) sourceIterator.next();
+			final Source source = sourceIterator.next();
 			cd.selectedSourceFiles = new HashMap<Integer,FileRecord>();
 			// sourceFiles contains all the matched files for a given source
 			if (source.getActive()) {
@@ -963,7 +963,7 @@ public class DataMiner {
 		Map<String, ArrayList<FileRecord>> sourceFileGroup = null;
 		Iterator<Entry<Source, Map<Integer,FileRecord>>> ite = cd.sourceFileArrayListMap.entrySet().iterator();
 		while (ite.hasNext()) {
-			final Map.Entry sourcePairs = (Map.Entry) ite.next();
+			final Map.Entry sourcePairs = ite.next();
 
 			final Source src = (Source) sourcePairs.getKey();
 			Map<Integer,FileRecord> sourceFiles = (Map<Integer,FileRecord>) sourcePairs.getValue();
@@ -1046,7 +1046,7 @@ public class DataMiner {
 								matcher = patternCache.getPattern((String) (rec.getRegexp())).matcher(line);
 								if (matcher.find()) {
 									// logger.info("1**** matched: " + line);
-									ArrayList recordingItem = ((Recording) rec).getRecordingItem();
+									ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 									int cnt = 0;
 									matcher2 = patternCache.getPattern((String) me.getValue()).matcher(line);
 									if (matcher2.find()) {
