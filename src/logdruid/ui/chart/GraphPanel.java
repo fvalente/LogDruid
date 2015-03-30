@@ -122,7 +122,7 @@ public final class GraphPanel extends JPanel {
 	private Repository repo;
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
-			new Color(60, 179, 113),new Color(179,60 , 113)  };
+			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 )  };
 	// private Color[] colors = { new Color(65,171,93),new Color(254,196,79),new
 	// Color(65,171,93), new Color(239,59,44), new Color(65,182,196),new
 	// Color(5,112,176), new Color(254,178,76),Color.blue, new Color(255, 40,
@@ -380,14 +380,8 @@ public final class GraphPanel extends JPanel {
 										sb.append("<p style='color:#000000;'>" + dataset.getSeriesKey(series).toString() + ": "
 												+ form.format(dataset.getYValue(0, item)) + "</p>");
 										if (mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString())!=null){
-											try {
-												sb.append("<p style='color:#0000FF;'>" + cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getFileId()).getFile().getCanonicalPath()+":"+
-													mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getLineNumber() + "</p>");
-											} catch (IOException e) {
-												// TODO Auto-generated catch block
-												e.printStackTrace();
-											}
-									//	sb.append("<p style='color:#000000;'>" + DataMiner.readFileLine((Source)pairs.getKey(), mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()),  cd) + "</p>");
+											sb.append("<p style='color:#0000FF;'>" + cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getFileId()).getFile().getName()+":"+
+												mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getLineNumber() + "</p>");
 										
 										}
 									}
@@ -448,7 +442,7 @@ public final class GraphPanel extends JPanel {
 								if (((ExtendedTimeSeries) statMap.get(me)).getStat() != null) {
 									hits = ((ExtendedTimeSeries) statMap.get(me)).getStat()[1];
 								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,axis4,renderer, me.toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4,renderer, me.toString() + "(" + hits + ")", 0));
 								Boolean selected = true;
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
@@ -515,7 +509,7 @@ public final class GraphPanel extends JPanel {
 								}
 								// ((ExtendedTimeSeries)
 								// me.getValue()).getStat()[1]
-								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,axis4,rend, me.getKey().toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4,rend, me.getKey().toString() + "(" + hits + ")", 0));
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
@@ -632,26 +626,31 @@ public final class GraphPanel extends JPanel {
 		NumberAxis localAxis;
 		private int i;
 		JPanel jpanel;
+		String name;
+		JPanel checkBoxPanel;
 
-		public VisibleAction(JPanel panel,NumberAxis axis, XYItemRenderer renderer, String name, int i) {
+		public VisibleAction(JPanel panel,JPanel checkBoxPanel,NumberAxis axis, XYItemRenderer renderer, String name, int i) {
 			super(name);
 			this.renderer = renderer;
 			this.localAxis=axis;
 			this.i = i;
+			this.name=name.substring(0, ((name).indexOf("(")));
+			this.checkBoxPanel=checkBoxPanel;
 			jpanel=panel;
 		}
 
-		public VisibleAction(JPanel panel,NumberAxis axis, XYBarRenderer renderer, String name, int i) {
+		public VisibleAction(JPanel panel,JPanel checkBoxPanel,NumberAxis axis, XYBarRenderer renderer, String name, int i) {
 			super(name);
 			this.renderer = renderer;
 			this.localAxis=axis;
 			this.i = i;
+			this.name=name.substring(0, ((name).indexOf("(")));
+			this.checkBoxPanel=checkBoxPanel;
 			jpanel=panel;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			logger.debug(e.getActionCommand());
 		//	renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
 		//	localAxis.setVisible(!localAxis.isVisible());
 			Component[] comp=jpanel.getComponents();
@@ -660,16 +659,26 @@ public final class GraphPanel extends JPanel {
 				logger.debug(comp[i].toString());
 				if (comp[i].getClass().equals(JPanel.class)){
 					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxisCount();
-					logger.debug(nbAxis);
-					logger.debug(((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getTitle().getText());
+					if (logger.isDebugEnabled()){
+						logger.debug(nbAxis);
+						logger.debug(((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getTitle().getText());
+					}					
 					int i2=0;
 					while (i2<nbAxis){
-						logger.debug(localAxis.getLabel());
+						if (logger.isDebugEnabled()){logger.debug(localAxis.getLabel());}
 						if (((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
 							((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
 							((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponents()[0]).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
 						}
 						i2++;
+						}
+					Component[] comp2=((JPanel)((JPanel)comp[i]).getComponents()[1]).getComponents();
+					int i3=0;
+					while (i3<comp2.length){;
+						if ( ((JCheckBox)comp2[i3]).getText().substring(0, ((((JCheckBox)comp2[i3]).getText()).indexOf("("))).equals(name)&& !((JPanel)((JPanel)comp[i]).getComponents()[1]).equals(checkBoxPanel)){
+							((JCheckBox)comp2[i3]).setSelected(!((JCheckBox)comp2[i3]).isSelected());
+						}
+						i3++;
 						}
 				}
 				i++;

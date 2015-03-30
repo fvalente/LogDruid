@@ -342,7 +342,7 @@ public class SourcePanel extends JPanel {
 		});
 
 		reloadTable();
-		if (repository.getSources().size() > 0) {
+		if (table.getRowCount()> 0) {
 			table.setRowSelectionInterval(0, 0);
 		}
 		refreshList();
@@ -380,6 +380,7 @@ public class SourcePanel extends JPanel {
 				if (repository.isRecursiveMode()) {
 					long estimatedTime = 0;
 					long startTime = System.currentTimeMillis();
+					
 					listOfFiles = FileListing.getFileListing(folder);
 					estimatedTime = System.currentTimeMillis() - startTime;
 					logger.info("gathering time: " + estimatedTime);

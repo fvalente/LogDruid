@@ -52,15 +52,17 @@ public final class FileListing {
 	private static List<File> getFileListingNoSort(File aStartingDir) throws FileNotFoundException {
 		List<File> result = new ArrayList<>();
 		File[] filesAndDirs = aStartingDir.listFiles();
-		List<File> filesDirs = Arrays.asList(filesAndDirs);
-		for (File file : filesDirs) {
-			result.add(file); // always add, even if directory
-			if (!file.isFile()) {
-				// must be a directory
-				// recursive call!
-				List<File> deeperList = getFileListingNoSort(file);
-				result.addAll(deeperList);
-			}
+		if (filesAndDirs!=null){
+			List<File> filesDirs = Arrays.asList(filesAndDirs);
+			for (File file : filesDirs) {
+				result.add(file); // always add, even if directory
+				if (!file.isFile()) {
+					// must be a directory
+					// recursive call!
+					List<File> deeperList = getFileListingNoSort(file);
+					result.addAll(deeperList);
+				}
+			}			
 		}
 		return result;
 	}
