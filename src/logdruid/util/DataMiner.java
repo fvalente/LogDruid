@@ -417,6 +417,7 @@ public class DataMiner {
 							int count = 1;
 							Date date1 = null;
 							
+							// handling capture for each recording item
 							Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
 							while (recItemIte2.hasNext()) {
 								RecordingItem recItem2 = recItemIte2.next();
@@ -443,6 +444,7 @@ public class DataMiner {
 										if (logger.isDebugEnabled()) {
 											logger.debug("FileRecord: "+fileRecord.getFile().getName()+", Source: "+source.getSourceName()+", "+recItem2.getName()+", "+fileRecord.getFile().getName()+", "+lineCount);
 										}
+										// recording line of match in file in map RIFileLineDateMap - note the FileLine object use an int to identify the files to save memory 
 										Map<Date, FileLine> dateFileLineMap=null;
 										if (RIFileLineDateMap.containsKey(recItem2.getName())) {
 											dateFileLineMap = RIFileLineDateMap.get(recItem2.getName());
@@ -497,7 +499,10 @@ public class DataMiner {
 												e.printStackTrace();
 											}
 											if (stats) {
-												int[] array = { statMatch, statHit };
+												//int[] array = { statMatch, statHit };
+												int[] array =ts.getStat();
+												array[1] = array[1]+1;
+												array[0] =array[0]+1;
 												ts.setStat(array);
 												if (logger.isDebugEnabled())
 													logger.debug("stats " + array[0] + " " + array[1]);
@@ -579,7 +584,9 @@ public class DataMiner {
 											// " " +
 											// Double.parseDouble((matcher2.group(count))));
 											if (stats) {
-												int[] array = { eventMatch, eventHit };
+												int[] array =ts.getStat();
+												array[1] = array[1]+1;
+												array[0] =array[0]+1;
 												ts.setStat(array);
 												if (logger.isDebugEnabled())
 													logger.debug("stats " + array[0] + " " + array[1]);

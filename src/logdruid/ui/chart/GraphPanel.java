@@ -67,6 +67,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
+import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
@@ -439,10 +440,12 @@ public final class GraphPanel extends JPanel {
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								plot1.setRenderer(count, renderer);
 								int hits = 0; // ts.getStat()[1]
+								int matchs=0;
 								if (((ExtendedTimeSeries) statMap.get(me)).getStat() != null) {
 									hits = ((ExtendedTimeSeries) statMap.get(me)).getStat()[1];
+								//	matchs= ((ExtendedTimeSeries) statMap.get(me)).getStat()[0];
 								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4,renderer, me.toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4, me.toString() + "(" + hits + ")", 0));
 								Boolean selected = true;
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
@@ -454,6 +457,9 @@ public final class GraphPanel extends JPanel {
 							}
 							Iterator eventMapIterator = eventMap.entrySet().iterator();
 							while (eventMapIterator.hasNext()) {
+								
+							//	HistogramDataset histoDataSet=new HistogramDataset();
+								
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
 								Map.Entry me = (Map.Entry) eventMapIterator.next();
 								// if (dataset.getEndXValue(series, item))
@@ -492,7 +498,7 @@ public final class GraphPanel extends JPanel {
 								plot2.setDataset(count, dataset);
 								plot2.mapDatasetToRangeAxis(count, count);
 								XYBarRenderer rend = new XYBarRenderer(); // XYErrorRenderer
-																			//
+								
 								rend.setShadowVisible(false);
 								rend.setDrawBarOutline(true);
 								Stroke stroke = new BasicStroke(5);
@@ -504,12 +510,16 @@ public final class GraphPanel extends JPanel {
 								renderer.setSeriesVisible(0, true);
 								plot2.setRenderer(count, renderer);
 								int hits = 0;
+								int matchs=0;
+								
 								if (((ExtendedTimeSeries) me.getValue()).getStat() != null) {
 									hits = ((ExtendedTimeSeries) me.getValue()).getStat()[1];
+								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
 								}
-								// ((ExtendedTimeSeries)
-								// me.getValue()).getStat()[1]
-								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4,rend, me.getKey().toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
+
+								
+								
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
@@ -567,7 +577,8 @@ public final class GraphPanel extends JPanel {
 											int y = chartmouseevent.getTrigger().getY();
 											String myString = "";
 											if (dataitem.getPeriod() != null) {
-												myString = mr.getFileForDate(dataitem.getPeriod().getEnd()).toString();
+												logger.info(dataitem.getPeriod().getEnd());
+//												myString = mr.getFileForDate(dataitem.getPeriod().getEnd()).toString();
 												String lineString=""+mr.getFileLineForDate(dataitem.getPeriod().getEnd(),item.getDataset().getSeriesKey(item.getSeriesIndex()).toString()).getLineNumber();
 												String fileString=cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(dataitem.getPeriod().getEnd(),item.getDataset().getSeriesKey(item.getSeriesIndex()).toString()).getFileId()).getFile().getAbsolutePath();
 												String command=Preferences.getPreference("editorCommand");
@@ -581,7 +592,7 @@ public final class GraphPanel extends JPanel {
 													// TODO Auto-generated catch block
 													e1.printStackTrace();
 												}
-												StringSelection stringSelection = new StringSelection(myString);
+												StringSelection stringSelection = new StringSelection(fileString);
 												Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
 												clpbrd.setContents(stringSelection, null);
 										//		cpanel.getGraphics().drawString("file name copied", x - 5, y - 5);
@@ -622,26 +633,14 @@ public final class GraphPanel extends JPanel {
 
 	private static class VisibleAction extends AbstractAction {
 
-		private XYItemRenderer renderer;
 		NumberAxis localAxis;
 		private int i;
 		JPanel jpanel;
 		String name;
 		JPanel checkBoxPanel;
 
-		public VisibleAction(JPanel panel,JPanel checkBoxPanel,NumberAxis axis, XYItemRenderer renderer, String name, int i) {
+		public VisibleAction(JPanel panel,JPanel checkBoxPanel,NumberAxis axis, String name, int i) {
 			super(name);
-			this.renderer = renderer;
-			this.localAxis=axis;
-			this.i = i;
-			this.name=name.substring(0, ((name).indexOf("(")));
-			this.checkBoxPanel=checkBoxPanel;
-			jpanel=panel;
-		}
-
-		public VisibleAction(JPanel panel,JPanel checkBoxPanel,NumberAxis axis, XYBarRenderer renderer, String name, int i) {
-			super(name);
-			this.renderer = renderer;
 			this.localAxis=axis;
 			this.i = i;
 			this.name=name.substring(0, ((name).indexOf("(")));

@@ -6,7 +6,7 @@ import org.jfree.data.time.TimeSeries;
 public class ExtendedTimeSeries {
 
 	TimeSeries timeSeries;
-	int[] stat;
+	int[] stat={0,0};
 
 	public ExtendedTimeSeries() {
 		// TODO Auto-generated constructor stub

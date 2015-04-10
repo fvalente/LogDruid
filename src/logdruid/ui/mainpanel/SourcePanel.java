@@ -148,7 +148,8 @@ public class SourcePanel extends JPanel {
 				File temp = new File(basePathTextField.getText());
 				if (temp.exists()) {
 					repo.setBaseSourcePath(basePathTextField.getText());
-					_mainFrame.setTitle("LogDruid - " + _mainFrame.currentRepositoryFile + " - " + basePathTextField.getText());
+					_mainFrame.setTitle("LogDruid - " + _mainFrame.configFile+ " - " + basePathTextField.getText());
+					//_mainFrame.setTitle("LogDruid - " + _mainFrame.currentRepositoryFile + " - " + basePathTextField.getText());
 				}
 			}
 		});
@@ -194,6 +195,7 @@ public class SourcePanel extends JPanel {
 						repository.setBaseSourcePath(file.getAbsolutePath());
 						basePathTextField.setText(file.getAbsolutePath());
 						repo.setBaseSourcePath(file.getAbsolutePath());
+						_mainFrame.setTitle("LogDruid - " + _mainFrame.configFile+ " - " + basePathTextField.getText());
 					}
 				}
 			}

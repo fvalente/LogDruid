@@ -90,7 +90,7 @@ public class MainFrame extends JFrame {
 	private JPanel contentPane;
 	private Repository repository;
 	private DefaultMutableTreeNode DMTnode_sources;
-	private File configFile;
+	public File configFile;
 	private JSpinner startTimeSpinner;
 	private JSpinner.DateEditor timeEditor;
 	private JSpinner endTimeSpinner;
