@@ -394,8 +394,9 @@ public class DataMiner {
 					Recording rec = (Recording) me.getKey();
 					matcher = patternCache.getPattern((String) (rec.getRegexp())).matcher(line);
 					if (matcher.find()) {
+						Boolean isStatRecording=rec.getClass().equals(StatRecording.class);
 						if (stats) {
-							if (rec.getClass().equals(StatRecording.class)) {
+							if (isStatRecording) {
 								statMatch++;
 							} else {
 								eventMatch++;
@@ -408,7 +409,7 @@ public class DataMiner {
 						successMatch = false;
 						if (matcher2.find()) {
 							if (stats) {
-								if (rec.getClass().equals(StatRecording.class)) {
+								if (isStatRecording) {
 									statHit++;
 								} else {
 									eventHit++;
@@ -471,7 +472,7 @@ public class DataMiner {
 											startDate = date1;
 										}
 
-										if (rec.getClass().equals(StatRecording.class)) {
+										if (isStatRecording) {
 											if (statMap.containsKey(recItem2.getName())) {
 												ts = statMap.get(recItem2.getName());
 											} else {
