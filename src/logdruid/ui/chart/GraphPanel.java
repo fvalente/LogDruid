@@ -381,8 +381,16 @@ public final class GraphPanel extends JPanel {
 										sb.append("<p style='color:#000000;'>" + dataset.getSeriesKey(series).toString() + ": "
 												+ form.format(dataset.getYValue(0, item)) + "</p>");
 										if (mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString())!=null){
-											sb.append("<p style='color:#0000FF;'>" + cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getFileId()).getFile().getName()+":"+
-												mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getLineNumber() + "</p>");
+											try {
+												sb.append("<p style='color:#0000FF;'>" + 
+cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
+													new Date(x.longValue()),
+													dataset.getSeriesKey(series).toString()).getFileId()).getFile().getCanonicalPath()
++":"+mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getLineNumber() + "</p>");
+											} catch (IOException e) {
+												// TODO Auto-generated catch block
+												e.printStackTrace();
+											}
 										
 										}
 									}
