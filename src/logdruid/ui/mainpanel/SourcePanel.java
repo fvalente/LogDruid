@@ -43,6 +43,7 @@ import logdruid.ui.FileChooserDialog;
 import logdruid.ui.MainFrame;
 import logdruid.util.DataMiner;
 import logdruid.util.FileListing;
+import logdruid.util.PatternCache;
 
 import javax.swing.JList;
 import javax.swing.JTable;
@@ -74,6 +75,7 @@ import javax.swing.JCheckBox;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 import java.awt.Font;
 
 public class SourcePanel extends JPanel {
@@ -81,7 +83,7 @@ public class SourcePanel extends JPanel {
 	private JTextField basePathTextField;
 	boolean DEBUG = false;
 	private JTable table;
-	private String[] header = { "name", "coverage", "active" };
+	private String[] header = { "name", "regexp", "active" };
 	private Repository repository;
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	public MyTableModel2 model;
@@ -217,6 +219,7 @@ public class SourcePanel extends JPanel {
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()){
 				// model.fireTableDataChanged();
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				updateSources();
@@ -224,6 +227,7 @@ public class SourcePanel extends JPanel {
 				reloadTable();
 				table.setRowSelectionInterval(selectedRow, selectedRow);
 				refreshList();
+				}
 			}
 		});
 
@@ -354,8 +358,8 @@ public class SourcePanel extends JPanel {
 		// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
 		// persist repository
 		// display selected row
+		PatternCache patternCache = new PatternCache();
 		Matcher matcher;
-		Pattern pattern;
 		List<File> listOfFiles = null;
 		sourceArrayList = repository.getSources();
 		if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0 && repository.getBaseSourcePath() != null) {
@@ -414,9 +418,10 @@ public class SourcePanel extends JPanel {
 						Iterator<Source> it = sourceArrayList.iterator();
 						count = 0;
 						while (it.hasNext()) {
-							String s1 = ((Source) it.next()).getSourcePattern();
-							pattern = Pattern.compile(s1);
-							matcher = pattern.matcher(FileListing.getPath(repository, listOfFiles.get(i)));
+							Source src=(Source) it.next();
+
+							String s1 = (src).getSourcePattern();
+							matcher = patternCache.getPattern(s1).matcher(FileListing.getPath(repository, listOfFiles.get(i)));
 							if (logger.isDebugEnabled())
 								logger.debug("matching with pattern: " + s1);
 							if (logger.isDebugEnabled())
@@ -426,15 +431,24 @@ public class SourcePanel extends JPanel {
 								if (logger.isDebugEnabled())
 									logger.debug("match" + FileListing.getPath(repository, listOfFiles.get(i)));
 								if (count == ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)) {
+									if (src.getActive()){
 									fileListMatches[i][0] = 1;
+									} else {
+										fileListMatches[i][0] = 3;
+									}
 									fileListMatches[i][1] = matcher.start();
 									fileListMatches[i][2] = matcher.end();
 									if (logger.isDebugEnabled())
 										logger.debug("matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
-								} else if (fileListMatches[i][0] != 1) {
+								} else if (fileListMatches[i][0] == 0) {
 									if (logger.isDebugEnabled())
 										logger.debug("Already matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
-									fileListMatches[i][0] = 2;
+										if (src.getActive()){
+											fileListMatches[i][0] = 2;
+											} else {
+												fileListMatches[i][0] = 3;
+											}
+									
 								}
 								fileListMatches[i][1] = matcher.start();
 								fileListMatches[i][2] = matcher.end();
@@ -443,8 +457,9 @@ public class SourcePanel extends JPanel {
 								if (logger.isDebugEnabled())
 									logger.debug("not matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
 							}
+						
 							count++;
-						}
+					}
 					}
 				}
 			}
@@ -474,7 +489,19 @@ public class SourcePanel extends JPanel {
 						if (logger.isDebugEnabled())
 							logger.debug("ALREADY matched - l: " + i + "file" + listOfFiles.get(i).getName() + " currIndex : " + currIndex + ", match start: "
 									+ fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
-					} else if (!repository.isOnlyMatches()) {
+						
+					}else if (fileListMatches[i][0] == 3) {
+						String fileName = FileListing.getPath(repository, listOfFiles.get(i));
+						doc.insertString(doc.getLength(), fileName + "\n", null);
+						txtpnTest.setCaretPosition(0);
+						h.addHighlight(currIndex + fileListMatches[i][1], currIndex + fileListMatches[i][2], new DefaultHighlighter.DefaultHighlightPainter(
+								Color.lightGray));
+						if (logger.isDebugEnabled())
+							logger.debug("ALREADY matched - l: " + i + "file" + listOfFiles.get(i).getName() + " currIndex : " + currIndex + ", match start: "
+									+ fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
+						
+					} 
+					else if (!repository.isOnlyMatches()) {
 						String fileName = FileListing.getPath(repository, listOfFiles.get(i));
 						doc.insertString(doc.getLength(), fileName + "\n", null);
 						txtpnTest.setCaretPosition(0);
@@ -490,26 +517,26 @@ public class SourcePanel extends JPanel {
 	}
 
 	public void updateSources() {
-		// "name", "coverage", "active"
+		// "name", "regexp", "active"
 		Iterator it = data.iterator();
 		Object[] obj;
 		int count = 0;
 		while (it.hasNext()) {
 			obj = (Object[]) it.next();
 			String stName = (String) obj[0];
-			String stCoverage = (String) obj[1];
+			String stregexp = (String) obj[1];
 			Boolean stActive = (Boolean) obj[2];
 			// logger.info("stType: " +stType);
 			// logger.info("getTypeString(stType) -: "
 			// +Miner.getTypeString(stType) );
 			// patternString += stBefore + "(" + Miner.getTypeString(stType) +
-			// ")"+stAfter;
+			// ")"+stAfter; 
 			Source source = repository.getSource(count);
 			source.setSourceName(stName);
-			source.setSourcePattern(stCoverage);
+			source.setSourcePattern(stregexp);
 			source.setActive(stActive);
-			// repository.updateSource(count,stName,stCoverage, stActive);
-			logger.info("updateSources - Source updated : " + stName + ",regexp: " + stCoverage);
+			// repository.updateSource(count,stName,stregexp, stActive);
+			logger.info("updateSources - Source updated : " + stName + ",regexp: " + stregexp);
 			count++;
 		}
 	}
@@ -529,12 +556,6 @@ public class SourcePanel extends JPanel {
 				logger.info("reloadTable - record reloaded : " + count + ", " + record.getSourceName() + ", " + record.getSourcePattern() + ", "
 						+ record.getActive());
 			}
-			// model.fireTableDataChanged();
-			// this.repaint();
-			// table.repaint();
-			// table.revalidate(); ******************** removed to workaround
-			// NPE
-
 			table.revalidate();
 		}
 	}
