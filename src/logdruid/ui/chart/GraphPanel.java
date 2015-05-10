@@ -51,6 +51,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.DateTickUnit;
+import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
@@ -123,7 +125,7 @@ public final class GraphPanel extends JPanel {
 	private Repository repo;
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
-			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 )  };
+			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 ),new Color(70, 62, 200), new Color(255,171, 130 ), new Color( 40, 255,40) };
 	// private Color[] colors = { new Color(65,171,93),new Color(254,196,79),new
 	// Color(65,171,93), new Color(239,59,44), new Color(65,182,196),new
 	// Color(5,112,176), new Color(254,178,76),Color.blue, new Color(255, 40,
@@ -350,9 +352,14 @@ public final class GraphPanel extends JPanel {
 							domainAxis1.setTickLabelsVisible(true);
 							// domainAxis1.setTickMarksVisible(true);
 
+							final DateAxis domainAxis2 = new DateAxis();
+							domainAxis2.setTickLabelsVisible(true);
+							domainAxis2.setDateFormatOverride(DateFormat.getDateInstance(DateFormat.MEDIUM));
+							domainAxis2.setTickUnit(new DateTickUnit(DateTickUnitType.DAY,1));
 							logger.debug("getRange: " + domainAxis1.getRange());
 							if (relativeCheckBox.isSelected()) {
 								domainAxis1.setRange((Date) startDateJSpinner.getValue(), (Date) endDateJSPinner.getValue());
+								domainAxis2.setRange((Date) startDateJSpinner.getValue(), (Date) endDateJSPinner.getValue());
 							} else {
 								Date startDate = mr.getStartDate();
 								Date endDate = mr.getEndDate();
@@ -366,6 +373,7 @@ public final class GraphPanel extends JPanel {
 								}
 								if (startDate.before(endDate)) {
 									domainAxis1.setRange(startDate, endDate);
+									domainAxis2.setRange(startDate, endDate);
 								}
 							}
 							XYToolTipGenerator tt1 = new XYToolTipGenerator() {
@@ -397,7 +405,21 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 									return sb.toString();
 								}
 							};
-
+							XYPlot plot1 = chart.getXYPlot();
+							final ValueAxis domainAxis = domainAxis1;
+							domainAxis.setLowerMargin(0.0);
+							domainAxis.setUpperMargin(0.0);
+							final ValueAxis domainAxis2a = domainAxis2;
+							domainAxis2a.setLowerMargin(0.0);
+							domainAxis2a.setUpperMargin(0.0);
+		//					domainAxis2a.setVerticalTickLabels(false);
+		//					domainAxis2a.setAxisLineVisible(false);
+							plot1.setDomainAxis(0,domainAxis);
+							plot1.setDomainAxis(1,domainAxis2a);
+							plot1.setDomainCrosshairVisible(true);
+							plot1.setRangeCrosshairVisible(true);
+							plot1.mapDatasetToDomainAxis(0, 1);
+							plot1.mapDatasetToDomainAxis(1, 1);
 							while (statMapIterator.hasNext()) {
 
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -412,24 +434,20 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 										+ ((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getItemCount());
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMaxY()));
 								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMinY()));
-								XYPlot plot1 = chart.getXYPlot();
+
 							//	LogarithmicAxis axis4 = new LogarithmicAxis(me.toString());
 								NumberAxis axis4 = new NumberAxis(me.toString());
 								axis4.setAutoRange(true);
 								axis4.setAxisLineVisible(true);
 								axis4.setAutoRangeIncludesZero(false);
-								plot1.setDomainCrosshairVisible(true);
-								plot1.setRangeCrosshairVisible(true);
 								axis4.setRange(new Range(((ExtendedTimeSeries) statMap.get(me)).getTimeSeries().getMinY(), ((ExtendedTimeSeries) statMap.get(me))
 										.getTimeSeries().getMaxY()));
+								if (count<colors.length){
 								axis4.setLabelPaint(colors[count]);
 								axis4.setTickLabelPaint(colors[count]);
+								}
 								plot1.setRangeAxis(count, axis4);
-								final ValueAxis domainAxis = domainAxis1;
-								domainAxis.setLowerMargin(0.0);
-								domainAxis.setUpperMargin(0.0);
-								plot1.setDomainAxis(domainAxis);
-								plot1.setForegroundAlpha(0.5f);
+								plot1.setForegroundAlpha(0.3f);
 								plot1.setDataset(count, dataset);
 								plot1.mapDatasetToRangeAxis(count, count);
 								final XYAreaRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
@@ -443,7 +461,9 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 									// FastDateFormat("d-MMM-yyyy HH:mm:ss"),
 									// new DecimalFormat("#,##0.00")));
 								}
+								if (count<colors.length){
 								renderer.setSeriesPaint(0, colors[count]);
+								}
 								renderer.setSeriesVisible(0, true);
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								plot1.setRenderer(count, renderer);
@@ -458,11 +478,21 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
+								if (count<colors.length){
 								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));
+								}
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
 								checkboxPanel.add(jcb);
 								count++;
 							}
+		//					XYPlot plot1 = chart.getXYPlot();				
+		//					final ValueAxis domainAxis = domainAxis1;
+		//					final ValueAxis domainAxisa = domainAxis2;
+		//					plot1.setDomainCrosshairVisible(true);
+		//					plot1.setRangeCrosshairVisible(true);
+		//					plot1.setDomainAxis(0,domainAxis);
+		//					plot1.setDomainAxis(1,domainAxisa);
+							
 							Iterator eventMapIterator = eventMap.entrySet().iterator();
 							while (eventMapIterator.hasNext()) {
 								
@@ -479,34 +509,30 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								logger.debug("mineResultSet hash content: " + mr.getEventTimeseriesMap());
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
 								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
-								XYPlot plot2 = chart.getXYPlot();
+
 							//	LogarithmicAxis axis4 = new LogarithmicAxis(me.toString());
 								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
 								axis4.setAutoRange(true);
 								// axis4.setInverted(true);
 								axis4.setAxisLineVisible(true);
 								axis4.setAutoRangeIncludesZero(true);
-
 								// axis4.setRange(new Range(((TimeSeries)
 								// axis4.setRange(new Range(((TimeSeries)
 								// me.getValue()).getMinY(), ((TimeSeries)
 								// me.getValue()).getMaxY()));
+								if (count<colors.length){
 								axis4.setLabelPaint(colors[count]);
 								axis4.setTickLabelPaint(colors[count]);
-								plot2.setRangeAxis(count, axis4);
-								final ValueAxis domainAxis = domainAxis1;
+								}
 
 								// domainAxis.setLowerMargin(0.001);
 								// domainAxis.setUpperMargin(0.0);
-								plot2.setDomainCrosshairVisible(true);
-								plot2.setRangeCrosshairVisible(true);
-								//plot2.setRangeCrosshairLockedOnData(true);
-								plot2.setDomainAxis(domainAxis);
-								plot2.setForegroundAlpha(0.5f);
-								plot2.setDataset(count, dataset);
-								plot2.mapDatasetToRangeAxis(count, count);
+								//plot1.setRangeCrosshairLockedOnData(true);
+								plot1.setRangeAxis(count, axis4);
+								plot1.setForegroundAlpha(0.5f);
+								plot1.setDataset(count, dataset);
+								plot1.mapDatasetToRangeAxis(count, count);
 								XYBarRenderer rend = new XYBarRenderer(); // XYErrorRenderer
-								
 								rend.setShadowVisible(false);
 								rend.setDrawBarOutline(true);
 								Stroke stroke = new BasicStroke(5);
@@ -514,9 +540,10 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								final XYItemRenderer renderer = rend;
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								// renderer.setItemLabelsVisible(true);
-								renderer.setSeriesPaint(0, colors[count]);
+								if (count<colors.length){
+								renderer.setSeriesPaint(0, colors[count]);}
 								renderer.setSeriesVisible(0, true);
-								plot2.setRenderer(count, renderer);
+								plot1.setRenderer(count, renderer);
 								int hits = 0;
 								int matchs=0;
 								
@@ -525,13 +552,11 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
 								}
 								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
-
-								
-								
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
-								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));
+								if (count<colors.length){
+								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));}
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
 								checkboxPanel.add(jcb);
 								count++;
