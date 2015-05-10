@@ -146,12 +146,10 @@ public class MetadataRecordingEditor extends JPanel {
 							panel_1 = new JPanel();
 							panel.add(panel_1, BorderLayout.NORTH);
 							panel_1.setLayout(new GridLayout(0, 3, 0, 0));
-							{
 								txtName = new JTextField();
 								panel_1.add(txtName);
 								txtName.setText("name");
 								txtName.setColumns(10);
-							}
 							{
 								txtRegularExp = new JTextField();
 								txtRegularExp.addCaretListener(new CaretListener() {
