@@ -34,16 +34,16 @@ public class Preferences {
 		if (!prefData.preferences.containsKey("timings")) {
 			prefData.preferences.put("timings", "false");
 		}
-
 		if (!prefData.preferences.containsKey("stats")) {
 			logger.info("stats set to true");
 			prefData.preferences.put("stats", "true");
 		}
-
 		if (!prefData.preferences.containsKey("chartSize")) {
 			prefData.preferences.put("chartSize", "350");
 		}
-
+		if (!prefData.preferences.containsKey("lastPath")) {
+			prefData.preferences.put("lastPath", ".");
+		}
 		if (!prefData.preferences.containsKey("ThreadPool_Group")) {
 			prefData.preferences.put("ThreadPool_Group", "4");
 		}

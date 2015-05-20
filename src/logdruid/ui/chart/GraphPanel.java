@@ -125,7 +125,7 @@ public final class GraphPanel extends JPanel {
 	private Repository repo;
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
-			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 ),new Color(70, 62, 200), new Color(255,171, 130 ), new Color( 40, 255,40) };
+			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 ),new Color(70, 62, 200), new Color(255,171, 130 ), new Color( 40, 255,40), new Color(65,171,93) };
 	// private Color[] colors = { new Color(65,171,93),new Color(254,196,79),new
 	// Color(65,171,93), new Color(239,59,44), new Color(65,182,196),new
 	// Color(5,112,176), new Color(254,178,76),Color.blue, new Color(255, 40,
@@ -133,9 +133,10 @@ public final class GraphPanel extends JPanel {
 	// Color.orange, Color.pink,
 	// new Color(65, 90, 220), new Color(107, 255, 102) };
 	private HashMap<String, Boolean> groupCheckBox = new HashMap<String, Boolean>();
+	MineResultSet mineResultSet;
+	ChartData cd;
 	JSpinner startDateJSpinner;
 	JSpinner endDateJSPinner;
-	MineResultSet mineResultSet;
 
 	long estimatedTime = 0;
 	long startTime = 0;
@@ -146,7 +147,7 @@ public final class GraphPanel extends JPanel {
 	final Font oldSmallFont = chartTheme.getSmallFont();
 
 	final DecimalFormat form = new DecimalFormat("#,##0.00");
-	ChartData cd= new ChartData();
+
 	// new DecimalFormat("00.0");
 
 	/**
@@ -155,7 +156,7 @@ public final class GraphPanel extends JPanel {
 	 * @param panel_2
 	 */
 
-	public GraphPanel(final Repository repo, final JPanel panel_2) {
+	public GraphPanel(final Repository repo, final JPanel panel_2, final MineResultSet mineResultSet1, final ChartData cd1) {
 
 		setLayout(new BorderLayout(0, 0));
 		startTime = System.currentTimeMillis();
@@ -164,8 +165,8 @@ public final class GraphPanel extends JPanel {
 		panel_1 = new JPanel(new WrapLayout());
 		add(panel_1, BorderLayout.NORTH);
 		
-		mineResultSet = DataMiner.gatherMineResultSet(repo);
-		cd=DataMiner.gatherSourceData(repo);
+		mineResultSet=mineResultSet1;
+		cd=cd1;
 		DataVault.mineResultSet = mineResultSet;
 		panel = new JPanel();
 		if (mineResultSet == null) {

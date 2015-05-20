@@ -1,29 +1,16 @@
 package logdruid.ui;
 
 import java.io.File;
+
 import javax.swing.JFileChooser;
 
-/**
- * Titre : CheckNGo Description : Open Tool Copyright : Copyright (c) 2001, 2014
- * Socit :
- * 
- * @author Frdric Valente
- * @version 1.0
- */
+import org.apache.log4j.Logger;
+
+import logdruid.data.Preferences;
+import logdruid.data.Repository;
 
 final public class FileSaverDialog {
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Public attributes
-	 * -------------------------------------------------------------------------
-	 */
-
-	/*
-	 * -------------------------------------------------------------------------
-	 * Private attributes
-	 * -------------------------------------------------------------------------
-	 */
+	private static Logger logger = Logger.getLogger(FileSaverDialog.class.getName());
 	/**
 	 * The previous location were the last file has been opened.
 	 */
@@ -45,8 +32,13 @@ final public class FileSaverDialog {
 	/**
 	 * Construct a File Chooser and display the file selection dialog
 	 */
-	public FileSaverDialog() {
+	public FileSaverDialog(Repository repo) {
 
+		if (Preferences.getPreference("lastPath")!=null) {
+			File temp= new File(Preferences.getPreference("lastPath"));
+			if (temp.exists())
+			previousOpenLocation=new File (Preferences.getPreference("lastPath"));
+		}
 		dialog.setCurrentDirectory(previousOpenLocation);
 		dialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		dialog.setMultiSelectionEnabled(false);
@@ -62,6 +54,8 @@ final public class FileSaverDialog {
 			// Memorisation des valeurs pour les afficher lors du prochain
 			// affichage d'un dialogue d'ouverture de fichier.
 			previousOpenLocation = dialog.getCurrentDirectory();
+			Preferences.setPreference("lastPath", previousOpenLocation.getAbsolutePath());
+			Preferences.persist();
 		}
 	}
 

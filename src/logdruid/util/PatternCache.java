@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 public class PatternCache {
-	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
+//	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private static Map<String, Pattern> pattern = new HashMap<String, Pattern>();
 
 	public Pattern getPattern(String regexp) {
@@ -30,7 +30,7 @@ public class PatternCache {
 	}
 
  public static int getSize() {
-		logger.info("pattern cache content" + pattern);
+//		logger.info("pattern cache content" + pattern);
 		return pattern.size();
 
 	}

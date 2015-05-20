@@ -1071,7 +1071,11 @@ public class DataMiner {
 						e1.printStackTrace();
 					}}}}}}
 
-	
+		public static ArrayList<Map> exportData(Repository repo) {
+			gatherMineResultSet(repo);
+			return null;
+	 
+		}
 /*	public static ArrayList<Map> exportData(Repository repo) {
 		PatternCache patternCache = new PatternCache();
 		Matcher matcher = null;

@@ -11,6 +11,7 @@
 package logdruid.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -43,6 +44,8 @@ import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import logdruid.data.ChartData;
+import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
@@ -96,7 +99,8 @@ public class MainFrame extends JFrame {
 	private JSpinner endTimeSpinner;
 	private JSpinner.DateEditor timeEditor2;
 	public String currentRepositoryFile = "New";
-
+	MineResultSet mineResultSet;
+	ChartData cd;
 	private MainFrame thiis;
 
 	/**
@@ -122,6 +126,8 @@ public class MainFrame extends JFrame {
 
 		thiis = this;
 		repository = new Repository();
+		cd= new ChartData();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 800);
 		Preferences.load();
@@ -145,7 +151,7 @@ public class MainFrame extends JFrame {
 		JMenuItem mntmOpen = new JMenuItem("Open");
 		mntmOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				FileSaverDialog fileChooserDialog = new FileSaverDialog();
+				FileSaverDialog fileChooserDialog = new FileSaverDialog(repository);
 				if ((fileChooserDialog != null) && (fileChooserDialog.isValidate())) {
 					// repository.open(fileChooserDialog.getSelectedFile());
 					TreePath tp = tree.getSelectionPath();
@@ -176,7 +182,7 @@ public class MainFrame extends JFrame {
 		JMenuItem mntmSaveAs = new JMenuItem("Save as");
 		mntmSaveAs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				FileSaverDialog fileChooserDialog = new FileSaverDialog();
+				FileSaverDialog fileChooserDialog = new FileSaverDialog(repository);
 				if ((fileChooserDialog != null) && (fileChooserDialog.isValidate())) {
 					Persister.save(fileChooserDialog.getSelectedFile(), (Repository) repository);
 					thiis.setTitle("LogDruid - " + fileChooserDialog.getSelectedFile().getName() + " - " + repository.getBaseSourcePath());
@@ -205,16 +211,35 @@ public class MainFrame extends JFrame {
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mnFile.add(mntmExit);
 
+		mntmExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(NORMAL);		
+			}
+		});
+		
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
 
 		JMenuItem mntmPreferences = new JMenuItem("Preferences");
 		mnEdit.add(mntmPreferences);
 
+		mntmPreferences.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tree.setSelectionRow(2);
+				treeSelected();				
+			}
+		});
+		
 		JMenu mnChartMenu = new JMenu("Chart");
 		menuBar.add(mnChartMenu);
 
 		JMenuItem mntmVisualize = new JMenuItem("Visualize");
+		mntmVisualize.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tree.setSelectionRow(tree.getRowCount()-1);
+				treeSelected();				
+			}
+		});
 		mnChartMenu.add(mntmVisualize);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -229,77 +254,87 @@ public class MainFrame extends JFrame {
 
 		JButton btnNewButton_1 = new JButton("New button");
 		panel.add(btnNewButton_1);
-
-		JSplitPane splitPane = new JSplitPane();
-		splitPane.setOneTouchExpandable(true);
-		contentPane.add(splitPane);
-
-		tree = new JTree();
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-			public void valueChanged(TreeSelectionEvent arg0) {
-				treeSelected();
-			}
-
-		});
-		tree.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				String comp = e.getComponent().toString();
-				// logger.info(comp);
-
-			}
-		});
-		tree.setForeground(Color.WHITE);
-		tree.setEditable(true);
-		DefaultTreeModel defaultTreeModel;
-
-		DMTnode_sources = new DefaultMutableTreeNode("Sources");
-		// defaultTreeModel.reload(node);
-		tree.setModel(
-
-		new DefaultTreeModel(new DefaultMutableTreeNode("All") {
-			{
-				DefaultMutableTreeNode DMTnode_1;
-				DefaultMutableTreeNode DMTnode_2;
-
-				DefaultMutableTreeNode DMTconfiguration;
-				DMTnode_1 = new DefaultMutableTreeNode("Configuration");
-				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
-				DMTnode_1.add(new DefaultMutableTreeNode("Preferences"));
-				DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
-				// DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
-				// DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
-				// DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
-				add(DMTnode_1);
-				add(DMTnode_1);
-				add(DMTnode_sources);
-				add(new DefaultMutableTreeNode("Chart"));
-				// add(new DefaultMutableTreeNode("Report"));
-
-			}
-		}));
-		splitPane.setLeftComponent(tree);
+		
+		JPanel panel_7 = new JPanel();
 
 		panel_1 = new JPanel();
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOneTouchExpandable(true);
+		contentPane.add(splitPane, BorderLayout.CENTER);
 		splitPane.setRightComponent(panel_1);
+		splitPane.setLeftComponent(panel_7);
 		panel_1.setLayout(new BorderLayout(0, 0));
-
 		panel_2 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
 		flowLayout.setAlignment(FlowLayout.LEFT);
 		contentPane.add(panel_2, BorderLayout.NORTH);
+				DefaultTreeModel defaultTreeModel;
+				DMTnode_sources = new DefaultMutableTreeNode("Sources");
+						panel_7.setLayout(new BorderLayout(0, 0));
+						panel_7.setSize(150, 10000);
+						panel_7.setMinimumSize(new Dimension(130, 1000));
+						tree = new JTree();
+						panel_7.add(tree);
+						tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+						tree.addTreeSelectionListener(new TreeSelectionListener() {
+							public void valueChanged(TreeSelectionEvent arg0) {
+								treeSelected();
+							}
 
-		JButton btnMain = new JButton("Discovery");
+						});
+						tree.addMouseListener(new MouseAdapter() {
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								String comp = e.getComponent().toString();
+								// logger.info(comp);
+
+							}
+						});
+						tree.setForeground(Color.WHITE);
+						// defaultTreeModel.reload(node);
+						tree.setModel(
+
+						new DefaultTreeModel(new DefaultMutableTreeNode("All") {
+							{
+								DefaultMutableTreeNode DMTnode_1;
+								DefaultMutableTreeNode DMTnode_2;
+
+								DefaultMutableTreeNode DMTconfiguration;
+								DMTnode_1 = new DefaultMutableTreeNode("Configuration");
+								DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
+								DMTnode_1.add(new DefaultMutableTreeNode("Preferences"));
+								DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
+								// DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
+								// DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
+								// DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
+								add(DMTnode_1);
+								add(DMTnode_1);
+								add(DMTnode_sources);
+								add(new DefaultMutableTreeNode("Chart"));
+								// add(new DefaultMutableTreeNode("Report"));
+
+							}
+						}));
+						tree.setSelectionRow(0);
+						tree.setSelectionRow(0);
+						tree.setRootVisible(false);
+						tree.setSelectionRow(1);
+
+
+		JButton btnMain = new JButton("Gather");
+		btnMain.setForeground(Color.BLUE);
 		btnMain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				mineResultSet = DataMiner.gatherMineResultSet(repository);
+				cd=DataMiner.gatherSourceData(repository);
+				tree.setSelectionRow(tree.getRowCount()-1);
+				treeSelected();
 			}
 		});
 		btnMain.setFont(new Font("Dialog", Font.BOLD, 11));
 		btnMain.setHorizontalAlignment(SwingConstants.LEFT);
-		btnMain.setVisible(false);
+		//btnMain.setVisible(false);
 		panel_2.add(btnMain);
-		tree.setSelectionRow(0);
 
 		JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
 		panel_2.add(separator);
@@ -355,7 +390,6 @@ public class MainFrame extends JFrame {
 			}
 		});
 		panel_2.add(btnReset);
-		tree.setSelectionRow(0);
 
 		JPanel panel_3 = new JPanel();
 		panel_3.setLayout(new BorderLayout(0, 0));
@@ -389,13 +423,12 @@ public class MainFrame extends JFrame {
 		gbc_progressBar.gridy = 0;
 		progressBar.setVisible(false);
 		panel_6.add(progressBar, gbc_progressBar);
-
 		/*
 		 * startTimeSpinner.setEnabled(false); endTimeSpinner.setEnabled(false);
 		 * btnReset.setEnabled(false); btnRefresh.setEnabled(false);
 		 * chckbxRelative.setEnabled(false);
 		 */
-
+		tree.expandPath(tree.getPathForRow(0));
 	}
 
 	public void updateTreeSources(ArrayList<Source> sources) {
@@ -466,7 +499,7 @@ public class MainFrame extends JFrame {
 			} else if (treeSelected.equals("Chart")) {
 				panel_1.removeAll();
 				logger.info("Chart panel loading ");
-				graphPanel = new GraphPanel(repository, panel_2);
+				graphPanel = new GraphPanel(repository, panel_2, mineResultSet,cd);
 				panel_1.add(graphPanel);
 				panel_1.revalidate();
 				logger.info("Chart panel loaded ");
