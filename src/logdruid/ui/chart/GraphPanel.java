@@ -280,8 +280,6 @@ public final class GraphPanel extends JPanel {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		// scrollPane.set trying to replace scroll where it was
 		JCheckBox relativeCheckBox = (JCheckBox) panel_2.getComponent(5);
-		estimatedTime = System.currentTimeMillis() - startTime;
-		logger.info("gathering time: " + estimatedTime);
 		startTime = System.currentTimeMillis();
 	//	Map<Source, Map<String, MineResult>>
 		Map<Source, Map<String, MineResult>> treeMap=new TreeMap<Source, Map<String, MineResult>>(mineResultSet.mineResults) ;
@@ -353,14 +351,10 @@ public final class GraphPanel extends JPanel {
 							domainAxis1.setTickLabelsVisible(true);
 							// domainAxis1.setTickMarksVisible(true);
 
-							final DateAxis domainAxis2 = new DateAxis();
-							domainAxis2.setTickLabelsVisible(true);
-							domainAxis2.setDateFormatOverride(DateFormat.getDateInstance(DateFormat.MEDIUM));
-							domainAxis2.setTickUnit(new DateTickUnit(DateTickUnitType.DAY,1));
+							//domainAxis2.setTickUnit(new DateTickUnit(DateTickUnitType.DAY,1));
 							logger.debug("getRange: " + domainAxis1.getRange());
 							if (relativeCheckBox.isSelected()) {
 								domainAxis1.setRange((Date) startDateJSpinner.getValue(), (Date) endDateJSPinner.getValue());
-								domainAxis2.setRange((Date) startDateJSpinner.getValue(), (Date) endDateJSPinner.getValue());
 							} else {
 								Date startDate = mr.getStartDate();
 								Date endDate = mr.getEndDate();
@@ -374,7 +368,6 @@ public final class GraphPanel extends JPanel {
 								}
 								if (startDate.before(endDate)) {
 									domainAxis1.setRange(startDate, endDate);
-									domainAxis2.setRange(startDate, endDate);
 								}
 							}
 							XYToolTipGenerator tt1 = new XYToolTipGenerator() {
@@ -410,13 +403,8 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 							final ValueAxis domainAxis = domainAxis1;
 							domainAxis.setLowerMargin(0.0);
 							domainAxis.setUpperMargin(0.0);
-							final ValueAxis domainAxis2a = domainAxis2;
-							domainAxis2a.setLowerMargin(0.0);
-							domainAxis2a.setUpperMargin(0.0);
-		//					domainAxis2a.setVerticalTickLabels(false);
-		//					domainAxis2a.setAxisLineVisible(false);
+
 							plot1.setDomainAxis(0,domainAxis);
-							plot1.setDomainAxis(1,domainAxis2a);
 							plot1.setDomainCrosshairVisible(true);
 							plot1.setRangeCrosshairVisible(true);
 							plot1.mapDatasetToDomainAxis(0, 1);

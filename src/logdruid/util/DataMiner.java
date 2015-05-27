@@ -69,7 +69,8 @@ public class DataMiner {
 	static List<File> listOfFiles = null;
 	private static ExecutorService ThreadPool_FileWorkers = null;
 	private static ExecutorService ThreadPool_GroupWorkers = null;
-
+	static long estimatedTime = 0;
+	static long startTime = 0;
 
 	public static MineResultSet gatherMineResultSet(final Repository repo) {
 		String test = Preferences.getPreference("ThreadPool_Group");
@@ -79,6 +80,9 @@ public class DataMiner {
 		ChartData cd = new ChartData();
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
+		
+		startTime = System.currentTimeMillis();
+
 		
 		cd=gatherSourceData(repo);		
 	//	if (logger.isEnabledFor(Level.INFO))
@@ -135,6 +139,8 @@ public class DataMiner {
 				mineResultSet.mineResults.get(mineRes.getSource()).put(mineRes.getSource().getSourceName() + mineRes.getGroup(), mineRes);
 			}
 		}
+		estimatedTime = System.currentTimeMillis() - startTime;
+		logger.info("gathering time: " + estimatedTime);
 		return mineResultSet;
 
 	}
@@ -763,17 +769,17 @@ public class DataMiner {
 									logger.debug("found filename " + fileName + " with group");
 
 								key = "";
-								int i = 1;
-								for (i = 1; i <= matcher.groupCount(); i++) {
+								int i = 0;
+								for (i = 0; i < matcher.groupCount(); i++) {
 									if (recordings.get(i).getIsActive()) {
 										if (logger.isDebugEnabled())
 											logger.debug("one : " + matcher.group(i));
-										key += matcher.group(i) + " ";
+										key += matcher.group(i+1) + " ";
 									}
 								}
 								if (logger.isDebugEnabled())
 									logger.debug("i : " + i + " nbRec: " + nbRec);
-								if (i - 1 == nbRec) {
+								if (i  == nbRec) {
 									if (logger.isDebugEnabled())
 										logger.debug(" passed!");
 									if (!sourceFileGroup.containsKey(key)) {

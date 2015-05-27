@@ -129,7 +129,7 @@ public class MainFrame extends JFrame {
 		cd= new ChartData();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 800);
+		setBounds(100, 100, 1024, 768);
 		Preferences.load();
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -143,6 +143,7 @@ public class MainFrame extends JFrame {
 				repository = new Repository();
 				currentRepositoryFile = "New";
 				thiis.setTitle("LogDruid  - " + currentRepositoryFile);
+				updateTreeSources(repository.getSources());
 				treeSelected();
 			}
 		});
@@ -159,10 +160,14 @@ public class MainFrame extends JFrame {
 					repository = (Repository) Persister.open(fileChooserDialog.getSelectedFile());
 					updateTreeSources(repository.getSources());
 					tree.setSelectionPath(tp);
-
+					if (treeSelected.equals("Chart")){
+						mineResultSet = DataMiner.gatherMineResultSet(repository);
+						cd=DataMiner.gatherSourceData(repository);						
+					}
 					configFile = fileChooserDialog.getSelectedFile();
 					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
 					treeSelected();
+					
 
 				}
 			}
@@ -454,10 +459,8 @@ public class MainFrame extends JFrame {
 		TreeNode[] t = DMTnode_sources.getPath();
 		((DefaultTreeModel) tree.getModel()).nodeStructureChanged(t[(t.length - 1)]);
 		tree.setSelectionPath(initialTreePath);
-
 		tree.expandPath(initialTreePath);
 		// tree.fireTreeExpanded(initialTreePath);
-
 		tree.revalidate();
 		tree.repaint();
 	}
@@ -479,8 +482,7 @@ public class MainFrame extends JFrame {
 				panel_1.removeAll();
 				panel_1.add(new PreferencePanel(repository));
 				panel_1.revalidate();
-			}
-			else if (treeSelected.equals("Data")) {
+			} else if (treeSelected.equals("Data")) {
 				panel_1.removeAll();
 				panel_1.add(new StatRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
@@ -499,6 +501,11 @@ public class MainFrame extends JFrame {
 			} else if (treeSelected.equals("Chart")) {
 				panel_1.removeAll();
 				logger.info("Chart panel loading ");
+				if 	(mineResultSet==null)
+					{
+					mineResultSet = DataMiner.gatherMineResultSet(repository);
+					cd=DataMiner.gatherSourceData(repository);
+					}
 				graphPanel = new GraphPanel(repository, panel_2, mineResultSet,cd);
 				panel_1.add(graphPanel);
 				panel_1.revalidate();
