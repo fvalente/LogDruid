@@ -491,20 +491,21 @@ public class DataMiner {
 												logger.info("null in match on " + recItem2.getName() + " at " + fileRecord.getFile().getName() + " line cnt:" + lineCount);
 												logger.info("line : " + line);
 											}
-											try {
+										
 
 												if (recItem2.getType().equals("long")) {
 													ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, Long.valueOf((String) matcher2.group(count)))));
 												} else {
-													ts.getTimeSeries().addOrUpdate(
-															(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
-																	.parse((String) matcher2.group(count)))))));
+													  try{
+															ts.getTimeSeries().addOrUpdate(
+																	(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
+																			.parse((String) matcher2.group(count).replace(',', '.')))))));
+													    }catch(Exception e){
+																e.printStackTrace();
+													    }
+
 												}
-											} catch (ParseException e) {
-												// TODO Auto-generated catch
-												// block
-												e.printStackTrace();
-											}
+
 											if (stats) {
 												//int[] array = { statMatch, statHit };
 												int[] array =ts.getStat();
