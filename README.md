@@ -1,5 +1,7 @@
 LogDruid: Chart statistics and events retrieved in logs files through configurable regular expressions
 
+Download on https://sourceforge.net/projects/logdruid/
+
 ![Alt text](doc/LD-charts.png?raw=true "screenshot")
 
 LogDruid is an application to gather, aggregate and chart information originating from any log files in a given folder.
