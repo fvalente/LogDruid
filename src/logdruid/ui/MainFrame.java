@@ -513,15 +513,13 @@ public class MainFrame extends JFrame {
 				if (graphPanel!=null){
 				Component[] comp=((JPanel)((JViewport)((JScrollPane)graphPanel.getComponent(1)).getComponent(0)).getView()).getComponents();
 				int i=0;
-				logger.info(comp.length);
 				while (i<comp.length){
-					logger.info(comp[i].getClass()+ " "+ comp[i].getName());
+					logger.debug(comp[i].getClass());
 					if (comp[i].getClass().equals(JPanel.class)){
 						ChartPanel cp= ((ChartPanel)((JPanel)comp[i]).getComponent(0));
 						cp.removeAll();
 						cp=new ChartPanel(null);
 					}
-				//	((ChartPanel)comp[i]).removeAll();
 					i++;
 				}}
 				graphPanel = new GraphPanel(repository, panel_2, mineResultSet,cd);
