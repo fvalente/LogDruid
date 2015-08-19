@@ -11,6 +11,7 @@
 package logdruid.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -21,12 +22,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.FlowLayout;
 
 import javax.swing.JCheckBox;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultTreeModel;
@@ -64,6 +67,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 
 import org.apache.log4j.Logger;
+import org.jfree.chart.ChartPanel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -506,6 +510,20 @@ public class MainFrame extends JFrame {
 					mineResultSet = DataMiner.gatherMineResultSet(repository);
 					cd=DataMiner.gatherSourceData(repository);
 					}
+				if (graphPanel!=null){
+				Component[] comp=((JPanel)((JViewport)((JScrollPane)graphPanel.getComponent(1)).getComponent(0)).getView()).getComponents();
+				int i=0;
+				logger.info(comp.length);
+				while (i<comp.length){
+					logger.info(comp[i].getClass()+ " "+ comp[i].getName());
+					if (comp[i].getClass().equals(JPanel.class)){
+						ChartPanel cp= ((ChartPanel)((JPanel)comp[i]).getComponent(0));
+						cp.removeAll();
+						cp=new ChartPanel(null);
+					}
+				//	((ChartPanel)comp[i]).removeAll();
+					i++;
+				}}
 				graphPanel = new GraphPanel(repository, panel_2, mineResultSet,cd);
 				panel_1.add(graphPanel);
 				panel_1.revalidate();
