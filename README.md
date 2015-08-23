@@ -4,15 +4,15 @@ Download on https://sourceforge.net/projects/logdruid/
 
 ![Alt text](doc/LD-charts.png?raw=true "screenshot")
 
-LogDruid is an application to gather, aggregate and chart information originating from any log files in a given folder.
-Templates can be easily created to gather information in any type of log files.
+An application to gather, aggregate and chart information originating from any log files in a given folder.
+Templates can be easily created to gather information for any type of log files.
 It uses regular expressions that are constructed graphically and can be verified in the application against data samples.
 
 ![Alt text](doc/LD-regexp.png?raw=true "screenshot")
 
-This facility is at the core of the application and is used both to group files depending on any path/filename criteria (such as PID) and to mine data items from the files.
+The regular expressions are then used both to group files depending on any path/filename criteria (such as PID) and to mine data series from the files.
 The information is aggregated for each groups and displayed in time series chart. it is possible to toggle the display of any recordings and to zoom or go to a specific time period for all the charts at the same time.
-Once configured for a specific type of logs set, the gathering and display of the information can be done in one click. The application is multi-threaded at its core and can handle quickly significant amounts of data.   
+Once configured for a specific type of logs set, the gathering and display of the chart for a new files set can be done in just one click. The application is multi-threaded at its core and can handle quickly significant amounts of data.   
 
 
 Glossary:
@@ -26,6 +26,7 @@ Glossary:
 
 Planned improvements:
 - <del>ability to see which file as the information selected in any charts</del>.DONE
+- filter in chart view
 - make it easier to configure the software for a new logs set through
 	- templates selection
 	- automatic sampling of the data
@@ -44,7 +45,7 @@ Planned improvements:
 
 
 Other ideas:
-- allow opening external text editor on selected file
+- <del>allow opening external text editor on selected file</del> DONE
 - export of data to csv (currently data to xml only)
 - export of chart data for light transport
 - record template exceptions (spot quickly what was custom for a log set - could be useful to merge templates for instance) 
