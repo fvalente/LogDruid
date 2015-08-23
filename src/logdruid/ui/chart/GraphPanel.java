@@ -410,7 +410,7 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 										+ ts.getTimeSeries().getItemCount());
 								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (ts.getTimeSeries().getMaxY()));
 								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (ts.getTimeSeries().getMinY()));
-
+								 
 							//	LogarithmicAxis axis4 = new LogarithmicAxis(me.toString());
 								NumberAxis axis4 = new NumberAxis(me.toString());
 								axis4.setAutoRange(true);
@@ -424,7 +424,9 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								}
 								plot1.setRangeAxis(count, axis4);
 								plot1.setForegroundAlpha(0.3f);
+								if (ts.getTimeSeries().getMaxY()!=ts.getTimeSeries().getMinY()){
 								plot1.setDataset(count, dataset);
+								}
 								plot1.mapDatasetToRangeAxis(count, count);
 								final XYAreaRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
 																						// also
