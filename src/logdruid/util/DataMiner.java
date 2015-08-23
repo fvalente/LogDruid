@@ -379,6 +379,7 @@ public class DataMiner {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
 
 		buf1st = new BufferedReader(flstr);

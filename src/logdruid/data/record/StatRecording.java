@@ -40,7 +40,7 @@ public class StatRecording extends Recording {
 	}
 
 	public void setDelimitator(String delimitator) {
-		this.dateFormat = dateFormat;
+	//	this.dateFormat = dateFormat;
 	}
 
 	public ArrayList getRecordingItem() {
