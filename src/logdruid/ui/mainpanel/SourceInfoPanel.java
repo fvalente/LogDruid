@@ -29,7 +29,11 @@ import java.util.ArrayList;
 
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
+import javax.swing.text.Highlighter;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import logdruid.data.ChartData;
 import logdruid.data.FileRecord;
@@ -46,11 +50,14 @@ import javax.swing.GroupLayout.Alignment;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SourceInfoPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(SourceInfoPanel.class.getName());
@@ -73,19 +80,19 @@ public class SourceInfoPanel extends JPanel {
 
 		JPanel panel_7 = new JPanel();
 		add(panel_7, BorderLayout.NORTH);
-		panel_7.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel_7.setLayout(new MigLayout("", "[595px,grow,fill]", "[234px]"));
 
 		JPanel panel_1 = new JPanel();
-		panel_7.add(panel_1);
-		panel_1.setLayout(new BorderLayout(0, 0));
+		panel_7.add(panel_1, "cell 0 0,alignx left,aligny top");
+		panel_1.setLayout(new MigLayout("", "[177px][400px,grow,fill]", "[222px]"));
 
 		JPanel panel_2 = new JPanel();
-		panel_1.add(panel_2, BorderLayout.WEST);
+		panel_1.add(panel_2, "cell 0 0,alignx left,growy");
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
 		gbl_panel_2.columnWidths = new int[] { 142, 16, 0 };
-		gbl_panel_2.rowHeights = new int[] { 25, 0, 0, 0 };
-		gbl_panel_2.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_2.rowHeights = new int[] { 25, 0, 0, 0, 0 };
+		gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel_2.setLayout(gbl_panel_2);
 
 		JPanel panel_3 = new JPanel();
@@ -117,6 +124,21 @@ public class SourceInfoPanel extends JPanel {
 
 		JLabel nbFilesValueLabel = new JLabel();
 		panel_5.add(nbFilesValueLabel);
+		
+		JPanel panel_8 = new JPanel();
+		GridBagConstraints gbc_panel_8 = new GridBagConstraints();
+		gbc_panel_8.anchor = GridBagConstraints.NORTH;
+		gbc_panel_8.insets = new Insets(0, 0, 5, 5);
+		gbc_panel_8.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panel_8.gridx = 0;
+		gbc_panel_8.gridy = 2;
+		panel_2.add(panel_8, gbc_panel_8);
+		
+		JLabel lblSizeOfFiles = new JLabel("Size of files :");
+		panel_8.add(lblSizeOfFiles);
+		
+		JLabel filesSize = new JLabel();
+		panel_8.add(filesSize);
 
 		JPanel panel_4 = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panel_4.getLayout();
@@ -125,12 +147,12 @@ public class SourceInfoPanel extends JPanel {
 		gbc_panel_4.anchor = GridBagConstraints.NORTH;
 		gbc_panel_4.insets = new Insets(0, 0, 0, 5);
 		gbc_panel_4.gridx = 0;
-		gbc_panel_4.gridy = 2;
+		gbc_panel_4.gridy = 3;
 		panel_2.add(panel_4, gbc_panel_4);
 
 		JPanel panel_6 = new JPanel();
 		panel_6.setBorder(new TitledBorder(null, "Groups", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.add(panel_6, BorderLayout.CENTER);
+		panel_1.add(panel_6, "cell 1 0,alignx left,aligny top");
 		GridBagLayout gbl_panel_6 = new GridBagLayout();
 		gbl_panel_6.columnWidths = new int[] { 298, 0 };
 		gbl_panel_6.rowHeights = new int[] { 200, 0 };
@@ -149,7 +171,7 @@ public class SourceInfoPanel extends JPanel {
 		gbc_scrollPane_1.gridy = 0;
 		panel_6.add(scrollPane_1, gbc_scrollPane_1);
 		groupDoc = textPane_1.getDocument();
-
+		Highlighter h = textPane.getHighlighter();
 		if (repo != null && repo.getBaseSourcePath() != null) {
 			ChartData cd = DataMiner.gatherSourceData(repo);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
@@ -157,15 +179,32 @@ public class SourceInfoPanel extends JPanel {
 			filesDoc = textPane.getDocument();
 			Iterator it = hm.entrySet().iterator();
 			int nbFiles = 0;
+			long size=0;
 			while (it.hasNext()) {
 				try {
+					int currGroupIndex = groupDoc.getLength();
+					int currFilesIndex = filesDoc.getLength();
 					final Map.Entry sourcePairs = (Map.Entry) it.next();
 					final String groupString = (String) sourcePairs.getKey();
 					logger.debug("groupString: "+groupString);
 					ArrayList files = (ArrayList) sourcePairs.getValue();
 					nbFiles += files.size();
-					groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + ")\n", null);
+					Iterator<FileRecord> iterator =files.iterator();
+					while (iterator.hasNext())
+						{
+						FileRecord fr = iterator.next();
+						size=size+((File)fr.getFile()).length();
+						logger.info(fr.getFile().getName()+" "+((File)fr.getFile()).length());
+						}
+					groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + " file"+(nbFiles>1?"s":"")+")\n", null);
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
+
+					SimpleAttributeSet sas = new SimpleAttributeSet(); 
+					StyleConstants.setBold(sas, true);
+					textPane.getStyledDocument().setCharacterAttributes(currFilesIndex , groupString.length()-1, sas, false);
+					textPane_1.getStyledDocument().setCharacterAttributes(currGroupIndex , groupString.length()-1, sas, false);
+					
+					//h.addHighlight(currIndex , currIndex + groupString.length()-1,  DefaultHighlighter.DefaultPainter);
 					Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
 						filesDoc.insertString(filesDoc.getLength(),"- "+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath()+ "\n", null);
@@ -176,7 +215,10 @@ public class SourceInfoPanel extends JPanel {
 					e.printStackTrace();
 				}
 			}
+			textPane.setCaretPosition(0);
+			textPane_1.setCaretPosition(0);
 			nbFilesValueLabel.setText("" + nbFiles);
+			filesSize.setText(""+size/1024000+"MB");
 		}
 
 	}
