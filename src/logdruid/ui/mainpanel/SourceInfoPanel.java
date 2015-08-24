@@ -39,6 +39,7 @@ import logdruid.data.ChartData;
 import logdruid.data.FileRecord;
 import logdruid.data.Repository;
 import logdruid.data.Source;
+import logdruid.ui.WrapLayout;
 import logdruid.util.DataMiner;
 
 import java.awt.GridLayout;
@@ -57,8 +58,6 @@ import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
 
-import net.miginfocom.swing.MigLayout;
-
 public class SourceInfoPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(SourceInfoPanel.class.getName());
 	private Document groupDoc;
@@ -68,109 +67,134 @@ public class SourceInfoPanel extends JPanel {
 	 * Create the panel.
 	 */
 	public SourceInfoPanel(Repository repo, Source src) {
-		setLayout(new BorderLayout(0, 0));
-
-		JPanel panel = new JPanel();
-		add(panel, BorderLayout.CENTER);
-		panel.setLayout(new BorderLayout(0, 0));
-		JTextPane textPane = new JTextPane();
-		textPane.setFont(new Font("Dialog", Font.PLAIN, 11));
-		JScrollPane scrollPane = new JScrollPane(textPane);
-		panel.add(scrollPane);
-
-		JPanel panel_7 = new JPanel();
-		add(panel_7, BorderLayout.NORTH);
-		panel_7.setLayout(new MigLayout("", "[595px,grow,fill]", "[234px]"));
-
-		JPanel panel_1 = new JPanel();
-		panel_7.add(panel_1, "cell 0 0,alignx left,aligny top");
-		panel_1.setLayout(new MigLayout("", "[177px][400px,grow,fill]", "[222px]"));
-
-		JPanel panel_2 = new JPanel();
-		panel_1.add(panel_2, "cell 0 0,alignx left,growy");
-		GridBagLayout gbl_panel_2 = new GridBagLayout();
-		gbl_panel_2.columnWidths = new int[] { 142, 16, 0 };
-		gbl_panel_2.rowHeights = new int[] { 25, 0, 0, 0, 0 };
-		gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		panel_2.setLayout(gbl_panel_2);
-
-		JPanel panel_3 = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) panel_3.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEFT);
-		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
-		gbc_panel_3.anchor = GridBagConstraints.NORTHWEST;
-		gbc_panel_3.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_3.gridx = 0;
-		gbc_panel_3.gridy = 0;
-		panel_2.add(panel_3, gbc_panel_3);
-
-		JLabel nameLabel = new JLabel("Name :");
-		panel_3.add(nameLabel);
-
-		JLabel nameValueLabel = new JLabel(src.getSourceName());
-		panel_3.add(nameValueLabel);
-
-		JPanel panel_5 = new JPanel();
-		GridBagConstraints gbc_panel_5 = new GridBagConstraints();
-		gbc_panel_5.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_5.anchor = GridBagConstraints.WEST;
-		gbc_panel_5.gridx = 0;
-		gbc_panel_5.gridy = 1;
-		panel_2.add(panel_5, gbc_panel_5);
-
-		JLabel nbFilesLabel = new JLabel("Number of files :");
-		panel_5.add(nbFilesLabel);
-
-		JLabel nbFilesValueLabel = new JLabel();
-		panel_5.add(nbFilesValueLabel);
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		gridBagLayout.columnWidths = new int[]{10, 665, 5, 0};
+		gridBagLayout.rowHeights = new int[]{232, 257, 10, 0};
+		gridBagLayout.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		setLayout(gridBagLayout);
 		
-		JPanel panel_8 = new JPanel();
-		GridBagConstraints gbc_panel_8 = new GridBagConstraints();
-		gbc_panel_8.anchor = GridBagConstraints.NORTH;
-		gbc_panel_8.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_8.fill = GridBagConstraints.HORIZONTAL;
-		gbc_panel_8.gridx = 0;
-		gbc_panel_8.gridy = 2;
-		panel_2.add(panel_8, gbc_panel_8);
+				JPanel panel_7 = new JPanel();
+				GridBagConstraints gbc_panel_7 = new GridBagConstraints();
+				gbc_panel_7.anchor = GridBagConstraints.NORTH;
+				gbc_panel_7.fill = GridBagConstraints.HORIZONTAL;
+				gbc_panel_7.insets = new Insets(0, 0, 5, 5);
+				gbc_panel_7.gridx = 1;
+				gbc_panel_7.gridy = 0;
+				add(panel_7, gbc_panel_7);
+										GridBagLayout gbl_panel_7 = new GridBagLayout();
+										gbl_panel_7.columnWidths = new int[]{207, 19, 0};
+										gbl_panel_7.rowHeights = new int[]{10, 230, 0};
+										gbl_panel_7.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+										gbl_panel_7.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+										panel_7.setLayout(gbl_panel_7);
+												
+														JPanel panel_2 = new JPanel();
+														GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+														gbc_panel_2.fill = GridBagConstraints.VERTICAL;
+														gbc_panel_2.anchor = GridBagConstraints.WEST;
+														gbc_panel_2.insets = new Insets(0, 0, 0, 5);
+														gbc_panel_2.gridx = 0;
+														gbc_panel_2.gridy = 1;
+														panel_7.add(panel_2, gbc_panel_2);
+														GridBagLayout gbl_panel_2 = new GridBagLayout();
+														gbl_panel_2.columnWidths = new int[] { 142, 16, 0, 0 };
+														gbl_panel_2.rowHeights = new int[] { 0, -63, 0, 0, 0, 0 };
+														gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
+														gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+														panel_2.setLayout(gbl_panel_2);
+														
+																JPanel panel_3 = new JPanel();
+																FlowLayout flowLayout = (FlowLayout) panel_3.getLayout();
+																flowLayout.setAlignment(FlowLayout.LEFT);
+																GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+																gbc_panel_3.anchor = GridBagConstraints.NORTHWEST;
+																gbc_panel_3.insets = new Insets(0, 0, 5, 5);
+																gbc_panel_3.gridx = 0;
+																gbc_panel_3.gridy = 1;
+																panel_2.add(panel_3, gbc_panel_3);
+																
+																		JLabel nameLabel = new JLabel("Name :");
+																		panel_3.add(nameLabel);
+																		
+																				JLabel nameValueLabel = new JLabel(src.getSourceName());
+																				panel_3.add(nameValueLabel);
+																				
+																						JPanel panel_5 = new JPanel();
+																						FlowLayout flowLayout_3 = (FlowLayout) panel_5.getLayout();
+																						flowLayout_3.setAlignment(FlowLayout.LEFT);
+																						GridBagConstraints gbc_panel_5 = new GridBagConstraints();
+																						gbc_panel_5.insets = new Insets(0, 0, 5, 5);
+																						gbc_panel_5.anchor = GridBagConstraints.WEST;
+																						gbc_panel_5.gridx = 0;
+																						gbc_panel_5.gridy = 2;
+																						panel_2.add(panel_5, gbc_panel_5);
+																						
+																								JLabel nbFilesLabel = new JLabel("Number of files :");
+																								panel_5.add(nbFilesLabel);
+																								
+																										JLabel nbFilesValueLabel = new JLabel();
+																										panel_5.add(nbFilesValueLabel);
+																										
+																										JPanel panel_8 = new JPanel();
+																										FlowLayout flowLayout_2 = (FlowLayout) panel_8.getLayout();
+																										flowLayout_2.setAlignment(FlowLayout.LEFT);
+																										GridBagConstraints gbc_panel_8 = new GridBagConstraints();
+																										gbc_panel_8.anchor = GridBagConstraints.NORTH;
+																										gbc_panel_8.insets = new Insets(0, 0, 5, 5);
+																										gbc_panel_8.fill = GridBagConstraints.HORIZONTAL;
+																										gbc_panel_8.gridx = 0;
+																										gbc_panel_8.gridy = 3;
+																										panel_2.add(panel_8, gbc_panel_8);
+																										
+																										JLabel lblSizeOfFiles = new JLabel("Size of files :");
+																										panel_8.add(lblSizeOfFiles);
+																										
+																										JLabel filesSize = new JLabel();
+																										panel_8.add(filesSize);
+																										
+																												JPanel panel_4 = new JPanel();
+																												FlowLayout flowLayout_1 = (FlowLayout) panel_4.getLayout();
+																												flowLayout_1.setAlignment(FlowLayout.LEFT);
+																												GridBagConstraints gbc_panel_4 = new GridBagConstraints();
+																												gbc_panel_4.anchor = GridBagConstraints.NORTH;
+																												gbc_panel_4.insets = new Insets(0, 0, 0, 5);
+																												gbc_panel_4.gridx = 0;
+																												gbc_panel_4.gridy = 4;
+																												panel_2.add(panel_4, gbc_panel_4);
+										
+												JPanel panel_6 = new JPanel();
+												GridBagConstraints gbc_panel_6 = new GridBagConstraints();
+												gbc_panel_6.fill = GridBagConstraints.BOTH;
+												gbc_panel_6.gridx = 1;
+												gbc_panel_6.gridy = 1;
+												panel_7.add(panel_6, gbc_panel_6);
+												panel_6.setBorder(new TitledBorder(null, "Groups", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+												panel_6.setLayout(new BorderLayout(0, 0));
+												
+														JTextPane textPane_1 = new JTextPane();
+														textPane_1.setEditable(false);
+														textPane_1.setFont(new Font("Dialog", Font.PLAIN, 11));
+														// panel_6.add(textPane_1, BorderLayout.SOUTH);
+
+														JScrollPane scrollPane_1 = new JScrollPane(textPane_1);
+														panel_6.add(scrollPane_1, BorderLayout.CENTER);
+														groupDoc = textPane_1.getDocument();
 		
-		JLabel lblSizeOfFiles = new JLabel("Size of files :");
-		panel_8.add(lblSizeOfFiles);
-		
-		JLabel filesSize = new JLabel();
-		panel_8.add(filesSize);
-
-		JPanel panel_4 = new JPanel();
-		FlowLayout flowLayout_1 = (FlowLayout) panel_4.getLayout();
-		flowLayout_1.setAlignment(FlowLayout.LEFT);
-		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
-		gbc_panel_4.anchor = GridBagConstraints.NORTH;
-		gbc_panel_4.insets = new Insets(0, 0, 0, 5);
-		gbc_panel_4.gridx = 0;
-		gbc_panel_4.gridy = 3;
-		panel_2.add(panel_4, gbc_panel_4);
-
-		JPanel panel_6 = new JPanel();
-		panel_6.setBorder(new TitledBorder(null, "Groups", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.add(panel_6, "cell 1 0,alignx left,aligny top");
-		GridBagLayout gbl_panel_6 = new GridBagLayout();
-		gbl_panel_6.columnWidths = new int[] { 298, 0 };
-		gbl_panel_6.rowHeights = new int[] { 200, 0 };
-		gbl_panel_6.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_panel_6.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		panel_6.setLayout(gbl_panel_6);
-
-		JTextPane textPane_1 = new JTextPane();
-		textPane_1.setFont(new Font("Dialog", Font.PLAIN, 11));
-		// panel_6.add(textPane_1, BorderLayout.SOUTH);
-
-		JScrollPane scrollPane_1 = new JScrollPane(textPane_1);
-		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
-		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_1.gridx = 0;
-		gbc_scrollPane_1.gridy = 0;
-		panel_6.add(scrollPane_1, gbc_scrollPane_1);
-		groupDoc = textPane_1.getDocument();
+				JPanel panel = new JPanel();
+				panel.setBorder(new TitledBorder(null, "Files", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+				GridBagConstraints gbc_panel = new GridBagConstraints();
+				gbc_panel.insets = new Insets(0, 0, 5, 5);
+				gbc_panel.fill = GridBagConstraints.BOTH;
+				gbc_panel.gridx = 1;
+				gbc_panel.gridy = 1;
+				add(panel, gbc_panel);
+				panel.setLayout(new BorderLayout(0, 0));
+				JTextPane textPane = new JTextPane();
+				textPane.setEditable(false);
+				textPane.setFont(new Font("Dialog", Font.PLAIN, 11));
+				JScrollPane scrollPane = new JScrollPane(textPane);
+				panel.add(scrollPane);
 		Highlighter h = textPane.getHighlighter();
 		if (repo != null && repo.getBaseSourcePath() != null) {
 			ChartData cd = DataMiner.gatherSourceData(repo);
