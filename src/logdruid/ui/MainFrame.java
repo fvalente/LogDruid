@@ -167,7 +167,7 @@ public class MainFrame extends JFrame {
 					tree.setSelectionPath(tp);
 					if (treeSelected.equals("Chart")){
 						mineResultSet = DataMiner.gatherMineResultSet(repository);
-						cd=DataMiner.gatherSourceData(repository);						
+						cd=DataMiner.gatherSourceData(repository);		
 					}
 					configFile = fileChooserDialog.getSelectedFile();
 					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
@@ -335,6 +335,7 @@ public class MainFrame extends JFrame {
 		btnMain.setForeground(Color.BLUE);
 		btnMain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				graphPanel=null;
 				mineResultSet = DataMiner.gatherMineResultSet(repository);
 				cd=DataMiner.gatherSourceData(repository);
 				tree.setSelectionRow(tree.getRowCount()-1);

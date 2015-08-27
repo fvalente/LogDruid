@@ -460,7 +460,7 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));
 								}
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
-								 logger.info(me.toString()+", "+mainFrame1.cd.disabledSeries);
+								logger.debug(me.toString()+", "+mainFrame1.cd.disabledSeries);
 					//			if (MainFrame.cd.disabledSeries.contains(me.toString())){
 					//				jcb.setSelected(false);
 					//			}
@@ -692,13 +692,13 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (!mainFrame1.cd.disabledSeries.contains(name)){
-				logger.info("add "+ name);
+				logger.debug("add "+ name);
 				mainFrame1.cd.addDisabledSeries(name);
 			}else {
-				logger.info("remove "+ name);
+				logger.debug("remove "+ name);
 				mainFrame1.cd.removeDisabledSeries(name);
 			}
-			logger.info("cd.disabledSeries: "+ mainFrame1.cd.disabledSeries );
+			logger.debug("cd.disabledSeries: "+ mainFrame1.cd.disabledSeries );
 		//	renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
 		//	localAxis.setVisible(!localAxis.isVisible());
 			Component[] comp=jpanel.getComponents();
