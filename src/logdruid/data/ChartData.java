@@ -27,7 +27,8 @@ public class ChartData {
 	// ArrayList<Map<String, TimeSeries>> MapArrayList = new
 	// ArrayList<Map<String, TimeSeries>>();
 	public TimeSeriesCollection dataset = new TimeSeriesCollection();
-
+	public ArrayList<String> disabledSeries= new ArrayList<String>();
+	
 	Map<Source, Map<String, ArrayList<FileRecord>>> MapSourceGroupFilesArrayList = new HashMap<Source, Map<String, ArrayList<FileRecord>>>();
 
 	public void setGroupFilesArrayListMap(Source src, Map<String, ArrayList<FileRecord>> sourceFileGroup) {
@@ -38,4 +39,16 @@ public class ChartData {
 	public Map<String, ArrayList<FileRecord>> getGroupFilesMap(Source src) {
 		return MapSourceGroupFilesArrayList.get(src);
 	}
+
+	public void addDisabledSeries(String name) {
+		disabledSeries.add(name);
+		
+	}
+
+	public void removeDisabledSeries(String name) {
+		disabledSeries.remove(name);
+		
+	}
+	
+	
 }

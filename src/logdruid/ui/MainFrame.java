@@ -32,6 +32,7 @@ import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
+import javax.swing.plaf.basic.BasicBorders.SplitPaneBorder;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -104,7 +105,7 @@ public class MainFrame extends JFrame {
 	private JSpinner.DateEditor timeEditor2;
 	public String currentRepositoryFile = "New";
 	MineResultSet mineResultSet;
-	ChartData cd;
+	public static ChartData cd;
 	private MainFrame thiis;
 
 	/**
@@ -509,22 +510,15 @@ public class MainFrame extends JFrame {
 					{
 					mineResultSet = DataMiner.gatherMineResultSet(repository);
 					cd=DataMiner.gatherSourceData(repository);
+					logger.info("gathering source data");
 					}
-				if (graphPanel!=null){
-				Component[] comp=((JPanel)((JViewport)((JScrollPane)graphPanel.getComponent(1)).getComponent(0)).getView()).getComponents();
-				int i=0;
-				while (i<comp.length){
-					logger.debug(comp[i].getClass());
-					if (comp[i].getClass().equals(JPanel.class)){
-						ChartPanel cp= ((ChartPanel)((JPanel)comp[i]).getComponent(0));
-						cp.removeAll();
-						cp=new ChartPanel(null);
-					}
-					i++;
-				}}
-				graphPanel = new GraphPanel(repository, panel_2, mineResultSet,cd);
+				if (graphPanel==null){
+					graphPanel = new GraphPanel(repository, panel_2, mineResultSet,cd,this);
+				}
 				panel_1.add(graphPanel);
-				panel_1.revalidate();
+				panel_1.validate();
+				panel_1.repaint();
+				
 				logger.info("Chart panel loaded ");
 			} else {
 				ArrayList sources = repository.getSources();

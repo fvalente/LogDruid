@@ -90,6 +90,7 @@ import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.record.Recording;
+import logdruid.ui.MainFrame;
 import logdruid.ui.WrapLayout;
 import logdruid.util.AlphanumComparator;
 import logdruid.util.DataMiner;
@@ -104,6 +105,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.Toolkit;
@@ -147,29 +149,37 @@ public class GraphPanel extends JPanel {
 	final Font oldSmallFont = chartTheme.getSmallFont();
 
 	final DecimalFormat form = new DecimalFormat("#,##0.00");
-
+	ArrayList<String> disabledSeries;
+	private JPanel panel_2;
 	// new DecimalFormat("00.0");
-
+	static MainFrame mainFrame1;
 	/**
 	 * Create the panel.
 	 * 
 	 * @param panel_2
 	 */
 
-	public GraphPanel(final Repository repo, final JPanel panel_2, final MineResultSet mineResultSet1, final ChartData cd1) {
+	public GraphPanel(final Repository repo, final JPanel panel_2, final MineResultSet mineResultSet1, final ChartData cd1, final MainFrame _mainFrame) {
 
-		setLayout(new BorderLayout(0, 0));
-		startTime = System.currentTimeMillis();
+
 		this.repo=repo;
-		
+		this.panel_2=panel_2;
+		mineResultSet=mineResultSet1;
+		cd=cd1;
+		mainFrame1=_mainFrame;
+		init();
+	}
+	
+	public void init(){
+		setLayout(new BorderLayout(0, 0));
+		startTime = System.currentTimeMillis();		
 		panel_1 = new JPanel(new WrapLayout());
 		add(panel_1, BorderLayout.NORTH);
 		
-		mineResultSet=mineResultSet1;
-		cd=cd1;
 	//	DataVault.mineResultSet = mineResultSet;
 		panel = new JPanel();
-		if (mineResultSet == null) {
+		if (mineResultSet.mineResults.isEmpty()) {
+			logger.info("mineResultSet null");
 			panel.add(new JLabel(" No Data "), BorderLayout.CENTER);
 		} else {
 			startDateJSpinner = (JSpinner) panel_2.getComponent(2);
@@ -330,7 +340,7 @@ public class GraphPanel extends JPanel {
 
 							int count = 1;
 							chart = ChartFactory.createXYAreaChart(// Title
-									mr.getSourceID() + " " + mr.getGroup(),// +
+									"",// +
 									null, // X-Axis
 									// label
 									null, // Y-Axis label
@@ -340,12 +350,11 @@ public class GraphPanel extends JPanel {
 									true, // tooltips
 									false // url
 									);
-							TextTitle my_Chart_title = new TextTitle(mr.getSourceID() + " " + mr.getGroup(), new Font("Verdana", Font.BOLD, 17));
-							chart.setTitle(my_Chart_title);
+			//				TextTitle my_Chart_title = new TextTitle(mr.getSourceID() + " " + mr.getGroup(), new Font("Verdana", Font.BOLD, 17));
 
+							
 							final DateAxis domainAxis1 = new DateAxis();
 							domainAxis1.setTickLabelsVisible(true);
-
 							logger.debug("getRange: " + domainAxis1.getRange());
 							if (relativeCheckBox.isSelected()) {
 								domainAxis1.setRange((Date) startDateJSpinner.getValue(), (Date) endDateJSPinner.getValue());
@@ -434,7 +443,7 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 								if (count<colors.length){
 								renderer.setSeriesPaint(0, colors[count]);
 								}
-								renderer.setSeriesVisible(0, true);
+								renderer.setSeriesVisible(0, !cd.disabledSeries.contains(me.toString()));
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								plot1.setRenderer(count, renderer);
 								int hits = 0; // ts.getStat()[1]
@@ -443,15 +452,18 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 									hits = ts.getStat()[1];
 								//	matchs= ((ExtendedTimeSeries) statMap.get(me)).getStat()[0];
 								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4, me.toString() + "(" + hits + ")", 0));
-								Boolean selected = true;
-								jcb.setSelected(true);
+								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.toString() + "(" + hits + ")", 0));
+								jcb.setSelected(!mainFrame1.cd.disabledSeries.contains(me.toString()));
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
 								if (count<colors.length){
 								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));
 								}
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
+								 logger.info(me.toString()+", "+mainFrame1.cd.disabledSeries);
+					//			if (MainFrame.cd.disabledSeries.contains(me.toString())){
+					//				jcb.setSelected(false);
+					//			}
 								checkboxPanel.add(jcb);
 								count++;
 							}
@@ -521,7 +533,7 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 									hits = ((ExtendedTimeSeries) me.getValue()).getStat()[1];
 								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
 								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
+								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
 								jcb.setSelected(true);
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
@@ -542,16 +554,39 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 							cpanel.setMinimumDrawWidth(0);
 							cpanel.setMinimumDrawHeight(0);
 							cpanel.setMaximumDrawWidth(1920);
-							cpanel.setMaximumDrawHeight(1200);
+							cpanel.setMaximumDrawHeight(Integer.parseInt((String)Preferences.getPreference("chartSize")));
 							// cpanel.setInitialDelay(0);
 							cpanel.setDismissDelay(9999999);
 							cpanel.setInitialDelay(50);
 							cpanel.setReshowDelay(200);
-							cpanel.setPreferredSize(new Dimension(600, 350));
+							cpanel.setPreferredSize(new Dimension(600, Integer.parseInt((String)Preferences.getPreference("chartSize"))));
 							// cpanel.restoreAutoBounds(); fix the tooltip
 							// missing problem but then relative display is
 							// broken
 							panel.add(new JSeparator(SwingConstants.HORIZONTAL));
+							
+							JPanel panTitle = new JPanel();
+							panTitle.setLayout(new BorderLayout(0, 0));
+							panTitle.setPreferredSize(new Dimension(600, 20));
+							JPanel chartTitlePanel1 = new JPanel();
+							chartTitlePanel1.setBackground(Color.WHITE);
+							panTitle.add(chartTitlePanel1, BorderLayout.WEST);
+							chartTitlePanel1.setLayout(new GridLayout(0, 1, 0, 0));
+							FastDateFormat sdf = FastDateFormat.getInstance("dd-MMM-yyyy HH:mm:ss");
+							JLabel chartTitleStartDateLbl = new JLabel("    "+sdf.format(mr.getStartDate()));
+							chartTitleStartDateLbl.setFont(new Font("Verdana", Font.PLAIN, 10));
+						    chartTitleStartDateLbl.setVerticalAlignment(SwingConstants.BOTTOM);
+							chartTitlePanel1.add(chartTitleStartDateLbl);
+							JPanel chartTitlePanel2 = new JPanel();
+							FlowLayout flowLayout = (FlowLayout) chartTitlePanel2.getLayout();
+							flowLayout.setAlignment(FlowLayout.LEFT);
+							chartTitlePanel2.setBackground(Color.WHITE);
+							panTitle.add(chartTitlePanel2, BorderLayout.CENTER);
+							JLabel chartTitleSourceLbl = new JLabel("         "+mr.getSourceID() + " " + mr.getGroup());
+							chartTitleSourceLbl.setFont(new Font("Verdana", Font.BOLD, 12));
+							chartTitlePanel2.add(chartTitleSourceLbl);							
+							pan.add(panTitle, BorderLayout.NORTH);
+							
 							pan.add(cpanel, BorderLayout.CENTER);
 							// checkboxPanel.setPreferredSize(new Dimension(600,
 							// 0));
@@ -629,9 +664,10 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 		}}
 		// Map=miner.mine(sourceFiles,repo);
 		estimatedTime = System.currentTimeMillis() - startTime;
-
 		revalidate();
 		logger.info("display time: " + estimatedTime);
+	   	//panel.transferFocus();
+	  //	panel.requestFocus();
 	}
 
 	private static class VisibleAction extends AbstractAction {
@@ -641,18 +677,28 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 		JPanel jpanel;
 		String name;
 		JPanel checkBoxPanel;
-
-		public VisibleAction(JPanel panel,JPanel checkBoxPanel,NumberAxis axis, String name, int i) {
+		ChartData cd;
+		
+		public VisibleAction(ChartData cd1,JPanel panel,JPanel checkBoxPanel,NumberAxis axis, String name, int i) {
 			super(name);
 			this.localAxis=axis;
 			this.i = i;
 			this.name=name.substring(0, ((name).indexOf("(")));
 			this.checkBoxPanel=checkBoxPanel;
 			jpanel=panel;
+			cd=cd1;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (!mainFrame1.cd.disabledSeries.contains(name)){
+				logger.info("add "+ name);
+				mainFrame1.cd.addDisabledSeries(name);
+			}else {
+				logger.info("remove "+ name);
+				mainFrame1.cd.removeDisabledSeries(name);
+			}
+			logger.info("cd.disabledSeries: "+ mainFrame1.cd.disabledSeries );
 		//	renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
 		//	localAxis.setVisible(!localAxis.isVisible());
 			Component[] comp=jpanel.getComponents();
@@ -660,29 +706,34 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 			while (i<comp.length){
 				logger.debug(comp[i].toString());
 				if (comp[i].getClass().equals(JPanel.class)){
-					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRangeAxisCount();
-					if (logger.isDebugEnabled()){
+				//	logger.debug("is Jpanel " + ((JPanel)comp[i]).getName() + " and " + ((JPanel)comp[i]).getComponent(1));
+					if (((JPanel)comp[i]).getComponent(1).getClass().equals(ChartPanel.class)){
+				//		logger.debug("is ChartPanel");
+					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxisCount();
+				//	if (logger.isDebugEnabled()){
 						logger.debug(nbAxis);
-						logger.debug(((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getTitle().getText());
-					}					
+						logger.debug(((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getTitle().getText());
+				//	}					
 					int i2=0;
 					while (i2<nbAxis){
 						if (logger.isDebugEnabled()){logger.debug(localAxis.getLabel());}
-						if (((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
-							((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
-							((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponent(0)).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
+						logger.debug(localAxis.getLabel());
+						if (((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
+							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
+							logger.debug("cd.disabledSeries: "+ cd.disabledSeries );
+							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
 						}
 						i2++;
 						}
-					Component[] comp2=((JPanel)((JPanel)comp[i]).getComponent(1)).getComponents();
+					Component[] comp2=((JPanel)((JPanel)comp[i]).getComponent(2)).getComponents();
 					int i3=0;
 					while (i3<comp2.length){;
-						if ( ((JCheckBox)comp2[i3]).getText().substring(0, ((((JCheckBox)comp2[i3]).getText()).indexOf("("))).equals(name)&& !((JPanel)((JPanel)comp[i]).getComponent(1)).equals(checkBoxPanel)){
+						if ( ((JCheckBox)comp2[i3]).getText().substring(0, ((((JCheckBox)comp2[i3]).getText()).indexOf("("))).equals(name)&& !((JPanel)((JPanel)comp[i]).getComponent(2)).equals(checkBoxPanel)){
 							((JCheckBox)comp2[i3]).setSelected(!((JCheckBox)comp2[i3]).isSelected());
 						}
 						i3++;
 						}
-				}
+				}}
 				i++;
 			}
 		}
