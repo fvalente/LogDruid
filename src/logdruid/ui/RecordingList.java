@@ -59,9 +59,11 @@ import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
+import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
 import logdruid.ui.editor.EventRecordingEditor;
 import logdruid.ui.editor.MetadataRecordingEditor;
+import logdruid.ui.editor.ReportRecordingEditor;
 import logdruid.ui.editor.StatRecordingEditor;
 import logdruid.util.DataMiner;
 
@@ -239,6 +241,23 @@ public class RecordingList extends JPanel {
 			}
 		});
 		panel.add(btnNewEvent);
+		JButton btnNewReport = new JButton("New Report");
+		btnNewReport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int rowCount = table.getRowCount();
+				logger.info("table.getRowCount()" + table.getRowCount());
+				jPanelDetail.removeAll();
+				Recording re = new ReportRecording("name", "regex", "example line", "", true, null);
+				recEditor = new ReportRecordingEditor(thiis, repository, "the line", "regex", (ReportRecording) re);
+				jPanelDetail.add(recEditor, BorderLayout.CENTER);
+				repository.addRecording(re);
+				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
+				model.fireTableRowsInserted(rowCount, rowCount);
+				table.setRowSelectionInterval(rowCount, rowCount);
+				logger.info("New record - row count : " + rowCount);
+			}
+		});
+		panel.add(btnNewReport);
 		panel.add(btnDuplicate);
 
 		JButton btnDelete = new JButton("Delete");
@@ -300,6 +319,8 @@ public class RecordingList extends JPanel {
 					((MetadataRecording) rec));
 		} else if (rec.getClass() == EventRecording.class) {
 			editorPanel = new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
+		} else if (rec.getClass() == ReportRecording.class) {
+			editorPanel = new ReportRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((ReportRecording) rec));
 		}
 		return editorPanel;
 	}

@@ -40,6 +40,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
 import logdruid.data.ChartData;
 import logdruid.data.DataVault;
 import logdruid.data.DateFormat;
@@ -58,6 +62,7 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
+import logdruid.ui.MainFrame;
 
 import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.time.FixedMillisecond;
@@ -72,7 +77,7 @@ public class DataMiner {
 	static long estimatedTime = 0;
 	static long startTime = 0;
 
-	public static MineResultSet gatherMineResultSet(final Repository repo) {
+	public static MineResultSet gatherMineResultSet(final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
 		int ini = Integer.parseInt(test);
 		logger.info("gatherMineResultSet parallelism: "+ini);
@@ -80,15 +85,16 @@ public class DataMiner {
 		ChartData cd = new ChartData();
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
+		//mainFrame.setValue(0);
 		
 		startTime = System.currentTimeMillis();
-
+		
 		
 		cd=gatherSourceData(repo);		
 	//	if (logger.isEnabledFor(Level.INFO))
 	//		logger.info("ArrayList sourceFileGroup" + sourceFileGroup);
 		Iterator<Source> sourceIterator2 = repo.getSources().iterator();
-
+		int progressCount = 0;
 		while (sourceIterator2.hasNext()) {
 			final Source source = sourceIterator2.next();
 			// sourceFiles contains all the matched files for a given source
@@ -96,10 +102,11 @@ public class DataMiner {
 				Iterator<Entry<String, ArrayList<FileRecord>>> it = cd.getGroupFilesMap(source).entrySet().iterator();
 				while (it.hasNext()) {
 					final Map.Entry<String, ArrayList<FileRecord>> pairs = (Map.Entry<String, ArrayList<FileRecord>>) it.next();
-					 logger.debug("Source:" + source.getSourceName()+", group: " +  pairs.getKey() + " = " + pairs.getValue().toString());
+					progressCount=progressCount+pairs.getValue().size();
+					 logger.info("Source:" + source.getSourceName()+", group: " +  pairs.getKey() + " = " + pairs.getValue().toString());
 					tasks.add(new Callable<MineResult>() {
 						public MineResult call() throws Exception {
-							return DataMiner.mine((String) pairs.getKey(), (ArrayList<FileRecord>) pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings());
+							return DataMiner.mine((String) pairs.getKey(), (ArrayList<FileRecord>) pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),mainFrame);
 						}
 
 					});
@@ -107,6 +114,8 @@ public class DataMiner {
 				}
 			}
 		}
+		mainFrame.setMaxProgress(progressCount);
+		logger.info("progressCount "+ progressCount);
 		/*
 		 * invokeAll blocks until all service requests complete, or a max of
 		 * 1000 seconds.
@@ -145,15 +154,15 @@ public class DataMiner {
 
 	}
 
-	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, Repository repo, Source source, boolean stats, boolean timings) {
+	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, Repository repo, Source source, boolean stats, boolean timings, MainFrame mainFrame) {
 		logger.debug("call to mine for source " + source.getSourceName() + " on group " + group);
-		FileMineResultSet fMRS = fastMine(arrayList, repo, source, stats, timings);
+		FileMineResultSet fMRS = fastMine(arrayList, repo, source, stats, timings,mainFrame);
 		return new MineResult(group, fMRS, arrayList, repo, source);
 	}
 
 	// handle gathering for ArrayList of file for one source
 	public static FileMineResultSet fastMine(ArrayList<FileRecord> arrayList, final Repository repo, final Source source, final boolean stats,
-			final boolean timings) {
+			final boolean timings, final MainFrame mainFrame) {
 
 		ThreadPool_FileWorkers = Executors.newFixedThreadPool(Integer.parseInt(Preferences.getPreference("ThreadPool_File")));
 		Date startDate = null;
@@ -176,7 +185,7 @@ public class DataMiner {
 			tasks.add(new Callable<FileMineResult>() {
 				public FileMineResult call() throws Exception {
 					logger.debug("file mine on "+ fileRec);
-					return fileMine(fileRec, repo, source, stats, timings);
+					return fileMine(fileRec, repo, source, stats, timings,mainFrame);
 				}
 
 			});
@@ -342,7 +351,7 @@ public class DataMiner {
 		
 	}
 	// handle gathering for a single file
-	public static FileMineResult fileMine(FileRecord fileRecord, Repository repo, Source source, boolean stats, boolean timings) {
+	public static FileMineResult fileMine(FileRecord fileRecord, Repository repo, Source source, boolean stats, boolean timings, final MainFrame mainFrame) {
 		ExtendedTimeSeries ts = null;
 		PatternCache patternCache = new PatternCache();
 		Date startDate = null;
@@ -543,6 +552,16 @@ public class DataMiner {
 													ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 100)));
 												}
 												
+											} else if (((RecordingItem) recItem2).getProcessingType().equals("top100")) {
+												TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
+												if (t != null) {
+													ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, 101))); // +
+													// (double)t.getValue()
+													// need some way to show several occurrences
+												} else {
+													ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 100)));
+												}
+												
 											} else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
 												TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
 												if (t != null) {
@@ -703,6 +722,7 @@ public class DataMiner {
 		 * /array[3] : 0) + " failed cost:" + ((array[2]-array[3]!=0) ?
 		 * ((double)failedTotalTime/(array[2]-array[3])) : 0) ); } }
 		 */
+		mainFrame.progress();
 		return new FileMineResult(fileRecord, statMap, eventMap, matchTimings, RIFileLineDateMap, startDate, endDate);
 	}
 	/*
@@ -1080,7 +1100,7 @@ public class DataMiner {
 					}}}}}}
 
 		public static ArrayList<Map> exportData(Repository repo) {
-			gatherMineResultSet(repo);
+			gatherMineResultSet(repo,null);
 			return null;
 	 
 		}

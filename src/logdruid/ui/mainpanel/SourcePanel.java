@@ -83,7 +83,7 @@ public class SourcePanel extends JPanel {
 	private JTextField basePathTextField;
 	boolean DEBUG = false;
 	private JTable table;
-	private String[] header = { "name", "regexp", "active" };
+	private String[] header = { "name", "regexp", "active","nb files","size" };
 	private Repository repository;
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	public MyTableModel2 model;
@@ -212,6 +212,7 @@ public class SourcePanel extends JPanel {
 		add(tablePanel, gbc_tablePanel);
 		tablePanel.setLayout(new BorderLayout(0, 0));
 		table = new JTable(model);
+		initColumnSizes(table);
 		JScrollPane scrollPane_1 = new JScrollPane(table);
 		tablePanel.add(scrollPane_1, BorderLayout.CENTER);
 
@@ -552,7 +553,7 @@ public class SourcePanel extends JPanel {
 			// this.repaint();
 			while (it.hasNext()) {
 				Source record = (Source) it.next();
-				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getActive() });
+				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getActive(),0,0});
 				logger.info("reloadTable - record reloaded : " + count + ", " + record.getSourceName() + ", " + record.getSourcePattern() + ", "
 						+ record.getActive());
 			}
@@ -561,7 +562,7 @@ public class SourcePanel extends JPanel {
 	}
 
 	private void initColumnSizes(JTable theTable) {
-		MyTableModel2 model = (MyTableModel2) theTable.getModel();
+	//	MyTableModel2 model = (MyTableModel2) theTable.getModel();
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
@@ -569,24 +570,25 @@ public class SourcePanel extends JPanel {
 		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i <5 ; i++) {
 			column = theTable.getColumnModel().getColumn(i);
-
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
-			headerWidth = comp.getPreferredSize().width;
+if (i<2){
+	headerWidth = comp.getPreferredSize().width;
+	cellWidth = comp.getPreferredSize().width;
+	column.setPreferredWidth(Math.max(headerWidth, cellWidth));	
+} else {
+	cellWidth = 140;
+column.setMaxWidth(cellWidth*4);
+column.setPreferredWidth(cellWidth);	
+}
+	
 
-			/*
-			 * comp = table.getDefaultRenderer(model.getColumnClass(i)).
-			 * getTableCellRendererComponent( table, longValues[i], false,
-			 * false, 0, i);
-			 */
-			cellWidth = comp.getPreferredSize().width;
 
-			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
-			}
+				
 
-			column.setPreferredWidth(Math.max(headerWidth, cellWidth));
+
+
 		}
 
 	}
