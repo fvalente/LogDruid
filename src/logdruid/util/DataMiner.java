@@ -103,7 +103,7 @@ public class DataMiner {
 				while (it.hasNext()) {
 					final Map.Entry<String, ArrayList<FileRecord>> pairs = (Map.Entry<String, ArrayList<FileRecord>>) it.next();
 					progressCount=progressCount+pairs.getValue().size();
-					 logger.info("Source:" + source.getSourceName()+", group: " +  pairs.getKey() + " = " + pairs.getValue().toString());
+					 logger.debug("Source:" + source.getSourceName()+", group: " +  pairs.getKey() + " = " + pairs.getValue().toString());
 					tasks.add(new Callable<MineResult>() {
 						public MineResult call() throws Exception {
 							return DataMiner.mine((String) pairs.getKey(), (ArrayList<FileRecord>) pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),mainFrame);

@@ -30,9 +30,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +59,8 @@ import javax.swing.text.Highlighter;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import java.awt.Color;
 
@@ -83,7 +87,7 @@ public class SourcePanel extends JPanel {
 	private JTextField basePathTextField;
 	boolean DEBUG = false;
 	private JTable table;
-	private String[] header = { "name", "regexp", "active","nb files","size" };
+	private String[] header = { "name", "regexp", "active", "nb files", "size(MB)" };
 	private Repository repository;
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	public MyTableModel2 model;
@@ -94,6 +98,7 @@ public class SourcePanel extends JPanel {
 	private boolean recursiveMode = false;
 	JCheckBox chckbxSubfolders = null;
 	JCheckBox chckbxOnlyMatches = null;
+	Map<Source, long[]> srcFileSummary = new HashMap<Source, long[]>();
 
 	/**
 	 * Create the panel.
@@ -150,8 +155,10 @@ public class SourcePanel extends JPanel {
 				File temp = new File(basePathTextField.getText());
 				if (temp.exists()) {
 					repo.setBaseSourcePath(basePathTextField.getText());
-					_mainFrame.setTitle("LogDruid - " + _mainFrame.configFile+ " - " + basePathTextField.getText());
-					//_mainFrame.setTitle("LogDruid - " + _mainFrame.currentRepositoryFile + " - " + basePathTextField.getText());
+					_mainFrame.setTitle("LogDruid - " + _mainFrame.configFile + " - " + basePathTextField.getText());
+					// _mainFrame.setTitle("LogDruid - " +
+					// _mainFrame.currentRepositoryFile + " - " +
+					// basePathTextField.getText());
 				}
 			}
 		});
@@ -197,7 +204,7 @@ public class SourcePanel extends JPanel {
 						repository.setBaseSourcePath(file.getAbsolutePath());
 						basePathTextField.setText(file.getAbsolutePath());
 						repo.setBaseSourcePath(file.getAbsolutePath());
-						_mainFrame.setTitle("LogDruid - " + _mainFrame.configFile+ " - " + basePathTextField.getText());
+						_mainFrame.setTitle("LogDruid - " + _mainFrame.configFile + " - " + basePathTextField.getText());
 					}
 				}
 			}
@@ -217,10 +224,10 @@ public class SourcePanel extends JPanel {
 		tablePanel.add(scrollPane_1, BorderLayout.CENTER);
 
 		// tablePanel.add(table, BorderLayout.CENTER);
-		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+		table.getModel().addTableModelListener(new TableModelListener() {
 
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()){
+			public void tableChanged(TableModelEvent e) {
+				// if (!e.getValueIsAdjusting()){
 				// model.fireTableDataChanged();
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				updateSources();
@@ -228,6 +235,21 @@ public class SourcePanel extends JPanel {
 				reloadTable();
 				table.setRowSelectionInterval(selectedRow, selectedRow);
 				refreshList();
+				// }
+			}
+		});
+
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					// model.fireTableDataChanged();
+					int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+					updateSources();
+					mainFrame.updateTreeSources(repository.getSources());
+					reloadTable();
+					table.setRowSelectionInterval(selectedRow, selectedRow);
+					refreshList();
 				}
 			}
 		});
@@ -314,7 +336,7 @@ public class SourcePanel extends JPanel {
 		JButton btnCheck = new JButton("Get samplings");
 		btnCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 DataMiner.populateRecordingSamples(repo);
+				DataMiner.populateRecordingSamples(repo);
 			}
 		});
 		buttonsPanel.add(btnCheck);
@@ -335,7 +357,7 @@ public class SourcePanel extends JPanel {
 				logger.info(repository);
 				logger.info(s);
 				repository.addSource(s);
-				data.add(new Object[] { "", 0, Boolean.TRUE });
+				data.add(new Object[] { "", 0, Boolean.TRUE, 0, 0 });
 				// table.repaint();
 				reloadTable();
 				if (selectedRow >= 0) {
@@ -349,7 +371,7 @@ public class SourcePanel extends JPanel {
 		});
 
 		reloadTable();
-		if (table.getRowCount()> 0) {
+		if (table.getRowCount() > 0) {
 			table.setRowSelectionInterval(0, 0);
 		}
 		refreshList();
@@ -362,6 +384,7 @@ public class SourcePanel extends JPanel {
 		PatternCache patternCache = new PatternCache();
 		Matcher matcher;
 		List<File> listOfFiles = null;
+		srcFileSummary = new HashMap<Source, long[]>();
 		sourceArrayList = repository.getSources();
 		if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0 && repository.getBaseSourcePath() != null) {
 			/*
@@ -387,7 +410,7 @@ public class SourcePanel extends JPanel {
 				if (repository.isRecursiveMode()) {
 					long estimatedTime = 0;
 					long startTime = System.currentTimeMillis();
-					
+
 					listOfFiles = FileListing.getFileListing(folder);
 					estimatedTime = System.currentTimeMillis() - startTime;
 					logger.info("gathering time: " + estimatedTime);
@@ -419,7 +442,7 @@ public class SourcePanel extends JPanel {
 						Iterator<Source> it = sourceArrayList.iterator();
 						count = 0;
 						while (it.hasNext()) {
-							Source src=(Source) it.next();
+							Source src = (Source) it.next();
 
 							String s1 = (src).getSourcePattern();
 							matcher = patternCache.getPattern(s1).matcher(FileListing.getPath(repository, listOfFiles.get(i)));
@@ -432,8 +455,8 @@ public class SourcePanel extends JPanel {
 								if (logger.isDebugEnabled())
 									logger.debug("match" + FileListing.getPath(repository, listOfFiles.get(i)));
 								if (count == ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)) {
-									if (src.getActive()){
-									fileListMatches[i][0] = 1;
+									if (src.getActive()) {
+										fileListMatches[i][0] = 1;
 									} else {
 										fileListMatches[i][0] = 3;
 									}
@@ -444,13 +467,21 @@ public class SourcePanel extends JPanel {
 								} else if (fileListMatches[i][0] == 0) {
 									if (logger.isDebugEnabled())
 										logger.debug("Already matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
-										if (src.getActive()){
-											fileListMatches[i][0] = 2;
-											} else {
-												fileListMatches[i][0] = 3;
-											}
-									
+									if (src.getActive()) {
+										fileListMatches[i][0] = 2;
+									} else {
+										fileListMatches[i][0] = 3;
+									}
+
 								}
+								if (!srcFileSummary.containsKey(src)) {
+									srcFileSummary.put(src, new long[] { 0, 0 });
+								}
+								long[] intTable = srcFileSummary.get(src);
+								intTable[0] = intTable[0] + 1;
+								intTable[1] = intTable[1] + listOfFiles.get(i).length();
+								srcFileSummary.put(src, intTable);
+
 								fileListMatches[i][1] = matcher.start();
 								fileListMatches[i][2] = matcher.end();
 							} else {
@@ -458,9 +489,9 @@ public class SourcePanel extends JPanel {
 								if (logger.isDebugEnabled())
 									logger.debug("not matched file" + FileListing.getPath(repository, listOfFiles.get(i)));
 							}
-						
+
 							count++;
-					}
+						}
 					}
 				}
 			}
@@ -490,8 +521,8 @@ public class SourcePanel extends JPanel {
 						if (logger.isDebugEnabled())
 							logger.debug("ALREADY matched - l: " + i + "file" + listOfFiles.get(i).getName() + " currIndex : " + currIndex + ", match start: "
 									+ fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
-						
-					}else if (fileListMatches[i][0] == 3) {
+
+					} else if (fileListMatches[i][0] == 3) {
 						String fileName = FileListing.getPath(repository, listOfFiles.get(i));
 						doc.insertString(doc.getLength(), fileName + "\n", null);
 						txtpnTest.setCaretPosition(0);
@@ -500,9 +531,8 @@ public class SourcePanel extends JPanel {
 						if (logger.isDebugEnabled())
 							logger.debug("ALREADY matched - l: " + i + "file" + listOfFiles.get(i).getName() + " currIndex : " + currIndex + ", match start: "
 									+ fileListMatches[i][1] + ", match end: " + fileListMatches[i][2]);
-						
-					} 
-					else if (!repository.isOnlyMatches()) {
+
+					} else if (!repository.isOnlyMatches()) {
 						String fileName = FileListing.getPath(repository, listOfFiles.get(i));
 						doc.insertString(doc.getLength(), fileName + "\n", null);
 						txtpnTest.setCaretPosition(0);
@@ -513,6 +543,23 @@ public class SourcePanel extends JPanel {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}
+		sourceArrayList = repository.getSources();
+		if (sourceArrayList != null) {
+			Iterator<Source> it = sourceArrayList.iterator();
+			int count = 0;
+			data.clear();
+			// this.repaint();
+			while (it.hasNext()) {
+				Source record = (Source) it.next();
+				logger.debug("reloadTable - record reloaded : " + count + ", " + record + ", " + record.getSourcePattern() + ", "
+						+ record.getActive() + " srcFileSummary.get(record): " + srcFileSummary.get(record));
+				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getActive(),
+						srcFileSummary.get(record) != null ? srcFileSummary.get(record)[0] : 0,
+						srcFileSummary.get(record) != null ? ((float)srcFileSummary.get(record)[1]) / 1024000 : 0 });
+			}
+			table.revalidate();
+			table.repaint();
 		}
 
 	}
@@ -531,19 +578,20 @@ public class SourcePanel extends JPanel {
 			// logger.info("getTypeString(stType) -: "
 			// +Miner.getTypeString(stType) );
 			// patternString += stBefore + "(" + Miner.getTypeString(stType) +
-			// ")"+stAfter; 
+			// ")"+stAfter;
 			Source source = repository.getSource(count);
 			source.setSourceName(stName);
 			source.setSourcePattern(stregexp);
 			source.setActive(stActive);
 			// repository.updateSource(count,stName,stregexp, stActive);
-			logger.info("updateSources - Source updated : " + stName + ",regexp: " + stregexp);
+			logger.debug("updateSources - Source updated : " + stName + ",regexp: " + stregexp);
 			count++;
 		}
 	}
 
 	public void reloadTable() {
-		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+		// int selectedRow = ((table.getSelectedRow() != -1) ?
+		// table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		sourceArrayList = repository.getSources();
 		// Collections.sort(records);
 		if (sourceArrayList != null) {
@@ -553,8 +601,8 @@ public class SourcePanel extends JPanel {
 			// this.repaint();
 			while (it.hasNext()) {
 				Source record = (Source) it.next();
-				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getActive(),0,0});
-				logger.info("reloadTable - record reloaded : " + count + ", " + record.getSourceName() + ", " + record.getSourcePattern() + ", "
+				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getActive(), 0, 0 });
+				logger.debug("reloadTable - record reloaded : " + count + ", " + record + ", " + record.getSourcePattern() + ", "
 						+ record.getActive());
 			}
 			table.revalidate();
@@ -562,7 +610,7 @@ public class SourcePanel extends JPanel {
 	}
 
 	private void initColumnSizes(JTable theTable) {
-	//	MyTableModel2 model = (MyTableModel2) theTable.getModel();
+		// MyTableModel2 model = (MyTableModel2) theTable.getModel();
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
@@ -570,24 +618,18 @@ public class SourcePanel extends JPanel {
 		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
-		for (int i = 0; i <5 ; i++) {
+		for (int i = 0; i < 5; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
-if (i<2){
-	headerWidth = comp.getPreferredSize().width;
-	cellWidth = comp.getPreferredSize().width;
-	column.setPreferredWidth(Math.max(headerWidth, cellWidth));	
-} else {
-	cellWidth = 140;
-column.setMaxWidth(cellWidth*4);
-column.setPreferredWidth(cellWidth);	
-}
-	
-
-
-				
-
-
+			if (i < 2) {
+				headerWidth = comp.getPreferredSize().width;
+				cellWidth = comp.getPreferredSize().width;
+				column.setPreferredWidth(Math.max(headerWidth, cellWidth));
+			} else {
+				cellWidth = 140;
+				column.setMaxWidth(cellWidth * 4);
+				column.setPreferredWidth(cellWidth);
+			}
 
 		}
 
