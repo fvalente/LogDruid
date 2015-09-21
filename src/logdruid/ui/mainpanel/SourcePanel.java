@@ -68,6 +68,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -81,6 +82,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.awt.Font;
+
+import javax.swing.JSplitPane;
 
 public class SourcePanel extends JPanel {
 	private static Logger logger = Logger.getLogger(SourcePanel.class.getName());
@@ -109,9 +112,9 @@ public class SourcePanel extends JPanel {
 		repository = repo;
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 575, 0 };
-		gridBagLayout.rowHeights = new int[] { 45, 120, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 45, 338, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
 
 		JPanel descriptionPanel = new JPanel();
@@ -213,162 +216,167 @@ public class SourcePanel extends JPanel {
 		JPanel tablePanel = new JPanel();
 		GridBagConstraints gbc_tablePanel = new GridBagConstraints();
 		gbc_tablePanel.fill = GridBagConstraints.BOTH;
-		gbc_tablePanel.insets = new Insets(0, 0, 5, 0);
 		gbc_tablePanel.gridx = 0;
 		gbc_tablePanel.gridy = 1;
 		add(tablePanel, gbc_tablePanel);
 		tablePanel.setLayout(new BorderLayout(0, 0));
-		table = new JTable(model);
-		initColumnSizes(table);
-		JScrollPane scrollPane_1 = new JScrollPane(table);
-		tablePanel.add(scrollPane_1, BorderLayout.CENTER);
+		
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		tablePanel.add(splitPane, BorderLayout.CENTER);
+		
+				JPanel fileMatchPanel = new JPanel();
+				splitPane.setRightComponent(fileMatchPanel);
+				fileMatchPanel.setLayout(new BorderLayout(0, 0));
+																				JPanel panel_1 = new JPanel();
+																				fileMatchPanel.add(panel_1, BorderLayout.CENTER);
+																				panel_1.setLayout(new BorderLayout(0, 0));
+																				txtpnTest = new JTextPane();
+																				
+																						JScrollPane scrollPane = new JScrollPane(txtpnTest);
+																						panel_1.add(scrollPane);
+																						
+																						JPanel panel_6 = new JPanel();
+																						panel_6.setMinimumSize(new Dimension(0, 150));
+																						panel_6.setPreferredSize(new Dimension(0, 150));
+																						splitPane.setLeftComponent(panel_6);
+																						panel_6.setLayout(new BorderLayout(0, 0));
+																						
+																								JPanel buttonsPanel = new JPanel();
+																								panel_6.add(buttonsPanel, BorderLayout.SOUTH);
+																								FlowLayout fl_buttonsPanel = (FlowLayout) buttonsPanel.getLayout();
+																								
+																										JButton btnNew = new JButton("New");
+																										buttonsPanel.add(btnNew);
+																										
+																												JButton btnDelete = new JButton("Delete");
+																												btnDelete.addActionListener(new ActionListener() {
+																													public void actionPerformed(ActionEvent e) {
+																														int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+																														repository.deleteSource(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+																														reloadTable();
+																														if (selectedRow == table.getRowCount()) {
+																															table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+																														} else if (selectedRow > 0) {
+																															table.setRowSelectionInterval(selectedRow, selectedRow);
+																														}
+																														mainFrame.updateTreeSources(repository.getSources());
+																														refreshList();
+																														logger.info("selectedRow: " + selectedRow + " row count: " + table.getRowCount());
 
-		// tablePanel.add(table, BorderLayout.CENTER);
-		table.getModel().addTableModelListener(new TableModelListener() {
+																													}
+																												});
+																												buttonsPanel.add(btnDelete);
+																												
+																														JSeparator separator = new JSeparator();
+																														separator.setOrientation(SwingConstants.VERTICAL);
+																														buttonsPanel.add(separator);
+																														JButton btnRefresh = new JButton("Refresh");
+																														btnRefresh.addActionListener(new ActionListener() {
+																															public void actionPerformed(ActionEvent e) {
+																																int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+																																updateSources();
+																																reloadTable();
+																																if (selectedRow > 0) {
+																																	table.setRowSelectionInterval(selectedRow, selectedRow);
+																																}
+																																mainFrame.updateTreeSources(repository.getSources());
+																																refreshList();
 
-			public void tableChanged(TableModelEvent e) {
-				// if (!e.getValueIsAdjusting()){
-				// model.fireTableDataChanged();
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				updateSources();
-				mainFrame.updateTreeSources(repository.getSources());
-				reloadTable();
-				table.setRowSelectionInterval(selectedRow, selectedRow);
-				refreshList();
-				// }
-			}
-		});
-
-		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
-					// model.fireTableDataChanged();
-					int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-					updateSources();
-					mainFrame.updateTreeSources(repository.getSources());
-					reloadTable();
-					table.setRowSelectionInterval(selectedRow, selectedRow);
-					refreshList();
-				}
-			}
-		});
-
-		JPanel fileMatchPanel = new JPanel();
-		GridBagConstraints gbc_fileMatchPanel = new GridBagConstraints();
-		gbc_fileMatchPanel.fill = GridBagConstraints.BOTH;
-		gbc_fileMatchPanel.anchor = GridBagConstraints.NORTHWEST;
-		gbc_fileMatchPanel.gridx = 0;
-		gbc_fileMatchPanel.gridy = 2;
-		add(fileMatchPanel, gbc_fileMatchPanel);
-		fileMatchPanel.setLayout(new BorderLayout(0, 0));
-
-		JPanel buttonsPanel = new JPanel();
-		fileMatchPanel.add(buttonsPanel, BorderLayout.NORTH);
-		FlowLayout fl_buttonsPanel = (FlowLayout) buttonsPanel.getLayout();
-
-		JButton btnNew = new JButton("New");
-		buttonsPanel.add(btnNew);
-
-		JButton btnDelete = new JButton("Delete");
-		btnDelete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				repository.deleteSource(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
-				reloadTable();
-				if (selectedRow == table.getRowCount()) {
-					table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-				} else if (selectedRow > 0) {
-					table.setRowSelectionInterval(selectedRow, selectedRow);
-				}
-				mainFrame.updateTreeSources(repository.getSources());
-				refreshList();
-				logger.info("selectedRow: " + selectedRow + " row count: " + table.getRowCount());
-
-			}
-		});
-		buttonsPanel.add(btnDelete);
-
-		JSeparator separator = new JSeparator();
-		separator.setOrientation(SwingConstants.VERTICAL);
-		buttonsPanel.add(separator);
-		JButton btnRefresh = new JButton("Refresh");
-		btnRefresh.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				updateSources();
-				reloadTable();
-				if (selectedRow > 0) {
-					table.setRowSelectionInterval(selectedRow, selectedRow);
-				}
-				mainFrame.updateTreeSources(repository.getSources());
-				refreshList();
-
-			}
-		});
-
-		chckbxSubfolders = new JCheckBox("sub-folders");
-		chckbxSubfolders.setFont(new Font("Dialog", Font.BOLD, 11));
-		chckbxSubfolders.setSelected(repo.isRecursiveMode());
-		chckbxSubfolders.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				repo.setRecursiveMode(chckbxSubfolders.isSelected());
-			}
-		});
-		buttonsPanel.add(chckbxSubfolders);
-
-		chckbxOnlyMatches = new JCheckBox("only matches");
-		chckbxOnlyMatches.setFont(new Font("Dialog", Font.BOLD, 11));
-		chckbxOnlyMatches.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				repo.setOnlyMatches(chckbxOnlyMatches.isSelected());
-			}
-		});
-		buttonsPanel.add(chckbxOnlyMatches);
-		chckbxOnlyMatches.setSelected(repo.isOnlyMatches());
-		btnRefresh.setForeground(Color.BLUE);
-		buttonsPanel.add(btnRefresh);
-
-		JSeparator separator_1 = new JSeparator();
-		separator_1.setOrientation(SwingConstants.VERTICAL);
-		buttonsPanel.add(separator_1);
-
-		JButton btnCheck = new JButton("Get samplings");
-		btnCheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DataMiner.populateRecordingSamples(repo);
-			}
-		});
-		buttonsPanel.add(btnCheck);
-		JPanel panel_1 = new JPanel();
-		fileMatchPanel.add(panel_1, BorderLayout.CENTER);
-		panel_1.setLayout(new BorderLayout(0, 0));
-		txtpnTest = new JTextPane();
-
-		JScrollPane scrollPane = new JScrollPane(txtpnTest);
-		panel_1.add(scrollPane);
-
-		// scrollPane.add(txtpnTest);
-
-		btnNew.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				Source s = new Source("default", ".*", Boolean.TRUE, (ArrayList<SourceItem>) null);
-				logger.info(repository);
-				logger.info(s);
-				repository.addSource(s);
-				data.add(new Object[] { "", 0, Boolean.TRUE, 0, 0 });
-				// table.repaint();
-				reloadTable();
-				if (selectedRow >= 0) {
-					table.setRowSelectionInterval(selectedRow, selectedRow);
-				} else {
-					table.setRowSelectionInterval(0, 0);
-				}
-				table.repaint();
-				mainFrame.updateTreeSources(repository.getSources());
-			}
-		});
+																															}
+																														});
+																														
+																																chckbxSubfolders = new JCheckBox("sub-folders");
+																																chckbxSubfolders.setFont(new Font("Dialog", Font.BOLD, 11));
+																																chckbxSubfolders.setSelected(repo.isRecursiveMode());
+																																chckbxSubfolders.addActionListener(new ActionListener() {
+																																	public void actionPerformed(ActionEvent e) {
+																																		repo.setRecursiveMode(chckbxSubfolders.isSelected());
+																																	}
+																																});
+																																buttonsPanel.add(chckbxSubfolders);
+																																
+																																		chckbxOnlyMatches = new JCheckBox("only matches");
+																																		chckbxOnlyMatches.setFont(new Font("Dialog", Font.BOLD, 11));
+																																		chckbxOnlyMatches.addActionListener(new ActionListener() {
+																																			public void actionPerformed(ActionEvent e) {
+																																				repo.setOnlyMatches(chckbxOnlyMatches.isSelected());
+																																			}
+																																		});
+																																		buttonsPanel.add(chckbxOnlyMatches);
+																																		chckbxOnlyMatches.setSelected(repo.isOnlyMatches());
+																																		btnRefresh.setForeground(Color.BLUE);
+																																		buttonsPanel.add(btnRefresh);
+																																		
+																																				JSeparator separator_1 = new JSeparator();
+																																				separator_1.setOrientation(SwingConstants.VERTICAL);
+																																				buttonsPanel.add(separator_1);
+																																				
+																																						JButton btnCheck = new JButton("Get samplings");
+																																						btnCheck.addActionListener(new ActionListener() {
+																																							public void actionPerformed(ActionEvent e) {
+																																								DataMiner.populateRecordingSamples(repo);
+																																							}
+																																						});
+																																						buttonsPanel.add(btnCheck);
+																																						
+																																								// scrollPane.add(txtpnTest);
+																																						
+																																								btnNew.addActionListener(new ActionListener() {
+																																									public void actionPerformed(ActionEvent e) {
+																																										int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+																																										Source s = new Source("default", ".*", Boolean.TRUE, (ArrayList<SourceItem>) null);
+																																										logger.info(repository);
+																																										logger.info(s);
+																																										repository.addSource(s);
+																																										data.add(new Object[] { "", 0, Boolean.TRUE, 0, 0 });
+																																										// table.repaint();
+																																										reloadTable();
+																																										if (selectedRow >= 0) {
+																																											table.setRowSelectionInterval(selectedRow, selectedRow);
+																																										} else {
+																																											table.setRowSelectionInterval(0, 0);
+																																										}
+																																										table.repaint();
+																																										mainFrame.updateTreeSources(repository.getSources());
+																																									}
+																																								});
+																						table = new JTable(model);
+																						initColumnSizes(table);
+																						JScrollPane scrollPane_1 = new JScrollPane(table);
+																						panel_6.add(scrollPane_1);
+																						
+																								// tablePanel.add(table, BorderLayout.CENTER);
+																								table.getModel().addTableModelListener(new TableModelListener() {
+																						
+																									public void tableChanged(TableModelEvent e) {
+																										// if (!e.getValueIsAdjusting()){
+																										// model.fireTableDataChanged();
+																										int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+																										updateSources();
+																										mainFrame.updateTreeSources(repository.getSources());
+																										reloadTable();
+																										table.setRowSelectionInterval(selectedRow, selectedRow);
+																										refreshList();
+																										// }
+																									}
+																								});
+																								
+																										table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+																								
+																											public void valueChanged(ListSelectionEvent e) {
+																												if (!e.getValueIsAdjusting()) {
+																													// model.fireTableDataChanged();
+																													int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+																													updateSources();
+																													mainFrame.updateTreeSources(repository.getSources());
+																													reloadTable();
+																													table.setRowSelectionInterval(selectedRow, selectedRow);
+																													refreshList();
+																												}
+																											}
+																										});
 
 		reloadTable();
 		if (table.getRowCount() > 0) {

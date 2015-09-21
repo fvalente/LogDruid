@@ -472,8 +472,8 @@ public class DateEditor extends JPanel {
 	 * JFrame frame = new JFrame("RecordingEditorTable");
 	 * frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	 * 
-	 * // Create and set up the content pane. RecordingList newContentPane = new
-	 * RecordingList(null, repository); newContentPane.setOpaque(true); //
+	 * // Create and set up the content pane. ReportPanel newContentPane = new
+	 * ReportPanel(null, repository); newContentPane.setOpaque(true); //
 	 * content panes must be opaque frame.setContentPane(newContentPane);
 	 * 
 	 * // Display the window. frame.pack(); frame.setVisible(true); }

@@ -337,7 +337,7 @@ public class EventRecordingEditor extends JPanel {
 												
 											}}} else {
 												int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
-												//int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((RecordingList) newRecordingList).table.convertRowIndexToModel(((RecordingList) newRecordingList).table.getSelectedRow()) : -1);
+												//int selectedRow = ((((ReportPanel) newRecordingList).table.getSelectedRow() != -1) ? ((ReportPanel) newRecordingList).table.convertRowIndexToModel(((ReportPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 														chckbxActive.isSelected(), rIs);
 												((RecordingList) newRecordingList).model.fireTableDataChanged();

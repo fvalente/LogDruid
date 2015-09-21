@@ -305,7 +305,7 @@ public class EventRecordingEditorTable extends JPanel {
 		public boolean isCellEditable(int row, int col) {
 			// Note that the data/cell address is constant,
 			// no matt&er where the cell appears onscreen.
-			if (col > 4) {
+			if (col > 5) {
 				return false;
 			} else {
 				return true;

@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,6 +62,7 @@ import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
+import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
 import logdruid.ui.MainFrame;
 
@@ -76,6 +78,7 @@ public class DataMiner {
 	private static ExecutorService ThreadPool_GroupWorkers = null;
 	static long estimatedTime = 0;
 	static long startTime = 0;
+	static final Map<Recording,Map<List<Object>, Long>> occurenceReport = new ConcurrentHashMap<Recording,Map<List<Object>, Long>>(); ;
 
 	public static MineResultSet gatherMineResultSet(final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
@@ -85,10 +88,10 @@ public class DataMiner {
 		ChartData cd = new ChartData();
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
-		//mainFrame.setValue(0);
+		occurenceReport.clear();
+		//tOP100Report = new ConcurrentHashMap<Recording,Map<String, Long>>();
 		
 		startTime = System.currentTimeMillis();
-		
 		
 		cd=gatherSourceData(repo);		
 	//	if (logger.isEnabledFor(Level.INFO))
@@ -115,7 +118,7 @@ public class DataMiner {
 			}
 		}
 		mainFrame.setMaxProgress(progressCount);
-		logger.info("progressCount "+ progressCount);
+		//logger.info("progressCount "+ progressCount);
 		/*
 		 * invokeAll blocks until all service requests complete, or a max of
 		 * 1000 seconds.
@@ -150,6 +153,15 @@ public class DataMiner {
 		}
 		estimatedTime = System.currentTimeMillis() - startTime;
 		logger.info("gathering time: " + estimatedTime);
+/*		Iterator oRIte= occurenceReport.keySet().iterator();
+		while (oRIte.hasNext())
+		{
+			String occString=(String) oRIte.next();
+			logger.info("nb: "+ occurenceReport.get(occString)+" string: " +occString);
+		}
+	*/	
+		mineResultSet.setOccurenceReport(occurenceReport);
+		//logger.info(occurenceReport);
 		return mineResultSet;
 
 	}
@@ -431,9 +443,9 @@ public class DataMiner {
 									eventHit++;
 								}
 							}
+							if (!rec.getClass().equals(ReportRecording.class)){
 							int count = 1;
 							Date date1 = null;
-							
 							// handling capture for each recording item
 							Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
 							while (recItemIte2.hasNext()) {
@@ -501,9 +513,7 @@ public class DataMiner {
 												logger.info("null in match on " + recItem2.getName() + " at " + fileRecord.getFile().getName() + " line cnt:" + lineCount);
 												logger.info("line : " + line);
 											}
-										
-
-												if (recItem2.getType().equals("long")) {
+											if (recItem2.getType().equals("long")) {
 													ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, Long.valueOf((String) matcher2.group(count)))));
 												} else {
 													  try{
@@ -532,7 +542,7 @@ public class DataMiner {
 											// TimeSeries instead of updating
 											// the TimeSeries in the Map
 
-										} else { // rec.getClass().equals(EventRecording.class)
+										} else if (rec.getClass().equals(EventRecording.class)){ 
 											if (eventMap.containsKey(recItem2.getName())) {
 												ts = eventMap.get(recItem2.getName());
 											} else {
@@ -552,17 +562,7 @@ public class DataMiner {
 													ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 100)));
 												}
 												
-											} else if (((RecordingItem) recItem2).getProcessingType().equals("top100")) {
-												TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
-												if (t != null) {
-													ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, 101))); // +
-													// (double)t.getValue()
-													// need some way to show several occurrences
-												} else {
-													ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 100)));
-												}
-												
-											} else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
+											}  else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
 												TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
 												if (t != null) {
 													if (!recItem2.getType().equals("date")) {
@@ -622,14 +622,48 @@ public class DataMiner {
 											eventMap.put(recItem2.getName(), ts);
 
 										}
+										
 									}
-								}
+								}	 //rec.getClass().equals(ReportRecording.class)
+									
 								count++;
 								// logger.info("event statistics: "+eventMatch +
 								// " and " +eventHit +
 								// " ; stat statistics: "+statMatch + " and "
 								// +statHit);
-							}
+							}}
+							else {
+								int count=0;
+							//	logger.info("here ");
+								if (((ReportRecording)rec).getSubType().equals("histogram") && rec.getIsActive()){
+									//logger.info("here2");
+									List<Object> temp = new ArrayList<Object>();
+									Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+									while (recItemIte2.hasNext()) {
+										RecordingItem recItem2 = recItemIte2.next();
+										if (recItem2.isSelected()) {
+											//logger.info("here "+((RecordingItem) recItem2).getProcessingType());
+											temp.add(matcher2.group(count+1));
+									//		logger.info(matcher2.group(count+1));
+											//if (((RecordingItem) recItem2).getProcessingType().equals("histogram")) {
+										}
+										count++;
+									}
+											 if (!occurenceReport.containsKey(rec)){
+												 occurenceReport.put(rec,new ConcurrentHashMap<List<Object>,Long>());
+											 }
+											 	if (!occurenceReport.get(rec).containsKey(temp)){
+											 		occurenceReport.get(rec).put(temp, (long) 1);
+											 		//if(temp[0]!=null)
+											 		//logger.info("added "+matcher2.group(count) +" to"+temp[0].toString());
+											 	} else {
+											 		occurenceReport.get(rec).put(temp, occurenceReport.get(rec).get(temp)+1);
+										//	 		logger.info("added AGAIN: "+matcher2.group(count) +" to"+temp);
+											 	}
+								} else if(((ReportRecording)rec).getSubType().equals("top100")){
+									
+								}
+								}
 						}
 						if (timings) {
 							recordingMatchEnd = ManagementFactory.getThreadMXBean().getThreadCpuTime(Thread.currentThread().getId());
@@ -884,6 +918,7 @@ public class DataMiner {
 		ArrayList<Recording> recordings;
 		recordings = repo.getRecordings(StatRecording.class);
 		recordings.addAll(repo.getRecordings(EventRecording.class));
+		recordings.addAll(repo.getRecordings(ReportRecording.class));
 		StringBuffer sb = new StringBuffer(100);
 
 		Iterator<Recording> recordingIterator = recordings.iterator();

@@ -220,8 +220,9 @@ public class ReportRecordingEditorTable extends JPanel {
 	public void setUpProcessingColumn(JTable theTable, TableColumn typeColumn) {
 		JComboBox functionComboBox = new JComboBox();
 		functionComboBox.addItem("capture");
-		functionComboBox.addItem("top100");
 		functionComboBox.addItem("histogram");
+		functionComboBox.addItem("top100");
+		functionComboBox.addItem("nothing");
 		typeColumn.setCellEditor(new DefaultCellEditor(functionComboBox));
 		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
 		renderer.setToolTipText("Click for combo box");
@@ -299,7 +300,7 @@ public class ReportRecordingEditorTable extends JPanel {
 		public boolean isCellEditable(int row, int col) {
 			// Note that the data/cell address is constant,
 			// no matt&er where the cell appears onscreen.
-			if (col > 4) {
+			if (col > 5) {
 				return false;
 			} else {
 				return true;
@@ -318,12 +319,12 @@ public class ReportRecordingEditorTable extends JPanel {
 	}
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "long", "occurrences", "", Boolean.TRUE, "" });
+		data.add(new Object[] { "", ".*", "long", "capture", "", Boolean.TRUE, "" });
 		table.repaint();
 	}
 
 	public void Insert() {
-		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "", ".*", "long", "occurrences",
+		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "", ".*", "long", "capture",
 				"", Boolean.TRUE, "" });
 		table.repaint();
 	}

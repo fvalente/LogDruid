@@ -59,6 +59,7 @@ import logdruid.ui.chart.GraphPanel;
 import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
 import logdruid.ui.mainpanel.MetadataRecordingSelectorPanel;
 import logdruid.ui.mainpanel.PreferencePanel;
+import logdruid.ui.mainpanel.ReportPanel;
 import logdruid.ui.mainpanel.ReportRecordingSelectorPanel;
 import logdruid.ui.mainpanel.SourceInfoPanel;
 import logdruid.ui.mainpanel.SourcePanel;
@@ -94,6 +95,7 @@ public class MainFrame extends JFrame {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private String treeSelected = "";
 	private GraphPanel graphPanel = null;
+	private ReportPanel reportPanel = null;
 	JPanel panel_1;
 	JPanel panel_2;
 	final JTree tree;
@@ -333,7 +335,7 @@ public class MainFrame extends JFrame {
 				add(DMTnode_1);
 				add(DMTnode_sources);
 				add(new DefaultMutableTreeNode("Chart"));
-				add(new DefaultMutableTreeNode("Report"));
+				add(new DefaultMutableTreeNode("Reports"));
 
 			}
 		}));
@@ -563,6 +565,33 @@ public class MainFrame extends JFrame {
 				panel_1.removeAll();
 				panel_1.add(new ReportRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
+			} else if (treeSelected.equals("Reports")) {
+				Thread t =new Thread()
+		        {
+		            public void run() {
+						panel_1.removeAll();
+						logger.info("Reports panel loading ");				
+						if (mineResultSet == null) {
+						thiis.setValueNow(0);
+						progressBarValue=0;	
+		            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
+						cd = DataMiner.gatherSourceData(repository);
+						logger.info("gathering source data");
+		            	thiis.setValueNow(progressBarValue);
+						}
+						if (reportPanel == null) {
+							logger.info(" new graph Panel");
+							reportPanel = new ReportPanel(repository, mineResultSet);
+						}
+
+						panel_1.add(reportPanel);
+						panel_1.validate();
+						panel_1.repaint();
+						logger.info("Report panel loaded ");
+		            }
+		        };
+		        t.start();
+
 			} else if (treeSelected.equals("Identification")) {
 				panel_1.removeAll();
 				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));

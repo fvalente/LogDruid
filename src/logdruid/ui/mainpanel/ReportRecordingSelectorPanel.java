@@ -84,7 +84,7 @@ public class ReportRecordingSelectorPanel extends JPanel {
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static ArrayList records = null;
-	private String[] header = { "name", "regexp", "type", "active" };
+	private String[] header = { "name", "regexp", "type","subtype", "active" };
 	private Vector<Object[]> data = new Vector<Object[]>();
 	private Repository repository = null;
 	private JPanel recEditor = null;
@@ -102,7 +102,12 @@ public class ReportRecordingSelectorPanel extends JPanel {
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
-				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), src.isActiveRecordingOnSource(record) });
+			logger.info(record.getName());
+			logger.info(record.getRegexp());
+			logger.info(record.getType());
+			logger.info(src.getSourceName());
+			logger.info(src.isActiveRecordingOnSource(record));
+				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), src.isActiveRecordingOnSource(record),((ReportRecording)record).getSubType() });
 			}
 		
 		model = new logdruid.ui.mainpanel.ReportRecordingSelectorPanel.MyTableModel(data, header);
@@ -171,7 +176,7 @@ public class ReportRecordingSelectorPanel extends JPanel {
 	}
 
 	private JPanel getEditor(Recording rec) {
-			return new ReportRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((ReportRecording) rec));
+			return new ReportRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((ReportRecording) rec),((ReportRecording)rec).getSubType());
 	}
 /*
 	public void reloadTable() {
@@ -262,10 +267,12 @@ public class ReportRecordingSelectorPanel extends JPanel {
 			} else if (column == 2 ) {
 				return repository.getRecording(ReportRecording.class,row).getType();
 			} else if (column == 3 ) {
-				logger.debug("getvalueat name" + ((ReportRecording) repository.getRecording(ReportRecording.class, row)).getName());
-				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(ReportRecording.class, row)));
-				return source.isActiveRecordingOnSource(repository.getRecording(ReportRecording.class, row));
-			}
+				return ((ReportRecording)repository.getRecording(ReportRecording.class,row)).getSubType();
+			} else if (column == 4 ) {
+			logger.debug("getvalueat name" + ((ReportRecording) repository.getRecording(ReportRecording.class, row)).getName());
+			logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(ReportRecording.class, row)));
+			return source.isActiveRecordingOnSource(repository.getRecording(ReportRecording.class, row));
+		}
 			else return 0;
 		}
 
@@ -281,7 +288,7 @@ public class ReportRecordingSelectorPanel extends JPanel {
 
 		@Override
 		public void setValueAt(Object value, int row, int column) {
-			if (column == 3 && source != null) {
+			if (column == 4 && source != null) {
 				logger.debug("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(ReportRecording.class, row));
 				fireTableCellUpdated(row, column);

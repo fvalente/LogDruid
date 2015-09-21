@@ -8,7 +8,7 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *******************************************************************************/
-package logdruid.ui;
+package logdruid.ui.mainpanel;
 
 import javax.swing.JPanel;
 
@@ -48,11 +48,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import logdruid.data.DataVault;
+import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.record.EventRecording;
@@ -61,10 +64,10 @@ import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
-import logdruid.ui.editor.EventRecordingEditor;
-import logdruid.ui.editor.MetadataRecordingEditor;
-import logdruid.ui.editor.ReportRecordingEditor;
-import logdruid.ui.editor.StatRecordingEditor;
+//import logdruid.ui.editor.EventRecordingEditor;
+//import logdruid.ui.editor.MetadataRecordingEditor;
+//import logdruid.ui.editor.ReportRecordingEditor;
+//import logdruid.ui.editor.StatRecordingEditor;
 import logdruid.util.DataMiner;
 
 import javax.swing.RowSorter;
@@ -77,18 +80,20 @@ import javax.swing.JScrollPane;
 import org.apache.log4j.Logger;
 
 import javax.swing.JSplitPane;
+import javax.swing.JCheckBox;
 
-public class RecordingList extends JPanel {
+public class ReportPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
-	public static JTable table;
+	public static JTable reportList;
 	JPanel jPanelDetail;
-	private RecordingList thiis = this;
+	private ReportPanel thiis = this;
 	boolean DEBUG = false;
 	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
 	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static ArrayList records = null;
 	private String[] header ;
+	private String[] headerRecords ;
 	// 0-> sum of time for success matching of given
 	// recording ; 1-> sum of time for failed
 	// matching ; 2-> count of match attempts,
@@ -97,12 +102,15 @@ public class RecordingList extends JPanel {
 	private Repository repository = null;
 	private JPanel recEditor = null;
 	public MyTableModel2 model;
+	public RecordReportTableModel recordReportTableModel;
 	long[] stats;
-	
+	private JTable reportDetails;
+	private Map<List<Object>, Long> occurenceReportMap; 
+	 
 	/**
 	 * Create the panel.
 	 */
-	public RecordingList(final Repository rep) {
+	public ReportPanel(final Repository rep,final MineResultSet mineResultSet1) {
 		
 	if (Preferences.getPreference("timings").equals("true")){
 		header= (String[]) new String[]{ "name", "regexp", "type", "active", "success time", "failed time", "match attempt", "success match" };}
@@ -110,24 +118,27 @@ public class RecordingList extends JPanel {
 		header= (String[]) new String[]{ "name", "regexp", "type", "active"};
 	}
 	
-		records = rep.getRecordings();
+		records = rep.getRecordings(ReportRecording.class);
 		// Collections.sort(records);
+		logger.debug(records.size());
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
+			logger.debug(record.getName());
 			stats = DataVault.getRecordingStats(record.getName());
+			if (record.getIsActive()){
 			if (stats != null) {
 				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), stats[0], stats[1], stats[2], stats[3] });
 			} else {
 				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), 0, 0, 0, 0 });
 			}
-		}
-		
+		}}
 		
 		repository = rep;
 		model = new MyTableModel2(data, header);
 
 		JPanel panel_1 = new JPanel();
+		panel_1.setMinimumSize(new Dimension(0,150));
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
 		gbc_panel_1.insets = new Insets(5, 0, 5, 5);
@@ -135,40 +146,79 @@ public class RecordingList extends JPanel {
 		gbc_panel_1.gridy = 0;
 		panel_1.setLayout(new BorderLayout(0, 0));
 
-		table = new JTable(model);
-		JScrollPane scrollPane = new JScrollPane(table);int column;
-		panel_1.add(scrollPane);
-
-		table.setPreferredScrollableViewportSize(new Dimension(0, 150));
-		table.setFillsViewportHeight(true);
-
+		reportList = new JTable(model);
+		reportList.setPreferredScrollableViewportSize(new Dimension(0, 150));
+		reportList.setFillsViewportHeight(true);
 		// Set up column sizes.
-		initColumnSizes(table);
-		table.setAutoCreateRowSorter(true);
+		initColumnSizes(reportList);
+		reportList.setAutoCreateRowSorter(true);
 	//	RowSorter sorter = table.getRowSorter();
 //		sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 		if (model.getRowCount()>0){
-			table.getRowSorter().toggleSortOrder(0);
-		table.getRowSorter().toggleSortOrder(2);
+			reportList.getRowSorter().toggleSortOrder(0);
+		reportList.getRowSorter().toggleSortOrder(2);
 		}
-		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+		reportList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+				int selectedRow = ((reportList.getSelectedRow() != -1) ? reportList.convertRowIndexToModel(reportList.getSelectedRow()) : -1);
 				;
 				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
-				if (selectedRow >= 0) {
-					if (jPanelDetail != null) {
-						logger.info("ListSelectionListener - valueChanged");
-						jPanelDetail.removeAll();
-						recEditor = getEditor(repository.getRecording(selectedRow));
-						if (recEditor != null) {
-							jPanelDetail.add(recEditor, BorderLayout.CENTER);
+				ArrayList<List<Object>> data1 = new ArrayList<List<Object>>();
+				if (selectedRow >= 0) {					
+						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class,selectedRow).getRecordingItem().iterator();
+						ArrayList<Object[]> rIArrayList=new ArrayList<Object[]>();
+						while (rIIte.hasNext()){
+							RecordingItem ri=(RecordingItem) rIIte.next();
+							Class c=String.class;
+							if (ri.isSelected()){
+								if (ri.getType().equals("string") || ri.getType().equals("word") || ri.getType().equals("date") ){
+								c=String.class;	
+								} else if (ri.getType().equals("long")){
+									c=Long.class;	
+									} 
+								else if (ri.getType().equals("double")){
+									c=double.class;	
+									}									 
+								rIArrayList.add(new Object[]{ri.getName(),c});
+							}
+						}
+						rIArrayList.add(new Object[]{"count",Long.class});
+					//	headerRecords=(String[]) rIArrayList.toArray(new String[rIArrayList.size()]);
+						
+					//	logger.info(""+headerRecords.length +headerRecords);
+						if (mineResultSet1.getOccurenceReport()!=null) {
+						occurenceReportMap=mineResultSet1.getOccurenceReport().get(repository.getRecording(ReportRecording.class,selectedRow));
+						if (occurenceReportMap!=null){
+						Iterator<List<Object>> oRMIte=occurenceReportMap.keySet().iterator();
+						while (oRMIte.hasNext()){
+							List<Object> obj=oRMIte.next();
+							obj.add(occurenceReportMap.get(obj));
+							data1.add(obj);
+						}
+					//	logger.info(""+headerRecords.length +Arrays.deepToString(headerRecords));
+						recordReportTableModel=new RecordReportTableModel(data1, rIArrayList);
+						reportDetails = new JTable(recordReportTableModel);
+						}
+				}}
+
+				//		logger.info(mineResultSet1.getOccurenceReport().values());
+				//		logger.info(repository.getRecording(ReportRecording.class,selectedRow));
+					reportDetails.setPreferredScrollableViewportSize(new Dimension(0, 150));
+					reportDetails.setFillsViewportHeight(true);
+					reportDetails.setAutoCreateRowSorter(true);
+					
+					reportDetails.getRowSorter().toggleSortOrder(reportDetails.getColumnCount()-1);
+					reportDetails.getRowSorter().toggleSortOrder(reportDetails.getColumnCount()-1);
+						if (reportDetails != null) {
+							jPanelDetail.removeAll();
+							JScrollPane scrollPane_1 = new JScrollPane(reportDetails);
+							jPanelDetail.add(scrollPane_1, BorderLayout.CENTER);
 						}
 						jPanelDetail.revalidate();
 					}
-				}
-			}
+				
+			
 		});
 		JPanel panel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
@@ -176,117 +226,13 @@ public class RecordingList extends JPanel {
 		flowLayout.setVgap(2);
 		flowLayout.setHgap(2);
 		panel_1.add(panel, BorderLayout.SOUTH);
-
-		JButton btnNewMeta = new JButton("New Meta");
-		panel.add(btnNewMeta);
-		btnNewMeta.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int rowCount = table.getRowCount();
-				jPanelDetail.removeAll();
-				Recording re = new MetadataRecording("name", "regex", "example line", "", true, null);
-				recEditor = new MetadataRecordingEditor(thiis, repository, "the line", "regex",
-						(MetadataRecording) re);
-				jPanelDetail.add(recEditor, BorderLayout.CENTER);
-				repository.addRecording(re);
-				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
-				model.fireTableRowsInserted(rowCount, rowCount);
-				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
-			}
-		});
-
-		JButton btnDuplicate = new JButton("Duplicate");
-		btnDuplicate.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowCount = table.getRowCount();
-				int selectRow = ((table.getSelectedRow() != -1) ? table.getSelectedRow() : -1);
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-					repository.addRecording(repository.getRecording(table.convertRowIndexToModel(table.getSelectedRow())).duplicate());
-					model.fireTableRowsInserted(rowCount, rowCount);
-					table.setRowSelectionInterval(selectRow, selectRow);
-			}
-		});
-
-		JButton btnNewStat = new JButton("New Stat");
-		btnNewStat.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowCount = table.getRowCount();
-				jPanelDetail.removeAll();
-				Recording re = new StatRecording("name", "regex", "example line", "", true, null);
-				recEditor = new StatRecordingEditor(thiis, repository, "the line", "regex", (StatRecording) re);
-				jPanelDetail.add(recEditor, BorderLayout.CENTER);
-				repository.addRecording(re);
-				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
-				model.fireTableRowsInserted(rowCount, rowCount);
-				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
-			}
-		});
-		panel.add(btnNewStat);
-
-		JButton btnNewEvent = new JButton("New Event");
-		btnNewEvent.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowCount = table.getRowCount();
-				logger.info("table.getRowCount()" + table.getRowCount());
-				jPanelDetail.removeAll();
-				Recording re = new EventRecording("name", "regex", "example line", "", true, null);
-				recEditor = new EventRecordingEditor(thiis, repository, "the line", "regex", (EventRecording) re);
-				jPanelDetail.add(recEditor, BorderLayout.CENTER);
-				repository.addRecording(re);
-				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
-				model.fireTableRowsInserted(rowCount, rowCount);
-				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
-			}
-		});
-		panel.add(btnNewEvent);
-		JButton btnNewReport = new JButton("New Report");
-		btnNewReport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowCount = table.getRowCount();
-				logger.info("table.getRowCount()" + table.getRowCount());
-				jPanelDetail.removeAll();
-				Recording re = new ReportRecording("name", "regex", "example line", "", true, null,"histogram");
-				recEditor = new ReportRecordingEditor(thiis, repository, "the line", "regex", (ReportRecording) re, "histogram");
-				jPanelDetail.add(recEditor, BorderLayout.CENTER);
-				repository.addRecording(re);
-				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
-				model.fireTableRowsInserted(rowCount, rowCount);
-				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
-			}
-		});
-		panel.add(btnNewReport);
-		panel.add(btnDuplicate);
-
-		JButton btnDelete = new JButton("Delete");
-		btnDelete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int rowCount = table.getRowCount();
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				;
-				int realSelectedRow=table.getSelectedRow() ;
-				logger.info("selectedRow : " + selectedRow + ", row count: " + table.getRowCount());
-				if (rowCount!=0){
-				repository.deleteRecording(selectedRow);
-				model.fireTableRowsDeleted(selectedRow, selectedRow);
-	//			table.remove(selectedRow);
-				if (realSelectedRow!= -1){
-					if (realSelectedRow!= 0)table.setRowSelectionInterval(realSelectedRow-1, realSelectedRow-1);
-					else if (realSelectedRow >0)table.setRowSelectionInterval(realSelectedRow, realSelectedRow);
-					else if (rowCount>1) table.setRowSelectionInterval(0, 0);
-				}
-/*				if (table.getRowCount() > 0) {
-					if (selectedRow == table.getRowCount()) {
-						table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-					} else
-						table.setRowSelectionInterval(selectedRow, selectedRow);
-				}*/
-			}}
-		});
-		panel.add(btnDelete);
+		
+		JCheckBox chckbxNewCheckBox = new JCheckBox("New check box");
+		panel.add(chckbxNewCheckBox);
 		setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_2 = new JPanel();
+		add(panel_2, BorderLayout.NORTH);
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -301,16 +247,31 @@ public class RecordingList extends JPanel {
 		splitPane.setBottomComponent(jPanelDetail);
 		splitPane.setTopComponent(panel_1);
 		jPanelDetail.setLayout(new BorderLayout(0, 0));
+		
+		reportDetails = new JTable();
+		reportDetails.setPreferredScrollableViewportSize(new Dimension(0, 150));
+		reportDetails.setFillsViewportHeight(true);
+		reportDetails.setAutoCreateRowSorter(true);
+		JScrollPane scrollPane_1 = new JScrollPane(reportDetails);
+		jPanelDetail.add(scrollPane_1, BorderLayout.CENTER);
+
+		JScrollPane scrollPane = new JScrollPane(reportList);
+		panel_1.add(scrollPane, BorderLayout.CENTER);
+		
+
+		
+//		scrollPane_1.setViewportView(reportDetails);
 		if (repository.getRecordingCount() > 0) {
 			//recEditor = getEditor(repository.getRecording(0));
 			//jPanelDetail.add(recEditor, BorderLayout.CENTER);
-			table.setRowSelectionInterval(0, 0);
+			reportList.setRowSelectionInterval(0, 0);
 		}
+		
 		jPanelDetail.revalidate();
 
 	}
 
-	private JPanel getEditor(Recording rec) {
+	/*private JPanel getEditor(Recording rec) {
 		JPanel editorPanel = null;
 		if (rec.getClass() == StatRecording.class) {
 			editorPanel = new StatRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
@@ -320,10 +281,10 @@ public class RecordingList extends JPanel {
 		} else if (rec.getClass() == EventRecording.class) {
 			editorPanel = new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 		} else if (rec.getClass() == ReportRecording.class) {
-			editorPanel = new ReportRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((ReportRecording) rec), ((ReportRecording) rec).getSubType());
+			editorPanel = new ReportRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((ReportRecording) rec));
 		}
 		return editorPanel;
-	}
+	}*/
 
 	private void initColumnSizes(JTable theTable) {
 		MyTableModel2 model = (MyTableModel2) theTable.getModel();
@@ -368,7 +329,7 @@ public class RecordingList extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return repository.getRecordingCount();
+			return repository.getRecordings(ReportRecording.class).size();
 		}
 		
 		public void addRow(Object[] obj) {
@@ -382,14 +343,14 @@ public class RecordingList extends JPanel {
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (column == 0 ) {
-				return repository.getRecording(row).getName();
+				return repository.getRecording(ReportRecording.class,row).getName();
 			} else if (column == 1 ) {
-				return repository.getRecording(row).getRegexp();
+				return repository.getRecording(ReportRecording.class,row).getRegexp();
 			} else if (column == 2 ) {
-				return repository.getRecording(row).getType();
+				return repository.getRecording(ReportRecording.class,row).getType();
 			} else if (column == 3 ) {
 				logger.info("setValueAt calls setActiveRecording");
-				return repository.getRecording(row).getIsActive();
+				return repository.getRecording(ReportRecording.class,row).getIsActive();
 			} else if (column >3 && column<9) {
 				stats = DataVault.getRecordingStats(repository.getRecording(row).getName());
 				if (stats != null) {
@@ -493,8 +454,77 @@ public class RecordingList extends JPanel {
 	 */
 
 	public void Remove() {
-		data.remove(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
-		repository.deleteRecording(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
-		table.repaint();
+		data.remove(((reportList.getSelectedRow() != -1) ? reportList.convertRowIndexToModel(reportList.getSelectedRow()) : -1));
+		repository.deleteRecording(((reportList.getSelectedRow() != -1) ? reportList.convertRowIndexToModel(reportList.getSelectedRow()) : -1));
+		reportList.repaint();
 	}
+	
+	public  class RecordReportTableModel extends AbstractTableModel {
+		private ArrayList<Object[]> header;
+		private ArrayList<List<Object>> data;
+		 
+		public RecordReportTableModel(ArrayList<List<Object>> data1, ArrayList<Object[]> rIArrayList) {
+			this.header = rIArrayList;
+			this.data = data1;
+		}
+
+		@Override
+		public int getColumnCount() {
+			if (header == null) {
+				return 0;
+			} else
+				return header.size();
+		}
+
+		@Override
+		public String getColumnName(int column) {
+			return (String) header.get(column)[0];
+		}
+
+		@Override
+		public int getRowCount() {
+			return data.size();
+
+		}
+		
+		public void addRow(List<Object> obj) {
+			data.add(obj);
+		}
+
+		public void updateRow(int rowId, List<Object> obj) {
+			data.set(rowId, obj);
+		}
+
+		@Override
+		public Object getValueAt(int row, int column) {
+			if  (column<=(data.get(row).size())){
+			//	logger.info("row: " + row + " ,col: "+column + "data: " +data.get(row).get(column));
+				return data.get(row).get(column);	
+			}else if  (column==(data.get(row).size())){
+				
+			}
+			return "";
+			
+
+		}
+
+		/*
+		 * JTable uses this method to determine the default renderer/ editor for
+		 * each cell. If we didn't implement this method, then the last column
+		 * would contain text ("true"/"false"), rather than a check box.
+		 */
+		public Class getColumnClass(int c) {
+			return (Class) header.get(c)[1];
+		}
+
+		/*
+		 * Don't need to implement this method unless your table's editable.
+		 */
+		public boolean isCellEditable(int row, int col) {
+				return false;
+		}
+
+		
+	}
+
 }

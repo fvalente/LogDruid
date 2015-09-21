@@ -13,10 +13,13 @@ package logdruid.data;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ArrayList;
+
+import logdruid.data.record.Recording;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;
@@ -26,6 +29,15 @@ public class MineResultSet {
 	public Map<Source, Map<String, MineResult>> mineResults;
 	private Date startDate;
 	private Date endDate;
+	static Map<Recording, Map<List<Object>, Long>> occurenceReport ;
+
+	public static Map<Recording, Map<List<Object>, Long>> getOccurenceReport() {
+		return occurenceReport;
+	}
+
+	public static void setOccurenceReport(Map<Recording, Map<List<Object>, Long>> occurencereport2) {
+		MineResultSet.occurenceReport = occurencereport2;
+	}
 
 	public synchronized Date getStartDate() {
 		logger.info("start date: " + startDate);

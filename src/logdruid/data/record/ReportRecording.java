@@ -17,14 +17,16 @@ import org.apache.log4j.Logger;
 public class ReportRecording extends Recording {
 	private static Logger logger = Logger.getLogger(ReportRecording.class.getName());
 	private String dateFormat;
+	private String subType;
 
-	public ReportRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem) {
+	public ReportRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem,String subType1) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
 		setIsActive(_isActive);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
+		subType=subType1;
 		super.id = generate();
 		logger.info("New ReportRecording name: " + _name + ", regexp: " + _regexp + ", id: " + super.id);
 		if (recordingItem != null)
@@ -35,6 +37,13 @@ public class ReportRecording extends Recording {
 		return "Report";
 	}
 
+	public void setSubType(String subType1) {
+		this.subType=subType1;
+	}
+	public String getSubType() {
+		return subType;
+	}
+	
 	public String getDateFormat() {
 		return dateFormat;
 	}
@@ -47,12 +56,13 @@ public class ReportRecording extends Recording {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem, String subType1) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
 		setIsActive(_isActive);
 		dateFormat = _dateFormat;
+		subType=subType1;
 		recordingItem = _recordingItem;
 		if (this.id == null) {
 			super.id = generate();
@@ -67,12 +77,13 @@ public class ReportRecording extends Recording {
 		String _regexp = getRegexp().toString();
 		String _exampleLine = getExampleLine().toString();
 		String _dateFormat = dateFormat.toString();
+		String _subType=subType.toString();
 
 		Boolean _isActive = getIsActive().booleanValue();
 		if (recordingItem != null) {
 			_recordingItem = (ArrayList<RecordingItem>) recordingItem.clone();
 		}
-		ReportRecording eR=new ReportRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		ReportRecording eR=new ReportRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem, _subType);
 		eR.setDateFormatID(this.getDateFormatID());
 		return eR;
 	}
