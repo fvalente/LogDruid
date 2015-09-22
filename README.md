@@ -1,4 +1,4 @@
-LogDruid: Chart statistics and events retrieved in logs files through configurable regular expressions
+LogDruid: Chart statistics and events retrieved in log files through configurable regular expressions
 
 Download on https://sourceforge.net/projects/logdruid/
 
