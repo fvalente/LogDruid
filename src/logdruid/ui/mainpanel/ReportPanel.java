@@ -58,6 +58,7 @@ import logdruid.data.DataVault;
 import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
+import logdruid.data.Source;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
@@ -165,6 +166,7 @@ public class ReportPanel extends JPanel {
 				if (selectedRow >= 0) {
 					Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
 					ArrayList<Object[]> rIArrayList = new ArrayList<Object[]>();
+					rIArrayList.add(new Object[] { "Source", String.class });
 					while (rIIte.hasNext()) {
 						RecordingItem ri = (RecordingItem) rIIte.next();
 						Class c = String.class;
@@ -185,16 +187,25 @@ public class ReportPanel extends JPanel {
 
 					// logger.info(""+headerRecords.length +headerRecords);
 					if (mineResultSet1.getOccurenceReport() != null) {
-						occurenceReportMap = mineResultSet1.getOccurenceReport().get(repository.getRecording(ReportRecording.class, selectedRow));
+						Iterator sourcesIterator=rep.getSources().iterator();
+						while (sourcesIterator.hasNext())
+						{
+							Source src=(Source) sourcesIterator.next();
+							if (src.getActive()  && mineResultSet1.getOccurenceReport().containsKey(src)){
+						occurenceReportMap = mineResultSet1.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, selectedRow));
 						if (occurenceReportMap != null) {
 							Iterator<List<Object>> oRMIte = occurenceReportMap.keySet().iterator();
 							while (oRMIte.hasNext()) {
-								List<Object> obj = oRMIte.next();
-								obj.add(occurenceReportMap.get(obj));
+								List<Object> obj = new ArrayList<Object>();
+								List<Object> tempObj=oRMIte.next();
+								obj.add(src.getSourceName());
+								obj.addAll(1, tempObj);
+								obj.add(occurenceReportMap.get(tempObj));
 								data1.add(obj);
 							}
 							// logger.info(""+headerRecords.length
 							// +Arrays.deepToString(headerRecords));
+						}}
 						}
 						recordReportTableModel = new RecordReportTableModel(data1, rIArrayList);
 						reportDetails = new JTable(recordReportTableModel);
@@ -346,9 +357,18 @@ public class ReportPanel extends JPanel {
 			} else if (column == 2) {
 				return ((ReportRecording) repository.getRecording(ReportRecording.class, row)).getSubType();
 			} else if (column == 3) {
-				if (MineResultSet.getOccurenceReport() != null
-						&& MineResultSet.getOccurenceReport().get(repository.getRecording(ReportRecording.class, row)) != null) {
-					return (int) MineResultSet.getOccurenceReport().get(repository.getRecording(ReportRecording.class, row)).size();
+				int rows=0;
+				if (MineResultSet.getOccurenceReport() != null) {
+					Iterator sourcesIterator=repository.getSources().iterator();
+					while (sourcesIterator.hasNext())
+					{
+						Source src=(Source) sourcesIterator.next();
+						if (src.getActive()  && MineResultSet.getOccurenceReport().containsKey(src)){
+							if (MineResultSet.getOccurenceReport().get(src).containsKey(repository.getRecording(ReportRecording.class, row))){
+							rows=rows+MineResultSet.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
+							}
+						}}
+					return rows;
 				} else {
 					return (int) 0;
 				}

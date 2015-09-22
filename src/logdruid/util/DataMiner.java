@@ -78,7 +78,7 @@ public class DataMiner {
 	private static ExecutorService ThreadPool_GroupWorkers = null;
 	static long estimatedTime = 0;
 	static long startTime = 0;
-	static final Map<Recording,Map<List<Object>, Long>> occurenceReport = new ConcurrentHashMap<Recording,Map<List<Object>, Long>>(); ;
+	static final Map<Source,Map<Recording,Map<List<Object>, Long>>> occurenceReport = new ConcurrentHashMap<Source,Map<Recording,Map<List<Object>, Long>>>(); ;
 
 	public static MineResultSet gatherMineResultSet(final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
@@ -652,16 +652,19 @@ public class DataMiner {
 										}
 										count++;
 									}
-											 if (!occurenceReport.containsKey(rec)){
-												 occurenceReport.put(rec,new ConcurrentHashMap<List<Object>,Long>());
+									 if (!occurenceReport.containsKey(source)){
+										 occurenceReport.put(source,new ConcurrentHashMap<Recording,Map<List<Object>,Long>>());
+									 }
+									 if (!occurenceReport.get(source).containsKey(rec)){
+												 occurenceReport.get(source).put(rec,new ConcurrentHashMap<List<Object>,Long>());
 											 }
-											 	if (!occurenceReport.get(rec).containsKey(temp)){
-											 		occurenceReport.get(rec).put(temp, (long) 1);
+											 	if (!occurenceReport.get(source).get(rec).containsKey(temp)){
+											 		occurenceReport.get(source).get(rec).put(temp, (long) 1);
 											 		//if(temp[0]!=null)
 											 		//logger.info("added "+matcher2.group(count) +" to"+temp[0].toString());
 											 	} else {
-											 		occurenceReport.get(rec).put(temp, occurenceReport.get(rec).get(temp)+1);
-										//	 		logger.info("added AGAIN: "+matcher2.group(count) +" to"+temp);
+											 		occurenceReport.get(source).get(rec).put(temp, occurenceReport.get(source).get(rec).get(temp)+1);
+											 //		logger.info("current value: "+occurenceReport.get(source).get(rec).get(temp) +" to"+temp);
 											 	}
 								} else if(((ReportRecording)rec).getSubType().equals("top100")){
 									

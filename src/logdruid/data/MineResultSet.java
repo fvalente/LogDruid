@@ -29,13 +29,13 @@ public class MineResultSet {
 	public Map<Source, Map<String, MineResult>> mineResults;
 	private Date startDate;
 	private Date endDate;
-	static Map<Recording, Map<List<Object>, Long>> occurenceReport ;
+	static Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport ;
 
-	public static Map<Recording, Map<List<Object>, Long>> getOccurenceReport() {
+	public static Map<Source, Map<Recording, Map<List<Object>, Long>>> getOccurenceReport() {
 		return occurenceReport;
 	}
 
-	public static void setOccurenceReport(Map<Recording, Map<List<Object>, Long>> occurencereport2) {
+	public static void setOccurenceReport(Map<Source, Map<Recording, Map<List<Object>, Long>>> occurencereport2) {
 		MineResultSet.occurenceReport = occurencereport2;
 	}
 
