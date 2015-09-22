@@ -92,8 +92,11 @@ public class DataMiner {
 		//tOP100Report = new ConcurrentHashMap<Recording,Map<String, Long>>();
 		
 		startTime = System.currentTimeMillis();
-		
-		cd=gatherSourceData(repo);		
+		try{
+		cd=gatherSourceData(repo);
+		}catch (Exception e){
+			return null;
+		}
 	//	if (logger.isEnabledFor(Level.INFO))
 	//		logger.info("ArrayList sourceFileGroup" + sourceFileGroup);
 		Iterator<Source> sourceIterator2 = repo.getSources().iterator();
@@ -988,6 +991,7 @@ public class DataMiner {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if (listOfFiles!=null)
 		logger.info("number of files: " + listOfFiles.size());
 		cd.sourceArrayList = repo.getSources();
 		Iterator<Source> sourceIterator = cd.sourceArrayList.iterator();

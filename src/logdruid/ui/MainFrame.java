@@ -113,6 +113,7 @@ public class MainFrame extends JFrame {
 	private MainFrame thiis;
 	JProgressBar progressBar;
 	int progressBarValue;
+	 boolean working=false;
 	/**
 	 * Launch the application.
 	 */
@@ -179,8 +180,19 @@ public class MainFrame extends JFrame {
 									graphPanel=null;
 									thiis.setValueNow(0);
 									progressBarValue=0;
+									File test=new File (repository.getBaseSourcePath());
+									if (test.exists()){
 				            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
-								cd = DataMiner.gatherSourceData(repository);
+								cd = DataMiner.gatherSourceData(repository);}
+								thiis.setValueNow(progressBarValue);
+								} else if (treeSelected.equals("Reports")) {
+									reportPanel=null;
+									thiis.setValueNow(0);
+									progressBarValue=0;
+									File test=new File (repository.getBaseSourcePath());
+									if (test.exists()){
+				            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
+								cd = DataMiner.gatherSourceData(repository);}
 								thiis.setValueNow(progressBarValue);
 								}
 								treeSelected();
@@ -348,20 +360,25 @@ public class MainFrame extends JFrame {
 		btnMain.setForeground(Color.BLUE);
 		btnMain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (working==false){
 				Thread t =new Thread()
-		        {
-		            public void run() {
+		        {  
+					
+					public void run() {
+						working=true;
 						graphPanel = null;
+						reportPanel = null;
 						thiis.setValueNow(0);
 						progressBarValue=0;
 		            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
 						cd = DataMiner.gatherSourceData(repository);
-						tree.setSelectionRow(tree.getRowCount() - 2);
 						thiis.setValueNow(progressBarValue);
+						working=false;
+						tree.setSelectionRow(tree.getRowCount() - 2);
 		            }
 		        };
 		        t.start();
-
+				}
 			}
 		});
 		btnMain.setFont(new Font("Dialog", Font.BOLD, 11));
@@ -566,9 +583,11 @@ public class MainFrame extends JFrame {
 				panel_1.add(new ReportRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
 			} else if (treeSelected.equals("Reports")) {
+				if (working==false){
 				Thread t =new Thread()
 		        {
 		            public void run() {
+		            	working=true;
 						panel_1.removeAll();
 						logger.info("Reports panel loading ");				
 						if (mineResultSet == null) {
@@ -588,10 +607,11 @@ public class MainFrame extends JFrame {
 						panel_1.validate();
 						panel_1.repaint();
 						logger.info("Report panel loaded ");
+						working=false;
 		            }
 		        };
 		        t.start();
-
+				}
 			} else if (treeSelected.equals("Identification")) {
 				panel_1.removeAll();
 				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
@@ -601,13 +621,13 @@ public class MainFrame extends JFrame {
 				panel_1.add(new DateEditor(repository));
 				panel_1.revalidate();
 			} else if (treeSelected.equals("Chart")) {
-
+				if (working==false){
 					Thread t =new Thread()
 			        {
 			            public void run() {
+			            	working=true;
 							panel_1.removeAll();
-							logger.info("Chart panel loading ");
-							logger.debug("mineResultSet is null ");						
+							logger.info("Chart panel loading ");				
 							if (mineResultSet == null) {
 							thiis.setValueNow(0);
 							progressBarValue=0;	
@@ -620,17 +640,15 @@ public class MainFrame extends JFrame {
 								logger.info(" new graph Panel");
 								graphPanel = new GraphPanel(repository, panel_2, mineResultSet, cd, thiis);
 							}
-
 							panel_1.add(graphPanel);
 							panel_1.validate();
 							panel_1.repaint();
 							logger.info("Chart panel loaded ");
+							working=false;
 			            }
 			        };
 			        t.start();
-
-
-
+				}
 			} else {
 				ArrayList sources = repository.getSources();
 				Iterator it = sources.iterator();
