@@ -15,11 +15,11 @@ public class DataVault {
 	private static Logger logger = Logger.getLogger(DataVault.class.getName());
 	static private  Map<Recording,ArrayList<String>> recordingMatchedLines = new HashMap<Recording,ArrayList<String>>();
 	static private  Map<Recording,ArrayList<String>> recordingUnmatchedLines = new HashMap<Recording,ArrayList<String>>();
-	public static MineResultSet getMineResultSet() {
+	public synchronized static MineResultSet getMineResultSet() {
 		return mineResultSet;
 	}
 
-	public static void setMineResultSet(MineResultSet mineResultSet) {
+	public synchronized static void setMineResultSet(MineResultSet mineResultSet) {
 		DataVault.mineResultSet = mineResultSet;
 	}
 

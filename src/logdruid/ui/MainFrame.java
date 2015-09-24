@@ -50,6 +50,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import logdruid.data.ChartData;
+import logdruid.data.DataVault;
 import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
@@ -108,7 +109,7 @@ public class MainFrame extends JFrame {
 	private JSpinner endTimeSpinner;
 	private JSpinner.DateEditor timeEditor2;
 	public String currentRepositoryFile = "New";
-	MineResultSet mineResultSet;
+//	MineResultSet mineResultSet;
 	public static ChartData cd;
 	private MainFrame thiis;
 	JProgressBar progressBar;
@@ -182,8 +183,9 @@ public class MainFrame extends JFrame {
 									progressBarValue=0;
 									File test=new File (repository.getBaseSourcePath());
 									if (test.exists()){
-				            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
-								cd = DataMiner.gatherSourceData(repository);}
+				            	DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
+								cd = DataMiner.gatherSourceData(repository);
+								}
 								thiis.setValueNow(progressBarValue);
 								} else if (treeSelected.equals("Reports")) {
 									reportPanel=null;
@@ -191,7 +193,7 @@ public class MainFrame extends JFrame {
 									progressBarValue=0;
 									File test=new File (repository.getBaseSourcePath());
 									if (test.exists()){
-				            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
+										DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
 								cd = DataMiner.gatherSourceData(repository);}
 								thiis.setValueNow(progressBarValue);
 								}
@@ -370,7 +372,7 @@ public class MainFrame extends JFrame {
 						reportPanel = null;
 						thiis.setValueNow(0);
 						progressBarValue=0;
-		            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
+						DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
 						cd = DataMiner.gatherSourceData(repository);
 						thiis.setValueNow(progressBarValue);
 						working=false;
@@ -590,17 +592,17 @@ public class MainFrame extends JFrame {
 		            	working=true;
 						panel_1.removeAll();
 						logger.info("Reports panel loading ");				
-						if (mineResultSet == null) {
+						if (DataVault.getMineResultSet() == null) {
 						thiis.setValueNow(0);
 						progressBarValue=0;	
-		            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
+						DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
 						cd = DataMiner.gatherSourceData(repository);
 						logger.info("gathering source data");
 		            	thiis.setValueNow(progressBarValue);
 						}
 						if (reportPanel == null) {
 							logger.info(" new graph Panel");
-							reportPanel = new ReportPanel(repository, mineResultSet);
+							reportPanel = new ReportPanel(repository, DataVault.getMineResultSet());
 						}
 
 						panel_1.add(reportPanel);
@@ -628,17 +630,17 @@ public class MainFrame extends JFrame {
 			            	working=true;
 							panel_1.removeAll();
 							logger.info("Chart panel loading ");				
-							if (mineResultSet == null) {
+							if (DataVault.getMineResultSet() == null) {
 							thiis.setValueNow(0);
 							progressBarValue=0;	
-			            	mineResultSet = DataMiner.gatherMineResultSet(repository,thiis);
+							DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
 							cd = DataMiner.gatherSourceData(repository);
 							logger.info("gathering source data");
 			            	thiis.setValueNow(progressBarValue);
 							}
 							if (graphPanel == null) {
 								logger.info(" new graph Panel");
-								graphPanel = new GraphPanel(repository, panel_2, mineResultSet, cd, thiis);
+								graphPanel = new GraphPanel(repository, panel_2, DataVault.getMineResultSet(), cd, thiis);
 							}
 							panel_1.add(graphPanel);
 							panel_1.validate();

@@ -104,20 +104,33 @@ public class RecordingList extends JPanel {
 	 */
 	public RecordingList(final Repository rep) {
 		
-	if (Preferences.getPreference("timings").equals("true")){
-		header= (String[]) new String[]{ "name", "regexp", "type", "active", "success time", "failed time", "match attempt", "success match" };}
-	else {
-		header= (String[]) new String[]{ "name", "regexp", "type", "active"};
-	}
+		if (Preferences.getPreference("timings").equals("true") && Preferences.getPreference("matches").equals("true") ) {
+			header = (String[]) new String[] { "name", "regexp", "type", "active", "success time", "failed time", "match attempt", "success match" };
+		} else if (Preferences.getPreference("timings").equals("false") && Preferences.getPreference("matches").equals("true") ) {
+			header = (String[]) new String[] { "name", "regexp", "type", "active", "match attempt", "success match"  };
+		} else if (Preferences.getPreference("timings").equals("true") && Preferences.getPreference("matches").equals("false") ) {
+			header = (String[]) new String[] { "name", "regexp", "type", "active" ,"success time", "failed time", };
+		} else {
+			header = (String[]) new String[] { "name", "regexp", "type", "active" };
+		}
 	
 		records = rep.getRecordings();
 		// Collections.sort(records);
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
+			logger.info("about to call DataVault.getRecordingStats on :"+record.getName());
 			stats = DataVault.getRecordingStats(record.getName());
 			if (stats != null) {
-				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), stats[0], stats[1], stats[2], stats[3] });
+				if (Preferences.getPreference("timings").equals("false") && Preferences.getPreference("matches").equals("true") ) {
+				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), stats[2],
+						stats[3] });
+				} else if (Preferences.getPreference("timings").equals("true") && Preferences.getPreference("matches").equals("false") ) {
+				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), stats[0], stats[1]});
+				} else if (Preferences.getPreference("timings").equals("true") && Preferences.getPreference("matches").equals("true") ) {
+					data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), stats[0], stats[1], stats[2],
+							stats[3] });
+					} 
 			} else {
 				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), 0, 0, 0, 0 });
 			}
@@ -393,7 +406,11 @@ public class RecordingList extends JPanel {
 			} else if (column >3 && column<9) {
 				stats = DataVault.getRecordingStats(repository.getRecording(row).getName());
 				if (stats != null) {
-						return stats[column-4];
+					if (Preferences.getPreference("timings").equals("false") && Preferences.getPreference("matches").equals("true") ) {
+						return stats[column - 2];
+					} else {
+						return stats[column - 4];
+						} 
 				} else return 0;
 			}
 			else return 0;

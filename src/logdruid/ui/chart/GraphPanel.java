@@ -81,6 +81,7 @@ import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.xy.XYDataset;
 
 import logdruid.data.ChartData;
+import logdruid.data.DataVault;
 //import logdruid.data.DataVault;
 import logdruid.data.ExtendedTimeSeries;
 import logdruid.data.FileLine;
@@ -176,7 +177,7 @@ public class GraphPanel extends JPanel {
 		panel_1 = new JPanel(new WrapLayout());
 		add(panel_1, BorderLayout.NORTH);
 		
-	//	DataVault.mineResultSet = mineResultSet;
+		//DataVault.mineResultSet = mineResultSet;
 		panel = new JPanel();
 		if (mineResultSet.mineResults.isEmpty()) {
 			logger.info("mineResultSet null");

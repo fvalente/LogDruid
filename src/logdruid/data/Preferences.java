@@ -34,6 +34,9 @@ public class Preferences {
 		if (!prefData.preferences.containsKey("timings")) {
 			prefData.preferences.put("timings", "false");
 		}
+		if (!prefData.preferences.containsKey("matches")) {
+			prefData.preferences.put("matches", "true");
+		}
 		if (!prefData.preferences.containsKey("stats")) {
 			logger.info("stats set to true");
 			prefData.preferences.put("stats", "true");
@@ -82,6 +85,13 @@ public class Preferences {
 	public void setTimings(boolean timings) {
 		setPreference("timings", Boolean.toString(timings));
 	}
+	public static boolean isMatches() {
+		return Boolean.parseBoolean(getPreference("matches"));
+	}
+	
+	public void setMatches(boolean matches) {
+		setPreference("matches", Boolean.toString(matches));
+	}
 
 	public static void persist() {
 		logger.debug(prefData);
@@ -89,4 +99,5 @@ public class Preferences {
 		// TODO Auto-generated method stub
 		
 	}
+
 }

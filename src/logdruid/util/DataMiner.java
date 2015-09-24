@@ -112,7 +112,7 @@ public class DataMiner {
 					 logger.debug("Source:" + source.getSourceName()+", group: " +  pairs.getKey() + " = " + pairs.getValue().toString());
 					tasks.add(new Callable<MineResult>() {
 						public MineResult call() throws Exception {
-							return DataMiner.mine((String) pairs.getKey(), (ArrayList<FileRecord>) pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),mainFrame);
+							return DataMiner.mine((String) pairs.getKey(), (ArrayList<FileRecord>) pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),Preferences.isMatches(),mainFrame);
 						}
 
 					});
@@ -169,15 +169,15 @@ public class DataMiner {
 
 	}
 
-	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, Repository repo, Source source, boolean stats, boolean timings, MainFrame mainFrame) {
+	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, Repository repo, Source source, boolean stats, boolean timings,boolean matches, MainFrame mainFrame) {
 		logger.debug("call to mine for source " + source.getSourceName() + " on group " + group);
-		FileMineResultSet fMRS = fastMine(arrayList, repo, source, stats, timings,mainFrame);
+		FileMineResultSet fMRS = fastMine(arrayList, repo, source, stats, timings,matches,mainFrame);
 		return new MineResult(group, fMRS, arrayList, repo, source);
 	}
 
 	// handle gathering for ArrayList of file for one source
 	public static FileMineResultSet fastMine(ArrayList<FileRecord> arrayList, final Repository repo, final Source source, final boolean stats,
-			final boolean timings, final MainFrame mainFrame) {
+			final boolean timings, final boolean matches, final MainFrame mainFrame) {
 
 		ThreadPool_FileWorkers = Executors.newFixedThreadPool(Integer.parseInt(Preferences.getPreference("ThreadPool_File")));
 		Date startDate = null;
@@ -200,7 +200,7 @@ public class DataMiner {
 			tasks.add(new Callable<FileMineResult>() {
 				public FileMineResult call() throws Exception {
 					logger.debug("file mine on "+ fileRec);
-					return fileMine(fileRec, repo, source, stats, timings,mainFrame);
+					return fileMine(fileRec, repo, source, stats, timings,matches,mainFrame);
 				}
 
 			});
@@ -366,7 +366,7 @@ public class DataMiner {
 		
 	}
 	// handle gathering for a single file
-	public static FileMineResult fileMine(FileRecord fileRecord, Repository repo, Source source, boolean stats, boolean timings, final MainFrame mainFrame) {
+	public static FileMineResult fileMine(FileRecord fileRecord, Repository repo, Source source, boolean stats, boolean timings, boolean matches, final MainFrame mainFrame) {
 		ExtendedTimeSeries ts = null;
 		PatternCache patternCache = new PatternCache();
 		Date startDate = null;
@@ -387,6 +387,10 @@ public class DataMiner {
 		int eventHit = 0;
 		int eventMatch = 0;
 		long[] arrayBefore;
+		long match0=0;
+		long match1=0;
+		long timing0=0;
+		long timing1=0;
 		Map<Recording, String> recMatch = new HashMap<Recording, String>();
 		Map<String, ExtendedTimeSeries> statMap = new HashMap<String, ExtendedTimeSeries>();
 		Map<String, ExtendedTimeSeries> eventMap = new HashMap<String, ExtendedTimeSeries>();
@@ -419,7 +423,7 @@ public class DataMiner {
 				Iterator recMatchIte = recMatch.entrySet().iterator();
 				while (recMatchIte.hasNext()) {
 					if (timings) {
-						recordingMatchStart = ManagementFactory.getThreadMXBean().getThreadCpuTime(Thread.currentThread().getId());
+						recordingMatchStart = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
 					}
 					Map.Entry me = (Map.Entry) recMatchIte.next();
 					Recording rec = (Recording) me.getKey();
@@ -671,8 +675,7 @@ public class DataMiner {
 								}
 								}
 						}
-						if (timings) {
-							recordingMatchEnd = ManagementFactory.getThreadMXBean().getThreadCpuTime(Thread.currentThread().getId());
+						if (timings || matches) {
 							if (matchTimings.containsKey(rec.getName())) {
 								arrayBefore = matchTimings.get(rec.getName());
 								// logger.info(file.getName() + " contains " +
@@ -681,33 +684,42 @@ public class DataMiner {
 								// recording ; 1-> sum of time for failed
 								// matching ; 2-> count of match attempts,
 								// 3->count of success attempts
-
-								long[] array = { arrayBefore[0] + recordingMatchEnd - recordingMatchStart, arrayBefore[1], arrayBefore[2] + 1,
-										arrayBefore[3] + 1 };
-								// logger.info(file.getName() +
-								// " add success to" + rec.getName() + " 0: "+
-								// array[0] + " 1: "+ array[1]+ " 2: "+ array[2]
-								// +" 3: "+ array[3]);
+								if (timings){
+									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+									timing0 =arrayBefore[0] + recordingMatchEnd - recordingMatchStart;
+									timing1 =arrayBefore[1];
+								}
+								if (matches){
+									match0=arrayBefore[2] + 1;
+									match1=arrayBefore[3] + 1; 
+									}
+								long[] array = {timing0, timing1, match0,match1};
 								matchTimings.put(rec.getName(), array);
 							} else {
 								long[] array = { recordingMatchEnd - recordingMatchStart, 0, 1, 1 };
 								matchTimings.put(rec.getName(), array);
-								// logger.info(file.getName() + " first success"
-								// + rec.getName() + " 0: "+ array[0] + " 1: "+
-								// array[1]+ " 2: "+ array[2] +" 3: "+
-								// array[3]);
 							}
 						}
 					} else {
-						if (timings) {
-							recordingMatchEnd = ManagementFactory.getThreadMXBean().getThreadCpuTime(Thread.currentThread().getId());
+						if (timings || matches) {
 							if (matchTimings.containsKey(rec.getName())) {
 								arrayBefore = matchTimings.get(rec.getName());
+								// logger.info(file.getName() + " contains " +
+								// arrayBefore);
 								// 0-> sum of time for success matching of given
 								// recording ; 1-> sum of time for failed
 								// matching ; 2-> count of match attempts,
 								// 3->count of success attempts
-								long[] array = { arrayBefore[0], arrayBefore[1] + recordingMatchEnd - recordingMatchStart, arrayBefore[2] + 1, arrayBefore[3] };
+								if (timings){
+									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+									timing0 =arrayBefore[0];
+									timing1 =arrayBefore[1] + recordingMatchEnd - recordingMatchStart;
+								}
+								if (matches){
+									match0=arrayBefore[2] + 1;
+									match1=arrayBefore[3] ; 
+									}
+								long[] array = {timing0, timing1, match0,match1};
 								matchTimings.put(rec.getName(), array);
 							} else {
 								long[] array = { 0, recordingMatchEnd - recordingMatchStart, 1, 0 };
@@ -715,7 +727,6 @@ public class DataMiner {
 							}
 						}
 					}
-
 				}
 				lineCount++;
 
