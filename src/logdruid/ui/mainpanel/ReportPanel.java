@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,6 +108,7 @@ public class ReportPanel extends JPanel {
 	long[] stats;
 	private JTable reportDetails;
 	private Map<List<Object>, Long> occurenceReportMap;
+	private SortedMap<Double,List<Object>> top100ReportMap;
 
 	/**
 	 * Create the panel.
@@ -174,9 +176,11 @@ public class ReportPanel extends JPanel {
 				;
 				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
 				ArrayList<List<Object>> data1 = new ArrayList<List<Object>>();
+				ArrayList<Object[]> rIArrayList = new ArrayList<Object[]>();
 				if (selectedRow >= 0) {
+					if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow)).getSubType().equals("histogram"))
+					{
 					Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
-					ArrayList<Object[]> rIArrayList = new ArrayList<Object[]>();
 					rIArrayList.add(new Object[] { "Source", String.class });
 					while (rIIte.hasNext()) {
 						RecordingItem ri = (RecordingItem) rIIte.next();
@@ -193,10 +197,7 @@ public class ReportPanel extends JPanel {
 						}
 					}
 					rIArrayList.add(new Object[] { "count", Long.class });
-					// headerRecords=(String[]) rIArrayList.toArray(new
-					// String[rIArrayList.size()]);
-
-					// logger.info(""+headerRecords.length +headerRecords);
+					
 					if (mineResultSet1.getOccurenceReport() != null) {
 						Iterator sourcesIterator=rep.getSources().iterator();
 						while (sourcesIterator.hasNext())
@@ -221,6 +222,57 @@ public class ReportPanel extends JPanel {
 						recordReportTableModel = new RecordReportTableModel(data1, rIArrayList);
 						reportDetails = new JTable(recordReportTableModel);
 					}
+					
+					}
+					else if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow)).getSubType().equals("top100"))
+					{
+						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
+						rIArrayList.add(new Object[] { "Source", String.class });
+						while (rIIte.hasNext()) {
+							RecordingItem ri = (RecordingItem) rIIte.next();
+							Class c = null;
+							if (ri.isSelected() && ri.getProcessingType().equals("capture")) {
+								if (ri.getType().equals("string") || ri.getType().equals("word") || ri.getType().equals("date")) {
+									c = String.class;
+								} else if (ri.getType().equals("long")) {
+									c = Long.class;
+								} else if (ri.getType().equals("double")) {
+									c = double.class;
+								}
+								rIArrayList.add(new Object[] { ri.getName(), c });
+							}
+						}
+						rIArrayList.add(new Object[] { "value", Double.class });	
+						if (mineResultSet1.getTop100Report() != null) {
+							Iterator sourcesIterator=rep.getSources().iterator();
+							while (sourcesIterator.hasNext())
+							{
+								Source src=(Source) sourcesIterator.next();
+								if (src.getActive()  && mineResultSet1.getTop100Report().containsKey(src)){
+									top100ReportMap = mineResultSet1.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, selectedRow));
+							if (top100ReportMap != null) {
+								Iterator<Double> oRMIte = top100ReportMap.keySet().iterator();
+								while (oRMIte.hasNext()) {
+									List<Object> obj = new ArrayList<Object>();
+									Double tempObj=oRMIte.next();
+									obj.add(src.getSourceName());
+									obj.addAll(1, top100ReportMap.get(tempObj));
+									obj.add(tempObj);
+									data1.add(obj);
+								}
+								// logger.info(""+headerRecords.length
+								// +Arrays.deepToString(headerRecords));
+							}}
+							}
+							recordReportTableModel = new RecordReportTableModel(data1, rIArrayList);
+							reportDetails = new JTable(recordReportTableModel);
+						}
+					}
+					// headerRecords=(String[]) rIArrayList.toArray(new
+					// String[rIArrayList.size()]);
+
+					// logger.info(""+headerRecords.length +headerRecords);
+
 				}
 
 				// logger.info(mineResultSet1.getOccurenceReport().values());
@@ -535,13 +587,14 @@ public class ReportPanel extends JPanel {
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (column <= (data.get(row).size())) {
-				// logger.info("row: " + row + " ,col: "+column + "data: "
-				// +data.get(row).get(column));
+				// logger.info("row: " + row + ", column "+column +",header.get(column "+header.get(column) );
+				 //" ,col: "+column + "data: "
+				 //+data.get(row).get(column));
 				return ((Class) header.get(column)[1]).cast(data.get(row).get(column));
 			} else if (column == (data.get(row).size())) {
 
 			}
-			return ((Class) header.get(column)[1]).cast("");
+			return ((Class) header.get(column)[1]).cast((Double) 0.0);
 
 		}
 

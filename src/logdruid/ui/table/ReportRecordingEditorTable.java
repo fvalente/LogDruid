@@ -220,9 +220,7 @@ public class ReportRecordingEditorTable extends JPanel {
 	public void setUpProcessingColumn(JTable theTable, TableColumn typeColumn) {
 		JComboBox functionComboBox = new JComboBox();
 		functionComboBox.addItem("capture");
-		functionComboBox.addItem("histogram");
 		functionComboBox.addItem("top100");
-		functionComboBox.addItem("nothing");
 		typeColumn.setCellEditor(new DefaultCellEditor(functionComboBox));
 		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
 		renderer.setToolTipText("Click for combo box");

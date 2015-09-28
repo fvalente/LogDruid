@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import logdruid.data.record.Recording;
 
@@ -30,6 +32,10 @@ public class MineResultSet {
 	private Date startDate;
 	private Date endDate;
 	static Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport ;
+	static  Map<Source, Map<Recording, SortedMap<Double,List<Object>>>> top100Report;
+	public static Map<Source, Map<Recording, SortedMap<Double, List<Object>>>> getTop100Report() {
+		return top100Report;
+	}
 
 	public static Map<Source, Map<Recording, Map<List<Object>, Long>>> getOccurenceReport() {
 		return occurenceReport;
@@ -75,6 +81,11 @@ public class MineResultSet {
 
 	public MineResultSet() {
 		mineResults = new HashMap<Source, Map<String, MineResult>>();
+	}
+
+	public void setTop100Report(Map<Source, Map<Recording, SortedMap<Double, List<Object>>>> top100Report2) {
+		MineResultSet.top100Report=top100Report2;
+		
 	}
 
 }
