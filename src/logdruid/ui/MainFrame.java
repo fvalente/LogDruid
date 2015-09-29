@@ -422,7 +422,6 @@ public class MainFrame extends JFrame {
 					graphPanel.resetTimePeriod(panel_2);
 					graphPanel.loadGroupCheckbox(panel_2);
 					graphPanel.load(panel_2);
-					;
 				}
 			}
 		});

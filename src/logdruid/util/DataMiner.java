@@ -376,18 +376,16 @@ public class DataMiner {
 			final MainFrame mainFrame) {
 		ExtendedTimeSeries ts = null;
 		PatternCache patternCache = new PatternCache();
+		ClassCache classCache = new ClassCache();
 		Date startDate = null;
 		Date endDate = null;
-
 		DecimalFormat decimalFormat = new DecimalFormat("#.#", new DecimalFormatSymbols(Locale.US));
-
-		FastDateFormat fastDateFormat = null;
+		java.text.DateFormat fastDateFormat = null;
 		FileReader flstr = null;
 		BufferedReader buf1st;
 		Matcher matcher;
 		Matcher matcher2;
 		FixedMillisecond fMS = null;
-		Boolean successMatch = false;
 		DateFormat df = null;
 		int statHit = 0;
 		int statMatch = 0;
@@ -417,6 +415,13 @@ public class DataMiner {
 			return null;
 		}
 
+		if (!occurenceReport.containsKey(source)) {
+			occurenceReport.put(source, new ConcurrentHashMap<Recording, Map<List<Object>, Long>>());
+		}
+		if (!top100Report.containsKey(source)) {
+			top100Report.put(source, new ConcurrentHashMap<Recording, SortedMap<Double,List<Object>>>());
+		}
+		
 		buf1st = new BufferedReader(flstr);
 		String line;
 		try {
@@ -436,7 +441,7 @@ public class DataMiner {
 					Recording rec = (Recording) me.getKey();
 					matcher = patternCache.getPattern((String) (rec.getRegexp())).matcher(line);
 					if (matcher.find()) {
-						Boolean isStatRecording = rec.getClass().equals(StatRecording.class);
+						Boolean isStatRecording = classCache.getClass(rec).equals(StatRecording.class);
 						if (stats) {
 							if (isStatRecording) {
 								statMatch++;
@@ -448,7 +453,6 @@ public class DataMiner {
 						ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 						int cnt = 0;
 						matcher2 = patternCache.getPattern((String) me.getValue()).matcher(line);
-						successMatch = false;
 						if (matcher2.find()) {
 							if (stats) {
 								if (isStatRecording) {
@@ -457,7 +461,7 @@ public class DataMiner {
 									eventHit++;
 								}
 							}
-							if (!rec.getClass().equals(ReportRecording.class)) {
+							if (!classCache.getClass(rec).equals(ReportRecording.class)) {
 								int count = 1;
 								Date date1 = null;
 								// handling capture for each recording item
@@ -471,7 +475,8 @@ public class DataMiner {
 											df = repo.getDateFormat(rec.getDateFormatID());
 											if (logger.isDebugEnabled())
 												logger.debug("4**** rec name" + rec.getName() + " df: " + df.getId());
-											fastDateFormat = FastDateFormat.getInstance(df.getDateFormat());
+											fastDateFormat =ThreadLocalDateFormatMap.getInstance().createSimpleDateFormat(df.getDateFormat());
+										//	fastDateFormat = FastDateFormat.getInstance(df.getDateFormat());
 											date1 = fastDateFormat.parse(matcher2.group(count));
 											if (logger.isDebugEnabled())
 												logger.debug("4b**** " + df.getDateFormat() + " date: " + date1.toString());
@@ -566,7 +571,7 @@ public class DataMiner {
 												// updating
 												// the TimeSeries in the Map
 
-											} else if (rec.getClass().equals(EventRecording.class)) {
+											} else if (classCache.getClass(rec).equals(EventRecording.class)) {
 												if (eventMap.containsKey(recItem2.getName())) {
 													ts = eventMap.get(recItem2.getName());
 												} else {
@@ -675,51 +680,75 @@ public class DataMiner {
 										}
 										count++;
 									}
-									if (!occurenceReport.containsKey(source)) {
-										occurenceReport.put(source, new ConcurrentHashMap<Recording, Map<List<Object>, Long>>());
-									}
-									if (!occurenceReport.get(source).containsKey(rec)) {
+									Map<List<Object>,Long>  occMap = occurenceReport.get(source).get(rec);
+									if (occMap==null) {
 										occurenceReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Long>());
+										occMap = occurenceReport.get(source).get(rec);
 									}
-									if (!occurenceReport.get(source).get(rec).containsKey(temp)) {
-										occurenceReport.get(source).get(rec).put(temp, (long) 1);
+									synchronized (occMap) {
+									Object occ = occMap.get(temp);
+									
+									if (occ==null) {
+										occMap.put(temp, (long) 1);
 									} else {
-										occurenceReport.get(source).get(rec).put(temp, occurenceReport.get(source).get(rec).get(temp) + 1);
+										occMap.put(temp, (long) occ + 1);
+									}
 									}
 								} else if (((ReportRecording) rec).getSubType().equals("top100") && rec.getIsActive()) {
-									double itemIndex =0;
-									List<Object> temp = new ArrayList<Object>();
-									Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-									while (recItemIte2.hasNext()) {
-										RecordingItem recItem2 = recItemIte2.next();
-										if (recItem2.isSelected()) {
-											if (recItem2.getProcessingType().equals("top100")){
-											itemIndex=(double)Double.valueOf(matcher2.group(count + 1));
-											} else {
-											temp.add(matcher2.group(count + 1));
-											}}
-										count++;
-									}
-									if (!top100Report.containsKey(source)) {
-										top100Report.put(source, new ConcurrentHashMap<Recording, SortedMap<Double,List<Object>>>());
-									}
-									if (!top100Report.get(source).containsKey(rec)) {
-										top100Report.get(source).put(rec, Collections.synchronizedSortedMap(new TreeMap<Double,List<Object>>()));
-									}
+									double itemIndex = 0;
+
 									SortedMap<Double,List<Object>> t100 = top100Report.get(source).get(rec);
-									if (t100.size()>100){
-										if (itemIndex>t100.firstKey()){
-											t100.remove(t100.firstKey());
-											t100.put(itemIndex, temp);
-										}}	 else {
-											t100.put(itemIndex, temp);
+									if (t100==null) {
+										top100Report.get(source).put(rec, Collections.synchronizedSortedMap(new TreeMap<Double,List<Object>>()));
+										t100 = top100Report.get(source).get(rec);
+									}
+									try {
+									itemIndex = (double)Double.valueOf(matcher2.group(((ReportRecording) rec).getTop100RecordID()+1));
+									} catch (NullPointerException npe){										
+										//nothing
+									}		
+									synchronized (t100) {
+									if (t100.size()<100){			
+										List<Object> temp = new ArrayList<Object>();
+										Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+										while (recItemIte2.hasNext()) {
+											RecordingItem recItem2 = recItemIte2.next();
+											if (recItem2.isSelected()) {
+												if (recItem2.getProcessingType().equals("top100")){
+												itemIndex=(double)Double.valueOf(matcher2.group(count + 1));
+												} else {
+												temp.add(matcher2.group(count + 1));
+												}}
+											count++;
+										}	
+										t100.put(itemIndex, temp);
+									}
+									else if (t100.size()==100){
+											if (itemIndex>t100.firstKey()){
+												List<Object> temp = new ArrayList<Object>();
+												Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+												while (recItemIte2.hasNext()) {
+													RecordingItem recItem2 = recItemIte2.next();
+													if (recItem2.isSelected()) {
+														if (recItem2.getProcessingType().equals("top100")){
+														itemIndex=(double)Double.valueOf(matcher2.group(count + 1));
+														} else {
+														temp.add(matcher2.group(count + 1));
+														}}
+													count++;
+												}												
+												t100.remove(t100.firstKey());
+												t100.put(itemIndex, temp);	
+											}											
 										}
+
+									} 
 								}
 							}
 						}
 						if (timings || matches) {
-							if (matchTimings.containsKey(rec.getName())) {
 								arrayBefore = matchTimings.get(rec.getName());
+								if (arrayBefore!=null) {
 								// logger.info(file.getName() + " contains " +
 								// arrayBefore);
 								// 0-> sum of time for success matching of given
@@ -744,8 +773,8 @@ public class DataMiner {
 						}
 					} else {
 						if (timings || matches) {
-							if (matchTimings.containsKey(rec.getName())) {
 								arrayBefore = matchTimings.get(rec.getName());
+								if (arrayBefore!=null) {
 								// logger.info(file.getName() + " contains " +
 								// arrayBefore);
 								// 0-> sum of time for success matching of given

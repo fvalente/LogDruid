@@ -11,6 +11,7 @@
 package logdruid.data.record;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
@@ -18,6 +19,7 @@ public class ReportRecording extends Recording {
 	private static Logger logger = Logger.getLogger(ReportRecording.class.getName());
 	private String dateFormat;
 	private String subType;
+	private int top100Index=-1;
 
 	public ReportRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem,String subType1) {
 		setName(_name);
@@ -28,6 +30,7 @@ public class ReportRecording extends Recording {
 		recordingItem = _recordingItem;
 		subType=subType1;
 		super.id = generate();
+		computeTop100RecordID();
 		logger.info("New ReportRecording name: " + _name + ", regexp: " + _regexp + ", id: " + super.id);
 		if (recordingItem != null)
 			logger.info("New ReportRecording with recordingItem ArrayList: " + recordingItem.toString());
@@ -42,6 +45,27 @@ public class ReportRecording extends Recording {
 	}
 	public String getSubType() {
 		return subType;
+	}
+	
+	private void computeTop100RecordID(){
+	Iterator<RecordingItem> rIIte=recordingItem.iterator();
+	top100Index=-1;
+	int count=0;
+	while (rIIte.hasNext() && top100Index==-1){
+		if (rIIte.next().getProcessingType().equals("top100")){
+			top100Index=count;
+		}
+		count++;
+	}}
+	
+	public int getTop100RecordID(){
+		if (top100Index==-1){
+			computeTop100RecordID();;
+			return top100Index;
+		} else {
+			return top100Index;
+		}
+		
 	}
 	
 	public String getDateFormat() {
@@ -67,6 +91,8 @@ public class ReportRecording extends Recording {
 		if (this.id == null) {
 			super.id = generate();
 		}
+		computeTop100RecordID();
+		
 	}
 
 	public Recording duplicate() {

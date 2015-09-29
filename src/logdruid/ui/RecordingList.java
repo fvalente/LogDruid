@@ -401,7 +401,7 @@ public class RecordingList extends JPanel {
 			} else if (column == 2 ) {
 				return repository.getRecording(row).getType();
 			} else if (column == 3 ) {
-				logger.info("setValueAt calls setActiveRecording");
+				logger.debug("setValueAt calls setActiveRecording");
 				return repository.getRecording(row).getIsActive();
 			} else if (column >3 && column<9) {
 				stats = DataVault.getRecordingStats(repository.getRecording(row).getName());

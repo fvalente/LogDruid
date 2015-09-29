@@ -368,7 +368,6 @@ public class ReportPanel extends JPanel {
 
 		for (int i = 0; i < 4; i++) {
 			column = theTable.getColumnModel().getColumn(i);
-
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
 			cellWidth = comp.getPreferredSize().width;
@@ -431,10 +430,19 @@ public class ReportPanel extends JPanel {
 							rows=rows+MineResultSet.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
 							}
 						}}
-					return rows;
-				} else {
-					return (int) 0;
 				}
+				if (MineResultSet.getTop100Report() != null) {
+						Iterator sourcesIterator=repository.getSources().iterator();
+						while (sourcesIterator.hasNext())
+						{
+							Source src=(Source) sourcesIterator.next();
+							if (src.getActive()  && MineResultSet.getTop100Report().containsKey(src)){
+								if (MineResultSet.getTop100Report().get(src).containsKey(repository.getRecording(ReportRecording.class, row))){
+								rows=rows+MineResultSet.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
+								}
+							}}
+				}		
+					return (int) rows;
 			} else if (column > 3 && column < 9) {
 				stats = DataVault.getRecordingStats(repository.getRecording(ReportRecording.class, row).getName());
 				if (stats != null) {

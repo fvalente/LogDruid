@@ -15,23 +15,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import logdruid.data.record.Recording;
+
 //import org.apache.log4j.Logger;
 
-public class PatternCache {
+public class ClassCache {
 //	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
-	private static Map<String, Pattern> pattern = new HashMap<String, Pattern>();
+	private static Map<Object, Class> classMap = new HashMap<Object, Class>();
 
-	public Pattern getPattern(String regexp) {
-		if (!pattern.containsKey(regexp)) {
-			pattern.put(regexp, Pattern.compile(regexp));
-		}
-		return pattern.get(regexp);
+public Class getClass(Object rec) {
+	if (!classMap.containsKey(rec)) {
+		classMap.put(rec, rec.getClass());
 	}
-
- public static int getSize() {
-//		logger.info("pattern cache content" + pattern);
-		return pattern.size();
-
-	}
+	return classMap.get(rec);
+}
 
 }
