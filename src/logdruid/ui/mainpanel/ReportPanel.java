@@ -166,15 +166,14 @@ public class ReportPanel extends JPanel {
 		// sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0,
 		// SortOrder.ASCENDING)));
 		if (model.getRowCount() > 0) {
-			reportList.getRowSorter().toggleSortOrder(0);
 			reportList.getRowSorter().toggleSortOrder(2);
+			reportList.getRowSorter().toggleSortOrder(0);
 		}
 		reportList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
 				int selectedRow = ((reportList.getSelectedRow() != -1) ? reportList.convertRowIndexToModel(reportList.getSelectedRow()) : -1);
-				;
-				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				ArrayList<List<Object>> data1 = new ArrayList<List<Object>>();
 				ArrayList<Object[]> rIArrayList = new ArrayList<Object[]>();
 				if (selectedRow >= 0) {
@@ -331,15 +330,12 @@ public class ReportPanel extends JPanel {
 		panel_1.add(scrollPane, BorderLayout.CENTER);
 
 		// scrollPane_1.setViewportView(reportDetails);
-		if (repository.getRecordingCount() > 0) {
+		if (repository.getRecordings(ReportRecording.class).size() > 0) {
 			// recEditor = getEditor(repository.getRecording(0));
 			// jPanelDetail.add(recEditor, BorderLayout.CENTER);
-
 			reportList.setRowSelectionInterval(0, 0);
 		}
-
 		jPanelDetail.revalidate();
-
 	}
 
 	/*

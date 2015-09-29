@@ -177,6 +177,8 @@ public class MainFrame extends JFrame {
 
 						Thread t =new Thread()  {
 							public void run() {
+				            	working=true;
+				            	try{
 								if (treeSelected.equals("Chart")) {
 									graphPanel=null;
 									thiis.setValueNow(0);
@@ -197,11 +199,14 @@ public class MainFrame extends JFrame {
 								cd = DataMiner.gatherSourceData(repository);}
 								thiis.setValueNow(progressBarValue);
 								}
+				            	} catch (Exception e){
+									logger.error("exception: ", e);
+								}
+								working=false;
 								treeSelected();
 				            }
 				        };
 				        t.start();
-
 				}
 			}
 		});
@@ -368,6 +373,7 @@ public class MainFrame extends JFrame {
 					
 					public void run() {
 						working=true;
+					try {	
 						graphPanel = null;
 						reportPanel = null;
 						thiis.setValueNow(0);
@@ -375,6 +381,9 @@ public class MainFrame extends JFrame {
 						DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
 						cd = DataMiner.gatherSourceData(repository);
 						thiis.setValueNow(progressBarValue);
+	            	} catch (Exception e){
+						logger.error("exception: ", e);
+					}
 						working=false;
 						tree.setSelectionRow(tree.getRowCount() - 2);
 		            }
@@ -505,12 +514,12 @@ public class MainFrame extends JFrame {
     
     public void setValueNow(final int j) {
     		progressBar.setValue(j);
-                logger.info("setValueNow " + j);
+              /*  logger.info("setValueNow " + j);
                 StackTraceElement[] elements = Thread.currentThread().getStackTrace();
 
                 for(int i=0; i<elements.length; i++) {
-                	logger.info(elements[i]);
-                }
+                	logger.debug(elements[i]);
+                }*/
                 
     }
     
@@ -589,6 +598,7 @@ public class MainFrame extends JFrame {
 		        {
 		            public void run() {
 		            	working=true;
+		            	try {
 						panel_1.removeAll();
 						logger.info("Reports panel loading ");				
 						if (DataVault.getMineResultSet() == null) {
@@ -608,6 +618,9 @@ public class MainFrame extends JFrame {
 						panel_1.validate();
 						panel_1.repaint();
 						logger.info("Report panel loaded ");
+		            	} catch (Exception e){
+							logger.error("exception: ", e);
+						}
 						working=false;
 		            }
 		        };
@@ -627,6 +640,7 @@ public class MainFrame extends JFrame {
 			        {
 			            public void run() {
 			            	working=true;
+			            	try{
 							panel_1.removeAll();
 							logger.info("Chart panel loading ");				
 							if (DataVault.getMineResultSet() == null) {
@@ -645,6 +659,9 @@ public class MainFrame extends JFrame {
 							panel_1.validate();
 							panel_1.repaint();
 							logger.info("Chart panel loaded ");
+		            	} catch (Exception e){
+							logger.error("exception: ", e);
+						}
 							working=false;
 			            }
 			        };
