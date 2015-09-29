@@ -987,6 +987,9 @@ public class DataMiner {
 		case "word":
 			typeString = "\\w+";
 			break;
+		case "stringminimum":
+			typeString = ".*?";
+			break;
 		case "string":
 			typeString = ".*";
 			break;
@@ -994,7 +997,7 @@ public class DataMiner {
 			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
 			break;
 		case "long": // keeping for compatibility with older templates
-			typeString = "[-+]?[0-9]*.?[0-9]+(?:[eE][-+]?[0-9]+)?";
+			typeString = "\\d+";
 			break;
 		/*
 		 * case "date": typeString = repo.getDateFormat(rec.getDateFormatID());

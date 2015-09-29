@@ -185,7 +185,7 @@ public class ReportPanel extends JPanel {
 						RecordingItem ri = (RecordingItem) rIIte.next();
 						Class c = String.class;
 						if (ri.isSelected()) {
-							if (ri.getType().equals("string") || ri.getType().equals("word") || ri.getType().equals("date")) {
+							if (ri.getType().equals("string") || ri.getType().equals("stringminimum") || ri.getType().equals("word") || ri.getType().equals("date")) {
 								c = String.class;
 							} else if (ri.getType().equals("long")) {
 								c = Long.class;
@@ -231,7 +231,7 @@ public class ReportPanel extends JPanel {
 							RecordingItem ri = (RecordingItem) rIIte.next();
 							Class c = null;
 							if (ri.isSelected() && ri.getProcessingType().equals("capture")) {
-								if (ri.getType().equals("string") || ri.getType().equals("word") || ri.getType().equals("date")) {
+								if (ri.getType().equals("string") || ri.getType().equals("stringminimum") || ri.getType().equals("word") || ri.getType().equals("date")) {
 									c = String.class;
 								} else if (ri.getType().equals("long")) {
 									c = Long.class;

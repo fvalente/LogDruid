@@ -232,6 +232,7 @@ public class ReportRecordingEditorTable extends JPanel {
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("word");
 		comboBox.addItem("string");
+		comboBox.addItem("stringminimum");
 		comboBox.addItem("long");
 		comboBox.addItem("double");
 		comboBox.addItem("date");
