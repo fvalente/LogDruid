@@ -707,6 +707,11 @@ public class DataMiner {
 									} catch (NullPointerException npe){										
 										//nothing
 									}		
+									catch (NumberFormatException nfe){
+										//nothing
+										logger.info(matcher2.group(0));
+										logger.info(matcher2.group(((ReportRecording) rec).getTop100RecordID()+1));
+									}
 									synchronized (t100) {
 									if (t100.size()<100){			
 										List<Object> temp = new ArrayList<Object>();
