@@ -173,14 +173,16 @@ public class MainFrame extends JFrame {
 					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
 					repository = (Repository) Persister.open(fileChooserDialog.getSelectedFile());
 					updateTreeSources(repository.getSources());
-					tree.setSelectionPath(tp);
+	//				tree.setSelectionPath(tp);
 
 						Thread t =new Thread()  {
 							public void run() {
+								if (working==false){
 				            	working=true;
 				            	try{
 								if (treeSelected.equals("Chart")) {
 									graphPanel=null;
+									reportPanel=null;
 									thiis.setValueNow(0);
 									progressBarValue=0;
 									File test=new File (repository.getBaseSourcePath());
@@ -191,6 +193,7 @@ public class MainFrame extends JFrame {
 								thiis.setValueNow(progressBarValue);
 								} else if (treeSelected.equals("Reports")) {
 									reportPanel=null;
+									graphPanel=null;
 									thiis.setValueNow(0);
 									progressBarValue=0;
 									File test=new File (repository.getBaseSourcePath());
@@ -204,7 +207,7 @@ public class MainFrame extends JFrame {
 								}
 								working=false;
 								treeSelected();
-				            }
+				            }}
 				        };
 				        t.start();
 				}
@@ -367,7 +370,32 @@ public class MainFrame extends JFrame {
 		btnMain.setForeground(Color.BLUE);
 		btnMain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (working==false){
+				
+				Thread t =new Thread()  {
+					public void run() {
+						if (working==false){
+							working=true;
+		            	try{
+							reportPanel=null;
+							graphPanel=null;
+							thiis.setValueNow(0);
+							progressBarValue=0;
+							File test=new File (repository.getBaseSourcePath());
+							if (test.exists()){
+								DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
+						cd = DataMiner.gatherSourceData(repository);}
+						thiis.setValueNow(progressBarValue);
+		            	} catch (Exception e){
+							logger.error("exception: ", e);
+							working=false;
+						}
+						working=false;
+						tree.setSelectionRow(tree.getRowCount() - 2);
+					//	treeSelected();
+		            }
+		        }};
+		        t.start();
+/*				if (working==false){
 				Thread t =new Thread()
 		        {  
 					
@@ -389,7 +417,7 @@ public class MainFrame extends JFrame {
 		            }
 		        };
 		        t.start();
-				}
+				}*/
 			}
 		});
 		btnMain.setFont(new Font("Dialog", Font.BOLD, 11));
@@ -593,10 +621,11 @@ public class MainFrame extends JFrame {
 				panel_1.add(new ReportRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
 			} else if (treeSelected.equals("Reports")) {
-				if (working==false){
+
 				Thread t =new Thread()
 		        {
 		            public void run() {
+						if (working==false){
 		            	working=true;
 		            	try {
 						panel_1.removeAll();
@@ -620,12 +649,13 @@ public class MainFrame extends JFrame {
 						logger.info("Report panel loaded ");
 		            	} catch (Exception e){
 							logger.error("exception: ", e);
+							working=false;
 						}
 						working=false;
 		            }
-		        };
+		            }};
 		        t.start();
-				}
+				
 			} else if (treeSelected.equals("Identification")) {
 				panel_1.removeAll();
 				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));

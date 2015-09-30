@@ -548,6 +548,7 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 							JPanel pan = new JPanel();
 							
 							pan.setLayout(new BorderLayout());
+							pan.setMaximumSize(new Dimension(20000,Integer.parseInt((String)Preferences.getPreference("chartSize"))));
 							pan.setPreferredSize(new Dimension(600, Integer.parseInt((String)Preferences.getPreference("chartSize"))));
 							// pan.setPreferredSize(panelSize);
 							panel.add(pan);
@@ -655,7 +656,6 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 							});
 
 							pan.add(checkboxPanel, BorderLayout.SOUTH);
-
 						}
 					}
 				} else {
@@ -664,6 +664,12 @@ cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
 			}
 		}}
 		// Map=miner.mine(sourceFiles,repo);
+		JPanel panEnd = new JPanel();
+		
+		panEnd.setLayout(new BorderLayout());
+		panEnd.setPreferredSize(new Dimension(600, 0));
+		// pan.setPreferredSize(panelSize);
+		panel.add(panEnd);
 		estimatedTime = System.currentTimeMillis() - startTime;
 		revalidate();
 		logger.info("display time: " + estimatedTime);

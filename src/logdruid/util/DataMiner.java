@@ -1054,7 +1054,6 @@ public class DataMiner {
 						}
 					}
 					recMatch.put(rec, sb.toString());
-
 					// logger.info("2**** regexp: "
 					// +rec.getRegexp());
 					if (logger.isDebugEnabled()) {
