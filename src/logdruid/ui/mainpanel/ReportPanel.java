@@ -108,6 +108,7 @@ public class ReportPanel extends JPanel {
 	long[] stats;
 	private JTable reportDetails;
 	private Map<List<Object>, Long> occurenceReportMap;
+	private Map<List<Object>, Double> sumReportMap;
 	private SortedMap<Double,List<Object>> top100ReportMap;
 
 	/**
@@ -257,6 +258,53 @@ public class ReportPanel extends JPanel {
 									obj.add(src.getSourceName());
 									obj.addAll(1, top100ReportMap.get(tempObj));
 									obj.add(tempObj);
+									data1.add(obj);
+								}
+								// logger.info(""+headerRecords.length
+								// +Arrays.deepToString(headerRecords));
+							}}
+							}
+							recordReportTableModel = new RecordReportTableModel(data1, rIArrayList);
+							reportDetails = new JTable(recordReportTableModel);
+						}
+					}
+					
+					else if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow)).getSubType().equals("sum"))
+					{
+						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
+						rIArrayList.add(new Object[] { "Source", String.class });
+						while (rIIte.hasNext()) {
+							RecordingItem ri = (RecordingItem) rIIte.next();
+							Class c = null;
+							if (ri.isSelected() && ri.getProcessingType().equals("capture")) {
+								if (ri.getType().equals("string") || ri.getType().equals("stringminimum") || ri.getType().equals("word") || ri.getType().equals("date")) {
+									c = String.class;
+								} else if (ri.getType().equals("long")) {
+									c = Long.class;
+								} else if (ri.getType().equals("double")) {
+									c = double.class;
+								}
+								rIArrayList.add(new Object[] { ri.getName(), c });
+							} else if (ri.isSelected() && ri.getProcessingType().equals("sum")){
+								c = Double.class;
+								rIArrayList.add(new Object[] { "sum of "+ ri.getName(), c });
+							}
+						}	
+						if (mineResultSet1.getSumReport() != null) {
+							Iterator sourcesIterator=rep.getSources().iterator();
+							while (sourcesIterator.hasNext())
+							{
+								Source src=(Source) sourcesIterator.next();
+								if (src.getActive()  && mineResultSet1.getSumReport().containsKey(src)){
+									sumReportMap = mineResultSet1.getSumReport().get(src).get(repository.getRecording(ReportRecording.class, selectedRow));
+							if (sumReportMap != null) {
+								Iterator<List<Object>> oRMIte = sumReportMap.keySet().iterator();
+								while (oRMIte.hasNext()) {
+									List<Object> obj = new ArrayList<Object>();
+									List<Object> tempObj=oRMIte.next();
+									obj.add(src.getSourceName());
+									obj.addAll(1, tempObj);
+									obj.add(sumReportMap.get(tempObj));
 									data1.add(obj);
 								}
 								// logger.info(""+headerRecords.length
@@ -437,7 +485,18 @@ public class ReportPanel extends JPanel {
 								rows=rows+MineResultSet.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
 								}
 							}}
-				}		
+				}
+				if (MineResultSet.getSumReport() != null) {
+					Iterator sourcesIterator=repository.getSources().iterator();
+					while (sourcesIterator.hasNext())
+					{
+						Source src=(Source) sourcesIterator.next();
+						if (src.getActive()  && MineResultSet.getSumReport().containsKey(src)){
+							if (MineResultSet.getSumReport().get(src).containsKey(repository.getRecording(ReportRecording.class, row))){
+							rows=rows+MineResultSet.getSumReport().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
+							}
+						}}
+			}
 					return (int) rows;
 			} else if (column > 3 && column < 9) {
 				stats = DataVault.getRecordingStats(repository.getRecording(ReportRecording.class, row).getName());

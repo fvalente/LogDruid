@@ -32,7 +32,14 @@ public class MineResultSet {
 	private Date startDate;
 	private Date endDate;
 	static Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport ;
+	static Map<Source, Map<Recording, Map<List<Object>, Double>>> sumReport ;
 	static  Map<Source, Map<Recording, SortedMap<Double,List<Object>>>> top100Report;
+	
+	public static Map<Source, Map<Recording, Map<List<Object>, Double>>> getSumReport() {
+		return sumReport;
+	}
+
+	
 	public static Map<Source, Map<Recording, SortedMap<Double, List<Object>>>> getTop100Report() {
 		return top100Report;
 	}
@@ -85,6 +92,11 @@ public class MineResultSet {
 
 	public void setTop100Report(Map<Source, Map<Recording, SortedMap<Double, List<Object>>>> top100Report2) {
 		MineResultSet.top100Report=top100Report2;
+		
+	}
+
+	public void setSumReport(Map<Source, Map<Recording, Map<List<Object>, Double>>> sumreport2) {
+		MineResultSet.sumReport=sumreport2;
 		
 	}
 

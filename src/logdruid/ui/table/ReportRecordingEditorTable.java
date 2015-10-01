@@ -221,6 +221,7 @@ public class ReportRecordingEditorTable extends JPanel {
 		JComboBox functionComboBox = new JComboBox();
 		functionComboBox.addItem("capture");
 		functionComboBox.addItem("top100");
+		functionComboBox.addItem("sum");
 		typeColumn.setCellEditor(new DefaultCellEditor(functionComboBox));
 		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
 		renderer.setToolTipText("Click for combo box");

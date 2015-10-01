@@ -254,7 +254,7 @@ public class ReportRecordingEditor extends JPanel {
 						}
 						{
 							comboBox = new JComboBox();
-							comboBox.setModel(new DefaultComboBoxModel(new String[] {"histogram", "top100"}));
+							comboBox.setModel(new DefaultComboBoxModel(new String[] {"histogram", "top100","sum"}));
 							panel_1a.add(comboBox);
 						}
 						{

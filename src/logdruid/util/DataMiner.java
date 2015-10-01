@@ -82,7 +82,9 @@ public class DataMiner {
 	private static ExecutorService ThreadPool_GroupWorkers = null;
 	static long estimatedTime = 0;
 	static long startTime = 0;
-	static final Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Long>>>();;
+	static final Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Long>>>();
+	static final Map<Source, Map<Recording, Map<List<Object>, Double>>> sumReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Double>>>();
+	
 	static final Map<Source, Map<Recording, SortedMap<Double,List<Object>>>> top100Report = new ConcurrentHashMap<Source, Map<Recording, SortedMap<Double,List<Object>>>>();;
 	public static MineResultSet gatherMineResultSet(final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
@@ -93,6 +95,7 @@ public class DataMiner {
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
 		occurenceReport.clear();
+		sumReport.clear();
 		top100Report.clear();
 		// tOP100Report = new ConcurrentHashMap<Recording,Map<String, Long>>();
 
@@ -169,7 +172,8 @@ public class DataMiner {
 		 * +occString); }
 		 */
 		mineResultSet.setOccurenceReport(occurenceReport);
-		mineResultSet.setTop100Report(top100Report);		
+		mineResultSet.setTop100Report(top100Report);
+		mineResultSet.setSumReport(sumReport);	
 		// logger.info(occurenceReport);
 		return mineResultSet;
 
@@ -420,6 +424,10 @@ public class DataMiner {
 		}
 		if (!top100Report.containsKey(source)) {
 			top100Report.put(source, new ConcurrentHashMap<Recording, SortedMap<Double,List<Object>>>());
+		}
+		
+		if (!sumReport.containsKey(source)) {
+			sumReport.put(source, new ConcurrentHashMap<Recording, Map<List<Object>, Double>>());
 		}
 		
 		buf1st = new BufferedReader(flstr);
@@ -749,6 +757,37 @@ public class DataMiner {
 
 									} 
 								}
+								
+								else if (((ReportRecording) rec).getSubType().equals("sum") && rec.getIsActive()) {
+									double itemIndex = 0;
+									List<Object> temp = new ArrayList<Object>();
+									Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+									while (recItemIte2.hasNext()) {
+										RecordingItem recItem2 = recItemIte2.next();
+										if (recItem2.isSelected()) {
+											if (recItem2.getProcessingType().equals("sum")){
+											itemIndex=(double)Double.valueOf(matcher2.group(count + 1));
+											} else {
+											temp.add(matcher2.group(count + 1));
+											}}
+										count++;
+									}
+									Map<List<Object>,Double>  sumMap = sumReport.get(source).get(rec);
+									if (sumMap==null) {
+										sumReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Double>());
+										sumMap = sumReport.get(source).get(rec);
+									}
+									synchronized (sumMap) {
+									Object sum = sumMap.get(temp);
+									
+									if (sum==null) {
+										sumMap.put(temp, (double)itemIndex);
+									} else {
+										sumMap.put(temp, (double) sum + itemIndex);
+									}
+									}
+								}
+								
 							}
 						}
 						if (timings || matches) {

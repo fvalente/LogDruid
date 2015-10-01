@@ -391,7 +391,7 @@ public class MainFrame extends JFrame {
 						}
 						working=false;
 						tree.setSelectionRow(tree.getRowCount() - 2);
-					//	treeSelected();
+						treeSelected();
 		            }
 		        }};
 		        t.start();
