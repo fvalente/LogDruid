@@ -126,6 +126,7 @@ public class GraphPanel extends JPanel {
 	private JPanel panel;
 	private JPanel panel_1;
 	private Repository repo;
+	String htmlStr = "<html>";
 	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
 			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 ),new Color(70, 62, 200), new Color(255,171, 130 ), new Color( 40, 255,40), new Color(65,171,93) };
@@ -377,20 +378,22 @@ public class GraphPanel extends JPanel {
 							XYToolTipGenerator tt1 = new XYToolTipGenerator() {
 								public String generateToolTip(XYDataset dataset, int series, int item) {
 									StringBuffer sb = new StringBuffer();
-									String htmlStr = "<html>";
-									Number x;
+									Number x= dataset.getX(series, item);
 									FastDateFormat sdf = FastDateFormat.getInstance("dd-MMM-yyyy HH:mm:ss");
-									x = dataset.getX(series, item);
 									sb.append(htmlStr);
 									if (x != null) {
-										sb.append((sdf.format(x)) +"<br>");
-										sb.append( dataset.getSeriesKey(series).toString() + ": "
-												+ form.format(dataset.getYValue(0, item)) );
+										sb.append((sdf.format(x)));
+										sb.append("<br>");
+										sb.append(dataset.getSeriesKey(series).toString());
+										sb.append(": ");
+										sb.append(form.format(dataset.getYValue(0, item)) );
 										if (mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString())!=null){
-											sb.append("<p style='color:#0000FF;'>" + 
-cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(
-												new Date(x.longValue()),
-												dataset.getSeriesKey(series).toString()).getFileId()).getFile().getName()+":"+mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getLineNumber() + "</p>");
+											sb.append("<p style='color:#0000FF;'>");
+											sb.append(cd.sourceFileArrayListMap.get(pairs.getKey()).get(mr.getFileLineForDate(new Date(x.longValue()),
+												dataset.getSeriesKey(series).toString()).getFileId()).getFile().getName());
+											sb.append(":");
+											sb.append(mr.getFileLineForDate(new Date(x.longValue()),dataset.getSeriesKey(series).toString()).getLineNumber());
+											sb.append("</p>");
 										
 										}
 									}

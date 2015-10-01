@@ -57,11 +57,10 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
-import logdruid.ui.RecordingList;
-import logdruid.ui.RecordingList.MyTableModel2;
 import logdruid.ui.editor.EventRecordingEditor;
 import logdruid.ui.editor.MetadataRecordingEditor;
 import logdruid.ui.editor.StatRecordingEditor;
+import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.util.DataMiner;
 
 import javax.swing.SwingConstants;

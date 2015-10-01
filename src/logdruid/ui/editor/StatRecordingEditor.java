@@ -53,10 +53,10 @@ import logdruid.data.Repository;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
-import logdruid.ui.DateSelector;
-import logdruid.ui.RecordingList;
-import logdruid.ui.RecordingList.MyTableModel2;
+import logdruid.ui.dialog.DateSelector;
+import logdruid.ui.mainpanel.RecordingList;
 import logdruid.ui.mainpanel.StatRecordingSelectorPanel;
+import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.ui.table.StatRecordingEditorTable;
 import logdruid.util.DataMiner;
 
@@ -70,6 +70,7 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+
 import javax.swing.JSplitPane;
 
 public class StatRecordingEditor extends JPanel {

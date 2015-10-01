@@ -40,7 +40,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.text.ParseException;
+
 import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -54,11 +56,10 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
-import logdruid.ui.RecordingList;
-import logdruid.ui.RecordingList.MyTableModel2;
 import logdruid.ui.editor.EventRecordingEditor;
 import logdruid.ui.editor.MetadataRecordingEditor;
 import logdruid.ui.editor.StatRecordingEditor;
+import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.util.DataMiner;
 
 import javax.swing.SwingConstants;
@@ -67,6 +68,7 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
+
 import javax.swing.JSplitPane;
 
 public class StatRecordingSelectorPanel extends JPanel {

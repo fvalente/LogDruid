@@ -52,10 +52,10 @@ import logdruid.data.DataVault;
 import logdruid.data.Repository;
 import logdruid.data.record.ReportRecording;
 import logdruid.data.record.Recording;
-import logdruid.ui.DateSelector;
-import logdruid.ui.RecordingList;
-import logdruid.ui.RecordingList.MyTableModel2;
+import logdruid.ui.dialog.DateSelector;
+import logdruid.ui.mainpanel.RecordingList;
 import logdruid.ui.mainpanel.ReportRecordingSelectorPanel;
+import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.ui.table.ReportRecordingEditorTable;
 import logdruid.util.DataMiner;
 

@@ -811,8 +811,14 @@ public class DataMiner {
 								long[] array = { timing0, timing1, match0, match1 };
 								matchTimings.put(rec.getName(), array);
 							} else {
-								long[] array = { recordingMatchEnd - recordingMatchStart, 0, 1, 1 };
-								matchTimings.put(rec.getName(), array);
+								if (timings) {
+									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+									long[] array = { recordingMatchEnd - recordingMatchStart, 0, 1, 1 };
+									matchTimings.put(rec.getName(), array);
+								}else {
+									long[] array = { 0, 0, 1, 1 };
+									matchTimings.put(rec.getName(), array);
+								}
 							}
 						}
 					} else {
@@ -837,8 +843,14 @@ public class DataMiner {
 								long[] array = { timing0, timing1, match0, match1 };
 								matchTimings.put(rec.getName(), array);
 							} else {
-								long[] array = { 0, recordingMatchEnd - recordingMatchStart, 1, 0 };
-								matchTimings.put(rec.getName(), array);
+								if (timings) {
+									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+									long[] array = { 0, recordingMatchEnd - recordingMatchStart, 1, 0 };
+									matchTimings.put(rec.getName(), array);
+								} else{
+									long[] array = { 0, 0, 1, 0 };
+									matchTimings.put(rec.getName(), array);
+								}
 							}
 						}
 					}
