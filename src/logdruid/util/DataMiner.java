@@ -922,7 +922,7 @@ public class DataMiner {
 		Map<String, ArrayList<FileRecord>> sourceFileGroup = new HashMap<String, ArrayList<FileRecord>>();
 		ArrayList<FileRecord> groupedFiles = new ArrayList<FileRecord>();
 		// ArrayList<SourceItem> sourceItemArrayList = src.getSourceItem();
-		ArrayList<Recording> recordings = (ArrayList<Recording>) repo.getRecordings(MetadataRecording.class);
+		ArrayList<Recording> recordings = (ArrayList<Recording>) repo.getRecordings(MetadataRecording.class,true);
 		Matcher matcher = null;
 		if (recordings != null) {
 			Iterator<Recording> it = recordings.iterator();
@@ -1065,9 +1065,9 @@ public class DataMiner {
 		Map<Recording, String> recMatch = new HashMap<Recording, String>();
 		Map<Recording, Boolean> activeRecordingOnSourceCache = new HashMap<Recording, Boolean>();
 		ArrayList<Recording> recordings;
-		recordings = repo.getRecordings(StatRecording.class);
-		recordings.addAll(repo.getRecordings(EventRecording.class));
-		recordings.addAll(repo.getRecordings(ReportRecording.class));
+		recordings = repo.getRecordings(StatRecording.class,true);
+		recordings.addAll(repo.getRecordings(EventRecording.class,true));
+		recordings.addAll(repo.getRecordings(ReportRecording.class,true));
 		StringBuffer sb = new StringBuffer(100);
 
 		Iterator<Recording> recordingIterator = recordings.iterator();

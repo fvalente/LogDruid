@@ -96,7 +96,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 	public EventRecordingSelectorPanel(final Repository rep, Source src) {
 		repository = rep;
 		source = src;
-		records = rep.getRecordings(EventRecording.class);
+		records = rep.getRecordings(EventRecording.class,true);
 		// Collections.sort(records);
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
@@ -149,7 +149,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 					if (jPanelDetail != null) {
 						logger.debug("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
-						recEditor = getEditor(repository.getRecording(EventRecording.class, selectedRow));
+						recEditor = getEditor(repository.getRecording(EventRecording.class, selectedRow,true));
 						if (recEditor != null) {
 							jPanelDetail.add(recEditor, BorderLayout.CENTER);
 						}
@@ -158,8 +158,8 @@ public class EventRecordingSelectorPanel extends JPanel {
 				}
 			}
 		});
-		if (repository.getRecordings(EventRecording.class).size() > 0) {
-			recEditor = getEditor(repository.getRecording(EventRecording.class, 0));
+		if (repository.getRecordings(EventRecording.class,true).size() > 0) {
+			recEditor = getEditor(repository.getRecording(EventRecording.class, 0,true));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
@@ -249,21 +249,21 @@ public class EventRecordingSelectorPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return repository.getRecordings(EventRecording.class).size();
+			return repository.getRecordings(EventRecording.class,true).size();
 		}
 
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (column == 0 ) {
-				return repository.getRecording(EventRecording.class,row).getName();
+				return repository.getRecording(EventRecording.class,row,true).getName();
 			} else if (column == 1 ) {
-				return repository.getRecording(EventRecording.class,row).getRegexp();
+				return repository.getRecording(EventRecording.class,row,true).getRegexp();
 			} else if (column == 2 ) {
-				return repository.getRecording(EventRecording.class,row).getType();
+				return repository.getRecording(EventRecording.class,row,true).getType();
 			} else if (column == 3 ) {
-				logger.debug("getvalueat name" + ((EventRecording) repository.getRecording(EventRecording.class, row)).getName());
-				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(EventRecording.class, row)));
-				return source.isActiveRecordingOnSource(repository.getRecording(EventRecording.class, row));
+				logger.debug("getvalueat name" + ((EventRecording) repository.getRecording(EventRecording.class, row,true)).getName());
+				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(EventRecording.class, row,true)));
+				return source.isActiveRecordingOnSource(repository.getRecording(EventRecording.class, row,true));
 			}
 			else return 0;
 		}
@@ -282,7 +282,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 		public void setValueAt(Object value, int row, int column) {
 			if (column == 3 && source != null) {
 				logger.debug("setValueAt calls setActiveRecording");
-				source.toggleActiveRecording(repository.getRecording(EventRecording.class, row));
+				source.toggleActiveRecording(repository.getRecording(EventRecording.class, row,true));
 				fireTableCellUpdated(row, column);
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));

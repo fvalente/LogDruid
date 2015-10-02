@@ -125,13 +125,14 @@ public class ReportPanel extends JPanel {
 		} else {
 			header = (String[]) new String[] { "name", "regexp", "type", "rows" };
 		}
-		records = rep.getRecordings(ReportRecording.class);
+		records = rep.getRecordings(ReportRecording.class,true);
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
 			logger.debug(record.getName());
+			
 			stats = DataVault.getRecordingStats(record.getName());
-			if (record.getIsActive()) {
+			if (record.getIsActive() ) {
 				if (stats != null) {
 					if (Preferences.getPreference("timings").equals("false") && Preferences.getPreference("matches").equals("true") ) {
 					data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive(), stats[2],
@@ -177,10 +178,10 @@ public class ReportPanel extends JPanel {
 				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				ArrayList<List<Object>> data1 = new ArrayList<List<Object>>();
 				ArrayList<Object[]> rIArrayList = new ArrayList<Object[]>();
-				if (selectedRow >= 0) {
-					if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow)).getSubType().equals("histogram"))
+				if (selectedRow >= 0 )  {
+					if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow,true)).getSubType().equals("histogram"))
 					{
-					Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
+					Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow,true).getRecordingItem().iterator();
 					rIArrayList.add(new Object[] { "Source", String.class });
 					while (rIIte.hasNext()) {
 						RecordingItem ri = (RecordingItem) rIIte.next();
@@ -204,7 +205,7 @@ public class ReportPanel extends JPanel {
 						{
 							Source src=(Source) sourcesIterator.next();
 							if (src.getActive()  && mineResultSet1.getOccurenceReport().containsKey(src)){
-						occurenceReportMap = mineResultSet1.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, selectedRow));
+						occurenceReportMap = mineResultSet1.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, selectedRow,true));
 						if (occurenceReportMap != null) {
 							Iterator<List<Object>> oRMIte = occurenceReportMap.keySet().iterator();
 							while (oRMIte.hasNext()) {
@@ -224,9 +225,9 @@ public class ReportPanel extends JPanel {
 					}
 					
 					}
-					else if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow)).getSubType().equals("top100"))
+					else if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow,true)).getSubType().equals("top100"))
 					{
-						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
+						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow,true).getRecordingItem().iterator();
 						rIArrayList.add(new Object[] { "Source", String.class });
 						while (rIIte.hasNext()) {
 							RecordingItem ri = (RecordingItem) rIIte.next();
@@ -249,7 +250,7 @@ public class ReportPanel extends JPanel {
 							{
 								Source src=(Source) sourcesIterator.next();
 								if (src.getActive()  && mineResultSet1.getTop100Report().containsKey(src)){
-									top100ReportMap = mineResultSet1.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, selectedRow));
+									top100ReportMap = mineResultSet1.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, selectedRow,true));
 							if (top100ReportMap != null) {
 								Iterator<Double> oRMIte = top100ReportMap.keySet().iterator();
 								while (oRMIte.hasNext()) {
@@ -269,9 +270,9 @@ public class ReportPanel extends JPanel {
 						}
 					}
 					
-					else if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow)).getSubType().equals("sum"))
+					else if (((ReportRecording)repository.getRecording(ReportRecording.class, selectedRow,true)).getSubType().equals("sum"))
 					{
-						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow).getRecordingItem().iterator();
+						Iterator<RecordingItem> rIIte = repository.getRecording(ReportRecording.class, selectedRow,true).getRecordingItem().iterator();
 						rIArrayList.add(new Object[] { "Source", String.class });
 						while (rIIte.hasNext()) {
 							RecordingItem ri = (RecordingItem) rIIte.next();
@@ -296,7 +297,7 @@ public class ReportPanel extends JPanel {
 							{
 								Source src=(Source) sourcesIterator.next();
 								if (src.getActive()  && mineResultSet1.getSumReport().containsKey(src)){
-									sumReportMap = mineResultSet1.getSumReport().get(src).get(repository.getRecording(ReportRecording.class, selectedRow));
+									sumReportMap = mineResultSet1.getSumReport().get(src).get(repository.getRecording(ReportRecording.class, selectedRow,true));
 							if (sumReportMap != null) {
 								Iterator<List<Object>> oRMIte = sumReportMap.keySet().iterator();
 								while (oRMIte.hasNext()) {
@@ -327,9 +328,10 @@ public class ReportPanel extends JPanel {
 				reportDetails.setPreferredScrollableViewportSize(new Dimension(0, 150));
 				reportDetails.setFillsViewportHeight(true);
 				reportDetails.setAutoCreateRowSorter(true);
-
+if (reportDetails.getColumnCount()>1){
 				reportDetails.getRowSorter().toggleSortOrder(reportDetails.getColumnCount() - 1);
 				reportDetails.getRowSorter().toggleSortOrder(reportDetails.getColumnCount() - 1);
+}
 				if (reportDetails != null) {
 					jPanelDetail.removeAll();
 					JScrollPane scrollPane_1 = new JScrollPane(reportDetails);
@@ -378,7 +380,7 @@ public class ReportPanel extends JPanel {
 		panel_1.add(scrollPane, BorderLayout.CENTER);
 
 		// scrollPane_1.setViewportView(reportDetails);
-		if (repository.getRecordings(ReportRecording.class).size() > 0) {
+		if (repository.getRecordings(ReportRecording.class,true).size() > 0) {
 			// recEditor = getEditor(repository.getRecording(0));
 			// jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			reportList.setRowSelectionInterval(0, 0);
@@ -443,7 +445,7 @@ public class ReportPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return repository.getRecordings(ReportRecording.class).size();
+			return repository.getRecordings(ReportRecording.class,true).size();
 		}
 
 		public void addRow(Object[] obj) {
@@ -457,11 +459,11 @@ public class ReportPanel extends JPanel {
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (column == 0) {
-				return repository.getRecording(ReportRecording.class, row).getName();
+				return repository.getRecording(ReportRecording.class, row,true).getName();
 			} else if (column == 1) {
-				return repository.getRecording(ReportRecording.class, row).getRegexp();
+				return repository.getRecording(ReportRecording.class, row,true).getRegexp();
 			} else if (column == 2) {
-				return ((ReportRecording) repository.getRecording(ReportRecording.class, row)).getSubType();
+				return ((ReportRecording) repository.getRecording(ReportRecording.class, row,true)).getSubType();
 			} else if (column == 3) {
 				int rows=0;
 				if (MineResultSet.getOccurenceReport() != null) {
@@ -470,8 +472,8 @@ public class ReportPanel extends JPanel {
 					{
 						Source src=(Source) sourcesIterator.next();
 						if (src.getActive()  && MineResultSet.getOccurenceReport().containsKey(src)){
-							if (MineResultSet.getOccurenceReport().get(src).containsKey(repository.getRecording(ReportRecording.class, row))){
-							rows=rows+MineResultSet.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
+							if (MineResultSet.getOccurenceReport().get(src).containsKey(repository.getRecording(ReportRecording.class, row,true))){
+							rows=rows+MineResultSet.getOccurenceReport().get(src).get(repository.getRecording(ReportRecording.class, row,true)).size();
 							}
 						}}
 				}
@@ -481,8 +483,8 @@ public class ReportPanel extends JPanel {
 						{
 							Source src=(Source) sourcesIterator.next();
 							if (src.getActive()  && MineResultSet.getTop100Report().containsKey(src)){
-								if (MineResultSet.getTop100Report().get(src).containsKey(repository.getRecording(ReportRecording.class, row))){
-								rows=rows+MineResultSet.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
+								if (MineResultSet.getTop100Report().get(src).containsKey(repository.getRecording(ReportRecording.class, row,true))){
+								rows=rows+MineResultSet.getTop100Report().get(src).get(repository.getRecording(ReportRecording.class, row,true)).size();
 								}
 							}}
 				}
@@ -492,14 +494,14 @@ public class ReportPanel extends JPanel {
 					{
 						Source src=(Source) sourcesIterator.next();
 						if (src.getActive()  && MineResultSet.getSumReport().containsKey(src)){
-							if (MineResultSet.getSumReport().get(src).containsKey(repository.getRecording(ReportRecording.class, row))){
-							rows=rows+MineResultSet.getSumReport().get(src).get(repository.getRecording(ReportRecording.class, row)).size();
+							if (MineResultSet.getSumReport().get(src).containsKey(repository.getRecording(ReportRecording.class, row,true))){
+							rows=rows+MineResultSet.getSumReport().get(src).get(repository.getRecording(ReportRecording.class, row,true)).size();
 							}
 						}}
 			}
 					return (int) rows;
 			} else if (column > 3 && column < 9) {
-				stats = DataVault.getRecordingStats(repository.getRecording(ReportRecording.class, row).getName());
+				stats = DataVault.getRecordingStats(repository.getRecording(ReportRecording.class, row,true).getName());
 				if (stats != null) {
 					if (Preferences.getPreference("timings").equals("false") && Preferences.getPreference("matches").equals("true") ) {
 						return stats[column - 2];

@@ -118,40 +118,28 @@ public class Repository {
 		return recordings;
 	}
 
-	public ArrayList<Recording> getRecordings(Class _class) {
+	public ArrayList<Recording> getRecordings(Class _class, boolean onlyActive) {
 
 		ArrayList<Recording> statRecordingArrayList = new ArrayList<Recording>();
 		Iterator recordingIterator = recordings.iterator();
-
 		int cnt = 0;
 		while (recordingIterator.hasNext()) {
 			Recording r = (Recording) recordingIterator.next();
-			if (r.getClass().equals(_class)) {
-				// logger.info("getRecordings for type " + _class +
-				// " add " + r.toString());
+			if (r.getClass().equals(_class)) { 
+				if (onlyActive){
+					if (r.getIsActive())
+					statRecordingArrayList.add(r);	
+				} else {
 				statRecordingArrayList.add(r);
+				}
 			}
 		}
 
 		return (ArrayList<Recording>) statRecordingArrayList;
 	}
 
-	public Recording getRecording(Class _class, int id) {
-
-		ArrayList<Recording> statRecordingArrayList = new ArrayList<Recording>();
-		Iterator recordingIterator = recordings.iterator();
-
-		int cnt = 0;
-		while (recordingIterator.hasNext()) {
-			Recording r = (Recording) recordingIterator.next();
-			if (r.getClass().equals(_class)) {
-				// logger.info("getRecording for type " + _class +
-				// " with id: "+id +", adds " + r.toString());
-				statRecordingArrayList.add(r);
-			}
-		}
-
-		return statRecordingArrayList.get(id);
+	public Recording getRecording(Class _class, int id, boolean onlyActive) {
+		return getRecordings(_class,onlyActive).get(id);
 	}
 
 	public HashMap<String, String> getPreferences() {

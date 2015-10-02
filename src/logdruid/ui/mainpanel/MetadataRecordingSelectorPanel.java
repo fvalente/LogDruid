@@ -94,7 +94,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	public MetadataRecordingSelectorPanel(Repository rep, Source src) {
 		repository = rep;
 		source = src;
-		records = rep.getRecordings(MetadataRecording.class);
+		records = rep.getRecordings(MetadataRecording.class,true);
 		// Collections.sort(records);
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
@@ -145,7 +145,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 					if (jPanelDetail != null) {
 						logger.debug("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
-						recEditor = getEditor(repository.getRecording(MetadataRecording.class, selectedRow));
+						recEditor = getEditor(repository.getRecording(MetadataRecording.class, selectedRow,true));
 						if (recEditor != null) {
 							jPanelDetail.add(recEditor, BorderLayout.CENTER);
 						}
@@ -155,8 +155,8 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				}
 			}
 		});
-		if (repository.getRecordings(MetadataRecording.class).size() > 0) {
-			recEditor = getEditor(repository.getRecording(MetadataRecording.class, 0));
+		if (repository.getRecordings(MetadataRecording.class,true).size() > 0) {
+			recEditor = getEditor(repository.getRecording(MetadataRecording.class, 0,true));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
 			table.setRowSelectionInterval(0, 0);
 		}
@@ -175,7 +175,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 	public void reloadTable() {
 		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-		records = repository.getRecordings(MetadataRecording.class);
+		records = repository.getRecordings(MetadataRecording.class,true);
 		logger.info("reloadTable - nb records : " + records.size());
 		Iterator it = records.iterator();
 		int count = 0;
@@ -245,21 +245,21 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			return repository.getRecordings(MetadataRecording.class).size();
+			return repository.getRecordings(MetadataRecording.class,true).size();
 		}
 
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (column == 0 ) {
-				return repository.getRecording(MetadataRecording.class,row).getName();
+				return repository.getRecording(MetadataRecording.class,row,true).getName();
 			} else if (column == 1 ) {
-				return repository.getRecording(MetadataRecording.class,row).getRegexp();
+				return repository.getRecording(MetadataRecording.class,row,true).getRegexp();
 			} else if (column == 2 ) {
-				return repository.getRecording(MetadataRecording.class,row).getType();
+				return repository.getRecording(MetadataRecording.class,row,true).getType();
 			} else if (column == 3 ) {
-				logger.debug("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row)).getName());
-				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row)));
-				return source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row));
+				logger.debug("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row,true)).getName());
+				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row,true)));
+				return source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row,true));
 			}
 			else return 0;
 		}
@@ -278,7 +278,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		public void setValueAt(Object value, int row, int column) {
 			if (column == 3 && source != null) {
 				logger.debug("setValueAt calls setActiveRecording");
-				source.toggleActiveRecording(repository.getRecording(MetadataRecording.class, row));
+				source.toggleActiveRecording(repository.getRecording(MetadataRecording.class, row,true));
 				fireTableCellUpdated(row, column);
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
