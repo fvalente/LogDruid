@@ -25,7 +25,7 @@
     <!--Then the definition of logger, only the definition of logger and the introduction of the appender, the appender will take effect-->
     <loggers>
         <!--Create a default root logger-->
-        <root level="ERROR">
+        <root level="INFO">
             <appender-ref ref="RollingFile"/>
             <appender-ref ref="Console"/>
         </root>
