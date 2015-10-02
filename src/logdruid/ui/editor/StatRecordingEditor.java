@@ -87,6 +87,7 @@ public class StatRecordingEditor extends JPanel {
 	private StatRecording recording;
 	Document doc;
 	JCheckBox chckbxActive;
+	JCheckBox chckbxCaseSensitive;
 	JTextPane textPane;
 
 	// private JList recordingList;
@@ -132,7 +133,7 @@ public class StatRecordingEditor extends JPanel {
 			{
 				JPanel panel_1a = new JPanel();
 				topPanel.add(panel_1a, BorderLayout.NORTH);
-				panel_1a.setLayout(new GridLayout(0, 3, 0, 0));
+				panel_1a.setLayout(new GridLayout(0, 4, 5, 2));
 					panel_1a.add(txtName);
 				{
 
@@ -200,17 +201,19 @@ public class StatRecordingEditor extends JPanel {
 					}
 				}
 				{
-					JCheckBox chckbxNewCheckBox = new JCheckBox("incident only");
-					panel_1a.add(chckbxNewCheckBox);
-				}
-				{
-					JCheckBox chckbxMultiLine = new JCheckBox("multi line");
-					panel_1a.add(chckbxMultiLine);
-				}
-				{
 					chckbxActive = new JCheckBox("active");
 					chckbxActive.setSelected(re.getIsActive());
 					panel_1a.add(chckbxActive);
+				}
+				{
+					chckbxCaseSensitive = new JCheckBox("case sensitive");
+					chckbxCaseSensitive.setSelected(re.isCaseSensitive());
+					panel_1a.add(chckbxCaseSensitive);
+				}
+				{
+					JCheckBox chckbxMultiLine = new JCheckBox("multi line");
+					chckbxMultiLine.setEnabled(false);
+					panel_1a.add(chckbxMultiLine);
 				}
 			}
 			panel2 = new JPanel();
@@ -292,7 +295,7 @@ public class StatRecordingEditor extends JPanel {
 													if (recording == null){
 													logger.info("RecordingEditor - ok 1");
 													Recording r = new StatRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
-															.isSelected(), rIs);
+															.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 													repository.addRecording(r);
 													logger.info("RecordingEditor - ok 1");
 													if (newRecordingList.getClass()==RecordingList.class){
@@ -305,7 +308,7 @@ public class StatRecordingEditor extends JPanel {
 												}}} else {
 													int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 													((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-															chckbxActive.isSelected(), rIs);
+															chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 													((RecordingList) newRecordingList).model.fireTableDataChanged();
 													logger.info("RecordingEditor - row Updated");
 													((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -323,7 +326,7 @@ public class StatRecordingEditor extends JPanel {
 												 else {
 													int selectedRow = ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow())) : -1);
 													((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-															chckbxActive.isSelected(), rIs);
+															chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 													logger.info("RecordingEditor - row Updated");
 													((StatRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 													((StatRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);

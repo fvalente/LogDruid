@@ -453,7 +453,7 @@ public class SourcePanel extends JPanel {
 							Source src = (Source) it.next();
 
 							String s1 = (src).getSourcePattern();
-							matcher = patternCache.getPattern(s1).matcher(FileListing.getPath(repository, listOfFiles.get(i)));
+							matcher = patternCache.getPattern(s1,true).matcher(FileListing.getPath(repository, listOfFiles.get(i)));
 							if (logger.isDebugEnabled())
 								logger.debug("matching with pattern: " + s1);
 							if (logger.isDebugEnabled())

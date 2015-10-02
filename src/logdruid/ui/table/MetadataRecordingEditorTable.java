@@ -155,7 +155,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 		try {
 			logger.info("theLine: " + examplePane.getText());
 			logger.info("patternString: " + patternString);
-			matcher = patternCache.getPattern(patternString).matcher(examplePane.getText());
+			matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(examplePane.getText());
 			Highlighter h = examplePane.getHighlighter();
 			h.removeAllHighlights();
 			int currIndex = 0;

@@ -196,7 +196,7 @@ public class RecordingList extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
-				Recording re = new MetadataRecording("name", "regex", "example line", "", true, null);
+				Recording re = new MetadataRecording("name", "regex", "example line", "", true, true, null);
 				recEditor = new MetadataRecordingEditor(thiis, repository, "the line", "regex",
 						(MetadataRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
@@ -225,7 +225,7 @@ public class RecordingList extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
-				Recording re = new StatRecording("name", "regex", "example line", "", true, null);
+				Recording re = new StatRecording("name", "regex", "example line", "", true, true, null);
 				recEditor = new StatRecordingEditor(thiis, repository, "the line", "regex", (StatRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
@@ -243,7 +243,7 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				logger.info("table.getRowCount()" + table.getRowCount());
 				jPanelDetail.removeAll();
-				Recording re = new EventRecording("name", "regex", "example line", "", true, null);
+				Recording re = new EventRecording("name", "regex", "example line", "", true, true, null);
 				recEditor = new EventRecordingEditor(thiis, repository, "the line", "regex", (EventRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
@@ -260,7 +260,7 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				logger.info("table.getRowCount()" + table.getRowCount());
 				jPanelDetail.removeAll();
-				Recording re = new ReportRecording("name", "regex", "example line", "", true, null,"histogram");
+				Recording re = new ReportRecording("name", "regex", "example line", "", true, null,"histogram",true);
 				recEditor = new ReportRecordingEditor(thiis, repository, "the line", "regex", (ReportRecording) re, "histogram");
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);

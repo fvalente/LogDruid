@@ -447,7 +447,7 @@ public class DataMiner {
 					}
 					Map.Entry me = (Map.Entry) recMatchIte.next();
 					Recording rec = (Recording) me.getKey();
-					matcher = patternCache.getPattern((String) (rec.getRegexp())).matcher(line);
+					matcher = patternCache.getPattern((String) (rec.getRegexp()),rec.isCaseSensitive()).matcher(line);
 					if (matcher.find()) {
 						Boolean isStatRecording = classCache.getClass(rec).equals(StatRecording.class);
 						if (stats) {
@@ -460,7 +460,7 @@ public class DataMiner {
 						// logger.info("1**** matched: " + line);
 						ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 						int cnt = 0;
-						matcher2 = patternCache.getPattern((String) me.getValue()).matcher(line);
+						matcher2 = patternCache.getPattern((String) me.getValue(),rec.isCaseSensitive()).matcher(line);
 						if (matcher2.find()) {
 							if (stats) {
 								if (isStatRecording) {
@@ -963,7 +963,7 @@ public class DataMiner {
 							// Pattern pattern = Pattern.compile(patternString +
 							// ".*");
 							// Matcher matcher = pattern.matcher(fileName);
-							matcher = patternCache.getPattern(patternString + ".*").matcher(
+							matcher = patternCache.getPattern(patternString + ".*",rec.isCaseSensitive()).matcher(
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(fileName.getFile().getCanonicalPath()).toURI()).getPath());
 							// ***
 							if (matcher.find()) {
@@ -1150,7 +1150,7 @@ public class DataMiner {
 					if (listOfFiles.get(i).isFile()) {
 						String s1 = source.getSourcePattern();
 						try {
-							Matcher matcher = patternCache.getPattern(s1).matcher(
+							Matcher matcher = patternCache.getPattern(s1,true).matcher(
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
 
 							if (logger.isDebugEnabled()) {
@@ -1270,13 +1270,13 @@ public class DataMiner {
 								while (recMatchIte.hasNext()) {
 									Map.Entry me = (Map.Entry) recMatchIte.next();
 									Recording rec = (Recording) me.getKey();
-									matcher = patternCache.getPattern((String) (rec.getRegexp())).matcher(line);
+									matcher = patternCache.getPattern((String) (rec.getRegexp()),rec.isCaseSensitive()).matcher(line);
 									if (matcher.find()) {
 										// logger.info("1**** matched: " +
 										// line);
 										ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 										int cnt = 0;
-										matcher2 = patternCache.getPattern((String) me.getValue()).matcher(line);
+										matcher2 = patternCache.getPattern((String) me.getValue(),rec.isCaseSensitive()).matcher(line);
 										if (matcher2.find()) {
 
 											DataVault.addMatchedLines(rec, line);

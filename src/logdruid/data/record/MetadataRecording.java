@@ -25,11 +25,12 @@ public class MetadataRecording extends Recording {
 		return "Metadata";
 	}
 
-	public MetadataRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
+	public MetadataRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Boolean _caseSensitive, ArrayList _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
 		setIsActive(_isActive);
+		setCaseSensitive(_caseSensitive);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
 		super.id = generate();
@@ -56,11 +57,12 @@ public class MetadataRecording extends Recording {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, ArrayList _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Boolean _caseSensitive, ArrayList _recordingItem) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
 		setIsActive(_isActive);
+		setCaseSensitive(_caseSensitive);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
 	}
@@ -75,11 +77,12 @@ public class MetadataRecording extends Recording {
 		String _dateFormat = getDateFormat().toString();
 
 		Boolean _isActive = getIsActive().booleanValue();
+		Boolean _caseSensitive = isCaseSensitive();
 		if (getRecordingItem() != null) {
 			_recordingItem = (ArrayList) getRecordingItem().clone();
 		}
 		
-		MetadataRecording eR=new MetadataRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem);
+		MetadataRecording eR=new MetadataRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _caseSensitive, _recordingItem);
 		eR.setDateFormatID(this.getDateFormatID());
 		return eR;
 		

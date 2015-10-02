@@ -169,7 +169,7 @@ public class ReportRecordingEditorTable extends JPanel {
 			String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
 			if (lines.length>=1){
 			for (int i=0; i<lines.length ; i++){
-				matcher = patternCache.getPattern(patternString).matcher(lines[i]);
+				matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(lines[i]);
 			if (matcher.find()) {
 				// int currIndex = 0;
 				// doc.insertString(doc.getLength(),line+"\n", null);

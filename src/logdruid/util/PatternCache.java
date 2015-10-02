@@ -21,9 +21,13 @@ public class PatternCache {
 //	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private static Map<String, Pattern> pattern = new HashMap<String, Pattern>();
 
-	public Pattern getPattern(String regexp) {
+	public Pattern getPattern(String regexp, boolean caseSensitive) {
 		if (!pattern.containsKey(regexp)) {
-			pattern.put(regexp, Pattern.compile(regexp));
+			if (caseSensitive){
+				pattern.put(regexp, Pattern.compile(regexp));
+			}else{
+				pattern.put(regexp, Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));	
+			}
 		}
 		return pattern.get(regexp);
 	}

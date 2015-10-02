@@ -28,6 +28,7 @@ public abstract class Recording {
 	private String exampleLine;
 	private Boolean isActive;
 	protected String id;
+	private Boolean caseSensitive;
 	private String dateFormatID;
 
 	public String getId() {
@@ -70,12 +71,22 @@ public abstract class Recording {
 		this.exampleLine = exampleLine;
 	}
 
-	// public abstract Recording duplicate();
-	@SuppressWarnings("rawtypes")
 	public abstract String getType();
 
 	public Boolean getIsActive() {
 		return isActive;
+	}
+
+	public boolean isCaseSensitive() {
+		if (caseSensitive!=null){
+			return caseSensitive;
+		}else {
+			return true;
+		}
+	}
+
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
 	}
 
 	public void setIsActive(Boolean isActive) {

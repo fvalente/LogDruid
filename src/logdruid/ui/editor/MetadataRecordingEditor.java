@@ -92,6 +92,7 @@ public class MetadataRecordingEditor extends JPanel {
 	private MetadataRecording recording;
 	Document doc;
 	JCheckBox chckbxActive;
+	JCheckBox chckbxCaseSensitive;
 
 	// private JList recordingList;
 
@@ -145,7 +146,7 @@ public class MetadataRecordingEditor extends JPanel {
 						{
 							panel_1 = new JPanel();
 							panel.add(panel_1, BorderLayout.NORTH);
-							panel_1.setLayout(new GridLayout(0, 3, 0, 0));
+							panel_1.setLayout(new GridLayout(0, 3, 5, 2));
 								txtName = new JTextField();
 								panel_1.add(txtName);
 								txtName.setText("name");
@@ -209,6 +210,11 @@ public class MetadataRecordingEditor extends JPanel {
 								chckbxActive = new JCheckBox("active");
 								chckbxActive.setSelected(true);
 								panel_1.add(chckbxActive);
+							}
+							{
+								chckbxCaseSensitive = new JCheckBox("case sensitive");
+								chckbxCaseSensitive.setSelected(re.isCaseSensitive());
+								panel_1.add(chckbxCaseSensitive);
 							}
 						}
 						{
@@ -286,7 +292,7 @@ public class MetadataRecordingEditor extends JPanel {
 															if (recording == null){
 															logger.info("RecordingEditor - ok 1");
 															Recording r = new MetadataRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
-																	.isSelected(), rIs);
+																	.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 															repository.addRecording(r);
 															logger.info("RecordingEditor - ok 1");
 															if (newRecordingList.getClass()==RecordingList.class){
@@ -299,7 +305,7 @@ public class MetadataRecordingEditor extends JPanel {
 														}}} else {
 															int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 															((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-																	chckbxActive.isSelected(), rIs);
+																	chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 															((RecordingList) newRecordingList).model.fireTableDataChanged();
 															logger.info("RecordingEditor - row Updated");
 															((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -317,7 +323,7 @@ public class MetadataRecordingEditor extends JPanel {
 														 else {
 															int selectedRow = ((((MetadataRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((MetadataRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 															((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-																	chckbxActive.isSelected(), rIs);
+																	chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 															logger.info("RecordingEditor - row Updated");
 															((MetadataRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 															((MetadataRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);

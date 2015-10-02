@@ -94,6 +94,7 @@ public class ReportRecordingEditor extends JPanel {
 	private ReportRecording recording;
 	Document doc;
 	JCheckBox chckbxActive;
+	JCheckBox chckbxCaseSensitive;
 	private JLabel nameLabel;
 	private JLabel regularExpressionLabel;
 	private JLabel dateFormatLabel;
@@ -148,7 +149,7 @@ public class ReportRecordingEditor extends JPanel {
 					{
 						JPanel panel_1a = new JPanel();
 						panelTop.add(panel_1a, BorderLayout.NORTH);
-						panel_1a.setLayout(new GridLayout(0, 3, 0, 0));
+						panel_1a.setLayout(new GridLayout(0, 4, 5, 2));
 						{
 							JPanel namePanel = new JPanel();
 							panel_1a.add(namePanel);
@@ -163,10 +164,6 @@ public class ReportRecordingEditor extends JPanel {
 								namePanel.add(txtName);
 								txtName.setText("name");
 								txtName.setColumns(5);
-							}
-							{
-								JPanel panel_1 = new JPanel();
-								namePanel.add(panel_1, BorderLayout.EAST);
 							}
 						}
 						{
@@ -216,10 +213,6 @@ public class ReportRecordingEditor extends JPanel {
 								txtRegularExp.setText(regex);
 								txtRegularExp.setColumns(10);
 							}
-							{
-								JPanel panel_1 = new JPanel();
-								regularExpressionPanel.add(panel_1, BorderLayout.EAST);
-							}
 						}
 						{
 							JPanel panel_2 = new JPanel();
@@ -253,18 +246,24 @@ public class ReportRecordingEditor extends JPanel {
 							}
 						}
 						{
+							chckbxActive = new JCheckBox("active");
+							chckbxActive.setSelected(true);
+							panel_1a.add(chckbxActive);
+						}
+						{
 							comboBox = new JComboBox();
 							comboBox.setModel(new DefaultComboBoxModel(new String[] {"histogram", "top100","sum"}));
 							panel_1a.add(comboBox);
 						}
 						{
-							JCheckBox chckbxMultiLine = new JCheckBox("multi line");
-							panel_1a.add(chckbxMultiLine);
+							chckbxCaseSensitive = new JCheckBox("case sensitive");
+							chckbxCaseSensitive.setSelected(re.isCaseSensitive());
+							panel_1a.add(chckbxCaseSensitive);
 						}
 						{
-							chckbxActive = new JCheckBox("active");
-							chckbxActive.setSelected(true);
-							panel_1a.add(chckbxActive);
+							JCheckBox chckbxMultiLine = new JCheckBox("multi line");
+							chckbxMultiLine.setEnabled(false);
+							panel_1a.add(chckbxMultiLine);
 						}
 					}
 					{
@@ -334,7 +333,7 @@ public class ReportRecordingEditor extends JPanel {
 												if (recording == null){
 												logger.info("RecordingEditor - ok 1");
 												Recording r = new ReportRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
-														.isSelected(), rIs,comboBox.getSelectedItem().toString());
+														.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												repository.addRecording(r);
 												logger.info("RecordingEditor - ok 1");
 												if (newRecordingList.getClass()==RecordingList.class){
@@ -348,7 +347,7 @@ public class ReportRecordingEditor extends JPanel {
 												int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 												//int selectedRow = ((((ReportPanel) newRecordingList).table.getSelectedRow() != -1) ? ((ReportPanel) newRecordingList).table.convertRowIndexToModel(((ReportPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((ReportRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString());
+														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												((RecordingList) newRecordingList).model.fireTableDataChanged();
 												logger.info("RecordingEditor - row Updated");
 												((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -367,7 +366,7 @@ public class ReportRecordingEditor extends JPanel {
 											 else {
 												int selectedRow = ((((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((ReportRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString());
+														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												logger.info("RecordingEditor - NEVER HERE row Updated");
 												((ReportRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 												((ReportRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
