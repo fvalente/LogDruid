@@ -10,17 +10,16 @@
  *******************************************************************************/
 package logdruid.data;
 
+import logdruid.data.record.RecordingItem;
+
 import org.jfree.data.time.FixedMillisecond;
 import org.jfree.data.time.TimeSeries;
 
 public class ExtendedTimeSeries {
 
 	TimeSeries timeSeries;
+	RecordingItem recordingItem;
 	int[] stat={0,0};
-
-	public ExtendedTimeSeries() {
-		// TODO Auto-generated constructor stub
-	}
 
 	public ExtendedTimeSeries(TimeSeries ts, int[] stats) {
 		stat = stats;
@@ -28,8 +27,9 @@ public class ExtendedTimeSeries {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ExtendedTimeSeries(String name, Class<FixedMillisecond> class1) {
-		timeSeries = new TimeSeries(name, class1);
+	public ExtendedTimeSeries(RecordingItem recItem2, Class<FixedMillisecond> class1) {
+		timeSeries = new TimeSeries(recItem2.getName(), class1);
+		recordingItem=recItem2;
 		// TODO Auto-generated constructor stub
 	}
 
@@ -47,6 +47,10 @@ public class ExtendedTimeSeries {
 
 	public void setStat(int[] stat) {
 		this.stat = stat;
+	}
+	
+	public RecordingItem getRecordingItem() {
+		return recordingItem;
 	}
 
 }

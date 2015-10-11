@@ -32,6 +32,8 @@ public class Preferences {
 		if (prefData ==null || prefData.preferences==null) {
 			prefData= new PreferenceData();
 			logger.debug(prefData+";"+prefData.preferences);
+			Persister.save(new File("Preference.xml"), (PreferenceData) prefData);
+			logger.info("Created Preference.xml");
 		}
 		getPreferences();
 	}

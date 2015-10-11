@@ -541,7 +541,7 @@ public class DataMiner {
 												if (statMap.containsKey(recItem2.getName())) {
 													ts = statMap.get(recItem2.getName());
 												} else {
-													ts = new ExtendedTimeSeries(recItem2.getName(), FixedMillisecond.class);
+													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
 													if (logger.isDebugEnabled())
 														logger.debug("5**** Adding record to Map: " + recItem2.getName());
 												}
@@ -586,7 +586,7 @@ public class DataMiner {
 												if (eventMap.containsKey(recItem2.getName())) {
 													ts = eventMap.get(recItem2.getName());
 												} else {
-													ts = new ExtendedTimeSeries(recItem2.getName(), FixedMillisecond.class);
+													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
 													if (logger.isDebugEnabled())
 														logger.debug("5**** Adding record to Map: " + recItem2.getName());
 												}

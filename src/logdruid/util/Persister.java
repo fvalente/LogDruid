@@ -14,11 +14,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Persister {
-
+	private static Logger logger = Logger.getLogger(Persister.class.getName());
 	static XStream xstream = new XStream(new StaxDriver());
 
 	public static void save(File file, Object object) {
@@ -32,7 +35,7 @@ public class Persister {
 			fos.write(bytes);
 
 		} catch (Exception e) {
-			System.err.println("Error in XML Write: " + e.getMessage());
+			logger.info("Error in XML Write: " + e.getMessage());
 		} finally {
 			if (fos != null) {
 				try {
@@ -57,7 +60,7 @@ public class Persister {
 			 */
 
 		} catch (Exception e) {
-			System.err.println("Error in XML Write: " + e.getMessage());
+			logger.info("No existing preference file: " + e.getMessage());
 		} finally {
 			if (fos != null) {
 				try {

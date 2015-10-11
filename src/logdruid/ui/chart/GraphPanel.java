@@ -91,6 +91,7 @@ import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.record.Recording;
+import logdruid.data.record.RecordingItem;
 import logdruid.ui.MainFrame;
 import logdruid.ui.WrapLayout;
 import logdruid.util.AlphanumComparator;
@@ -151,7 +152,7 @@ public class GraphPanel extends JPanel {
 	final Font oldSmallFont = chartTheme.getSmallFont();
 
 	final DecimalFormat form = new DecimalFormat("#,##0.00");
-	ArrayList<String> disabledSeries;
+	//ArrayList<String> disabledSeries;
 	private JPanel panel_2;
 	// new DecimalFormat("00.0");
 	static MainFrame mainFrame1;
@@ -293,7 +294,6 @@ public class GraphPanel extends JPanel {
 		// scrollPane.set trying to replace scroll where it was
 		JCheckBox relativeCheckBox = (JCheckBox) panel_2.getComponent(5);
 		startTime = System.currentTimeMillis();
-	//	Map<Source, Map<String, MineResult>>
 		Map<Source, Map<String, MineResult>> treeMap=new TreeMap<Source, Map<String, MineResult>>(mineResultSet.mineResults) ;
 		Iterator mineResultSetIterator = treeMap.entrySet().iterator();
 		int ite=0;
@@ -436,6 +436,7 @@ public class GraphPanel extends JPanel {
 								axis4.setTickLabelPaint(colors[count]);
 								}
 								plot1.setRangeAxis(count, axis4);
+								axis4.setVisible(((RecordingItem)ts.getRecordingItem()).isShow());
 								plot1.setForegroundAlpha(0.3f);
 								if (ts.getTimeSeries().getMaxY()!=ts.getTimeSeries().getMinY()){
 								plot1.setDataset(count, dataset);
@@ -447,7 +448,8 @@ public class GraphPanel extends JPanel {
 								if (count<colors.length){
 								renderer.setSeriesPaint(0, colors[count]);
 								}
-								renderer.setSeriesVisible(0, !cd.disabledSeries.contains(me.toString()));
+								logger.debug(((RecordingItem)ts.getRecordingItem()).getName());
+								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow()); //!cd.disabledSeries.contains(me.toString()
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								plot1.setRenderer(count, renderer);
 								int hits = 0; // ts.getStat()[1]
@@ -457,14 +459,14 @@ public class GraphPanel extends JPanel {
 								//	matchs= ((ExtendedTimeSeries) statMap.get(me)).getStat()[0];
 								}
 								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.toString() + "(" + hits + ")", 0));
-								jcb.setSelected(!mainFrame1.cd.disabledSeries.contains(me.toString()));
+								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
 								if (count<colors.length){
 								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));
 								}
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
-								logger.debug(me.toString()+", "+mainFrame1.cd.disabledSeries);
+								logger.debug(me.toString()+", "+((RecordingItem)ts.getRecordingItem()).isShow());
 					//			if (MainFrame.cd.disabledSeries.contains(me.toString())){
 					//				jcb.setSelected(false);
 					//			}
@@ -483,9 +485,10 @@ public class GraphPanel extends JPanel {
 							while (eventMapIterator.hasNext()) {
 								
 							//	HistogramDataset histoDataSet=new HistogramDataset();
-								
+
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
 								Map.Entry me = (Map.Entry) eventMapIterator.next();
+								ExtendedTimeSeries ts = (ExtendedTimeSeries) me.getValue();
 								// if (dataset.getEndXValue(series, item))
 								if (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY() > 0)
 									dataset.addSeries(((ExtendedTimeSeries) me.getValue()).getTimeSeries());
@@ -510,7 +513,7 @@ public class GraphPanel extends JPanel {
 								axis4.setLabelPaint(colors[count]);
 								axis4.setTickLabelPaint(colors[count]);
 								}
-
+								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
 								// domainAxis.setLowerMargin(0.001);
 								// domainAxis.setUpperMargin(0.0);
 								//plot1.setRangeCrosshairLockedOnData(true);
@@ -538,7 +541,7 @@ public class GraphPanel extends JPanel {
 								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
 								}
 								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
-								jcb.setSelected(true);
+								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
 								if (count<colors.length){
@@ -701,7 +704,7 @@ public class GraphPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (!mainFrame1.cd.disabledSeries.contains(name)){
+		/*	if (!mainFrame1.cd.disabledSeries.contains(name)){
 				if (logger.isDebugEnabled()){
 					logger.debug("add "+ name);
 				}
@@ -714,15 +717,14 @@ public class GraphPanel extends JPanel {
 			}
 			if (logger.isDebugEnabled()){
 				logger.debug("cd.disabledSeries: "+ mainFrame1.cd.disabledSeries );
-			}
+			}*/
 		//	renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
 		//	localAxis.setVisible(!localAxis.isVisible());
 			Component[] comp=jpanel.getComponents();
 			int i=0;
-			while (i<comp.length){
-				logger.debug(comp[i].toString());
+			while (i<comp.length-1){
 				if (comp[i].getClass().equals(JPanel.class)){
-				//	logger.debug("is Jpanel " + ((JPanel)comp[i]).getName() + " and " + ((JPanel)comp[i]).getComponent(1));
+				//	logger.info(i+" / "+comp.length+ " is Jpanel " + ((JPanel)comp[i]).getName() + " and " + ((JPanel)comp[i]).getComponent(1));
 					if (((JPanel)comp[i]).getComponent(1).getClass().equals(ChartPanel.class)){
 				//		logger.debug("is ChartPanel");
 					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxisCount();
@@ -739,9 +741,6 @@ public class GraphPanel extends JPanel {
 
 						if (((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
 							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
-							if (logger.isDebugEnabled()){
-							logger.debug("cd.disabledSeries: "+ cd.disabledSeries );
-							}
 							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
 						}
 						i2++;
