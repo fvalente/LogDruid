@@ -84,8 +84,8 @@ public class DataMiner {
 	static long startTime = 0;
 	static final Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Long>>>();
 	static final Map<Source, Map<Recording, Map<List<Object>, Double>>> sumReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Double>>>();
-	
 	static final Map<Source, Map<Recording, SortedMap<Double,List<Object>>>> top100Report = new ConcurrentHashMap<Source, Map<Recording, SortedMap<Double,List<Object>>>>();;
+	
 	public static MineResultSet gatherMineResultSet(final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
 		int ini = Integer.parseInt(test);
@@ -105,6 +105,7 @@ public class DataMiner {
 		} catch (Exception e) {
 			return null;
 		}
+		
 		// if (logger.isEnabledFor(Level.INFO))
 		// logger.info("ArrayList sourceFileGroup" + sourceFileGroup);
 		Iterator<Source> sourceIterator2 = repo.getSources().iterator();
@@ -200,6 +201,8 @@ public class DataMiner {
 		Map<String, long[]> timingStatsMap = new HashMap<String, long[]>();
 		Map<String, Map<Date, FileLine>> fileLine = new HashMap<String, Map<Date, FileLine>>();
 		Collection<Callable<FileMineResult>> tasks = new ArrayList<Callable<FileMineResult>>();
+		
+		final Map<Recording, String> recMatch1 = getRegexp(repo, source); 
 
 		ArrayList<Object> mapArrayList;
 		mapArrayList = new ArrayList<>();
@@ -211,7 +214,7 @@ public class DataMiner {
 			tasks.add(new Callable<FileMineResult>() {
 				public FileMineResult call() throws Exception {
 					logger.debug("file mine on " + fileRec);
-					return fileMine(fileRec, repo, source, stats, timings, matches, mainFrame);
+					return fileMine(fileRec, recMatch1, repo, source, stats, timings, matches, mainFrame);
 				}
 
 			});
@@ -376,7 +379,7 @@ public class DataMiner {
 	}
 
 	// handle gathering for a single file
-	public static FileMineResult fileMine(FileRecord fileRecord, Repository repo, Source source, boolean stats, boolean timings, boolean matches,
+	public static FileMineResult fileMine(FileRecord fileRecord, Map<Recording, String> recMatch1, Repository repo, Source source, boolean stats, boolean timings, boolean matches,
 			final MainFrame mainFrame) {
 		ExtendedTimeSeries ts = null;
 		PatternCache patternCache = new PatternCache();
@@ -400,7 +403,7 @@ public class DataMiner {
 		long match1 = 0;
 		long timing0 = 0;
 		long timing1 = 0;
-		Map<Recording, String> recMatch = new HashMap<Recording, String>();
+		Map<Recording, String> recMatch = new HashMap<Recording, String>(recMatch1);
 		Map<String, ExtendedTimeSeries> statMap = new HashMap<String, ExtendedTimeSeries>();
 		Map<String, ExtendedTimeSeries> eventMap = new HashMap<String, ExtendedTimeSeries>();
 		Map<String, Map<Date, FileLine>> RIFileLineDateMap = new HashMap<String, Map<Date, FileLine>>();
@@ -433,7 +436,7 @@ public class DataMiner {
 		buf1st = new BufferedReader(flstr);
 		String line;
 		try {
-			recMatch = getRegexp(repo, source);
+			//recMatch = getRegexp(repo, source);
 			int lineCount = 1;
 			while ((line = buf1st.readLine()) != null) {
 				// check against one Recording pattern at a tim
@@ -956,10 +959,10 @@ public class DataMiner {
 						// logger.info("file: "+fileName);
 						try {
 
-							if (logger.isDebugEnabled())
+							if (logger.isDebugEnabled()){
 								logger.debug("patternString: " + patternString);
-							if (logger.isDebugEnabled())
 								logger.debug("filename: " + fileName);
+							}
 							matcher = patternCache.getPattern(patternString + ".*",rec.isCaseSensitive()).matcher(
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(fileName.getFile().getCanonicalPath()).toURI()).getPath());
 							if (matcher.find()) {
@@ -1058,8 +1061,8 @@ public class DataMiner {
 							sb.append(stAfter);				
 					}
 					recMatch.put(rec, sb.toString());
-					 logger.info("2**** regexp: " +rec.getRegexp());
 					if (logger.isDebugEnabled()) {
+						logger.debug("2**** regexp: " +rec.getRegexp());
 						logger.debug("Pattern: " + sb.toString());
 					}
 				}
