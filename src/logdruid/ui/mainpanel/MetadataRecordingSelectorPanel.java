@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -77,8 +77,6 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	public static JTable table;
 	JPanel jPanelDetail;
 	boolean DEBUG = false;
-	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
-	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static ArrayList records = null;
 	private String[] header = { "name", "regexp", "type", "active" };

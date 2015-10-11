@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -72,8 +72,6 @@ public class DateEditor extends JPanel {
 	private JTable table;
 	JPanel jPanelDetail;
 	boolean DEBUG = false;
-	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
-	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static ArrayList<DateFormat> dateFormats = null;
 	private String[] header = { "name", "pattern", "FastDateFormat" };
@@ -131,7 +129,7 @@ public class DateEditor extends JPanel {
 					 * repository); jPanelDetail.removeAll();
 					 */
 					// jPanelDetail.add(recEditor, gbc_jPanelDetail);
-					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)).clone();
 					if (df != null) {
 						textFieldName.setText((String) df.getName());
 						textFieldPattern.setText((String) df.getPattern());

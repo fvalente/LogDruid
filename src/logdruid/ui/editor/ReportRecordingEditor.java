@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -58,6 +58,7 @@ import logdruid.ui.mainpanel.ReportRecordingSelectorPanel;
 import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.ui.table.ReportRecordingEditorTable;
 import logdruid.util.DataMiner;
+import logdruid.util.PatternCache;
 
 import javax.swing.SwingConstants;
 import javax.swing.event.CaretListener;
@@ -181,10 +182,10 @@ public class ReportRecordingEditor extends JPanel {
 								txtRegularExp.addCaretListener(new CaretListener() {
 									public void caretUpdate(CaretEvent e) {
 										doc = examplePane.getDocument();
-										
+										PatternCache patternCache = new PatternCache();
 										Highlighter h = examplePane.getHighlighter();
 										h.removeAllHighlights();
-										Pattern pattern = Pattern.compile(txtRegularExp.getText());
+										Pattern pattern = patternCache.getPattern(txtRegularExp.getText(),re.isCaseSensitive());
 										String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
 										int currIndex = 0;
 										if (lines.length>=1){
@@ -204,7 +205,7 @@ public class ReportRecordingEditor extends JPanel {
 													e1.printStackTrace();
 												}
 											}
-											logger.info("currIndex: "+currIndex+",length: "+lines[i].length());
+											logger.debug("currIndex: "+currIndex+",length: "+lines[i].length());
 											currIndex +=lines[i].length()+1 ;
 										}
 										}

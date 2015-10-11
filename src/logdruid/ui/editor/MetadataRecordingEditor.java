@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -61,6 +61,7 @@ import logdruid.ui.mainpanel.StatRecordingSelectorPanel;
 import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.ui.table.MetadataRecordingEditorTable;
 import logdruid.util.DataMiner;
+import logdruid.util.PatternCache;
 
 import javax.swing.SwingConstants;
 import javax.swing.event.CaretListener;
@@ -155,9 +156,10 @@ public class MetadataRecordingEditor extends JPanel {
 								txtRegularExp = new JTextField();
 								txtRegularExp.addCaretListener(new CaretListener() {
 									public void caretUpdate(CaretEvent e) {
+										PatternCache patternCache= new PatternCache();
 										doc = examplePane.getDocument();
 			
-										Pattern pattern = Pattern.compile(txtRegularExp.getText());
+										Pattern pattern = patternCache.getPattern(txtRegularExp.getText(),re.isCaseSensitive());
 										Matcher matcher = pattern.matcher(examplePane.getText());
 										Highlighter h = examplePane.getHighlighter();
 										h.removeAllHighlights();

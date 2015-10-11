@@ -16,8 +16,10 @@ public class RecordingItem {
 	protected String before;
 	protected String after;
 	protected String type;
+	protected String inside;
 	protected String value;
 	protected boolean selected;
+	protected boolean show;
 
 	public String getBefore() {
 		return before;
@@ -43,7 +45,7 @@ public class RecordingItem {
 		this.processingType = processingType;
 	}
 
-	public RecordingItem(String name, String before, String type, String processingType, String after, Boolean isSelected, String value) {
+	public RecordingItem(String name, String before, String type, String processingType, String insideRegex, String after, Boolean isSelected, Boolean show, String value) {
 		this.name = name;
 		this.before = before;
 		this.after = after;
@@ -51,17 +53,21 @@ public class RecordingItem {
 		this.type = type;
 		this.selected = isSelected;
 		this.processingType = processingType;
+		this.inside=insideRegex;
+		this.show=show;
 		// super(name, before, type, after, isSelected, value);
 		// TODO Auto-generated constructor stub
 	}
 
-	public RecordingItem(String name, String before, String type, String after, Boolean isSelected, String value) {
+	public RecordingItem(String name, String before, String type, String insideRegex, String after, Boolean isSelected, Boolean show, String value) {
 		this.name = name;
 		this.before = before;
 		this.after = after;
 		this.value = value;
 		this.type = type;
 		this.selected = isSelected;
+		this.inside=insideRegex;
+		this.show=show;
 	}
 
 	public String getName() {
@@ -95,5 +101,23 @@ public class RecordingItem {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+
+	public boolean isShow() {
+		return show;
+	}
+
+	public void setShow(boolean show) {
+		this.show = show;
+	}
+
+	public String getInside() {
+		return inside;
+	}
+
+	public void setInside(String _inside) {
+		this.inside = _inside;
+	}
+	
+	
 
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -79,8 +79,6 @@ public class EventRecordingSelectorPanel extends JPanel {
 	JPanel jPanelDetail;
 	EventRecordingSelectorPanel thiis = this;
 	boolean DEBUG = false;
-	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
-	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static ArrayList records = null;
 	private String[] header = { "name", "regexp", "type", "active" };
@@ -172,37 +170,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 	private JPanel getEditor(Recording rec) {
 			return new EventRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 	}
-/*
-	public void reloadTable() {
-		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-		records = repository.getRecordings(EventRecording.class);
-		logger.info("reloadTable - nb records : " + records.size());
-		Iterator it = records.iterator();
-		int count = 0;
-		data.clear();
-		// this.repaint();
 
-		logger.info("reloadTable - 1");
-		while (it.hasNext()) {
-			Boolean bool = false;
-			Recording record = (Recording) it.next();
-			if (source != null) {
-				bool = source.isActiveRecordingOnSource(record);
-				logger.info("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
-			}
-			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), bool });
-			logger.info("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
-		}
-		// model.fireTableDataChanged();
-		logger.info("reloadTable - 2");
-		// this.repaint();
-		table.repaint();
-
-		logger.info("reloadTable - 3");
-		this.revalidate();
-
-	}
-*/
 	private void initColumnSizes(JTable theTable) {
 		TableColumn column = null;
 		Component comp = null;
@@ -321,8 +289,8 @@ public class EventRecordingSelectorPanel extends JPanel {
 	}
 
 
-	public void Add() {
+/*	public void Add() {
 		data.add(new Object[] { "", ".*", "long", Boolean.FALSE });
 		table.repaint();
-	}
+	}*/
 }

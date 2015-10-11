@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -52,12 +52,14 @@ import logdruid.data.DataVault;
 import logdruid.data.Repository;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.Recording;
+import logdruid.data.record.RecordingItem;
 import logdruid.ui.dialog.DateSelector;
 import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
 import logdruid.ui.mainpanel.RecordingList;
 import logdruid.ui.mainpanel.RecordingList.MyTableModel2;
 import logdruid.ui.table.EventRecordingEditorTable;
 import logdruid.util.DataMiner;
+import logdruid.util.PatternCache;
 
 import javax.swing.SwingConstants;
 import javax.swing.event.CaretListener;
@@ -176,10 +178,10 @@ public class EventRecordingEditor extends JPanel {
 								txtRegularExp.addCaretListener(new CaretListener() {
 									public void caretUpdate(CaretEvent e) {
 										doc = examplePane.getDocument();
-										
+										PatternCache patternCache = new PatternCache();
 										Highlighter h = examplePane.getHighlighter();
 										h.removeAllHighlights();
-										Pattern pattern = Pattern.compile(txtRegularExp.getText());
+										Pattern pattern = patternCache.getPattern(txtRegularExp.getText(),re.isCaseSensitive());
 										String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
 										int currIndex = 0;
 										if (lines.length>=1){
@@ -199,7 +201,7 @@ public class EventRecordingEditor extends JPanel {
 													e1.printStackTrace();
 												}
 											}
-											logger.info("currIndex: "+currIndex+",length: "+lines[i].length());
+											logger.debug("currIndex: "+currIndex+",length: "+lines[i].length());
 											currIndex +=lines[i].length()+1 ;
 										}
 										}
@@ -318,7 +320,8 @@ public class EventRecordingEditor extends JPanel {
 									okButton.setForeground(Color.BLUE);
 									okButton.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent arg0) {
-											ArrayList rIs = eventRecordingEditorTablePanel.getRecordingItems();
+											ArrayList<RecordingItem> rIs = eventRecordingEditorTablePanel.getRecordingItems();
+											logger.info(rIs.size());
 											if (newRecordingList.getClass()==RecordingList.class) {
 												if (recording == null){
 												logger.info("RecordingEditor - ok 1");
@@ -326,14 +329,13 @@ public class EventRecordingEditor extends JPanel {
 														.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 												repository.addRecording(r);
 												logger.info("RecordingEditor - ok 1");
-												if (newRecordingList.getClass()==RecordingList.class){
 													logger.info("RecordingEditor - ok 1");
 												if (((RecordingList) newRecordingList).model != null) {
 													logger.info("RecordingEditor - ok 1");
 													((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 													((RecordingList) newRecordingList).model.fireTableDataChanged();
 												
-											}}} else {
+											}} else {
 												int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 												//int selectedRow = ((((ReportPanel) newRecordingList).table.getSelectedRow() != -1) ? ((ReportPanel) newRecordingList).table.convertRowIndexToModel(((ReportPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
@@ -344,7 +346,6 @@ public class EventRecordingEditor extends JPanel {
 											}}
 											else
 											{
-												int rowCount = ((EventRecordingSelectorPanel) newRecordingList).table.getRowCount();
 												if (recording == null){
 													int selectedRow = ((((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((EventRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 												if (((EventRecordingSelectorPanel) newRecordingList).model != null) {
@@ -355,6 +356,8 @@ public class EventRecordingEditor extends JPanel {
 												}}
 											 else {
 												int selectedRow = ((((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
+												logger.info("selectedRow: " + selectedRow);
+												logger.info(((EventRecordingSelectorPanel) newRecordingList).table.getRowCount());
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 														chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 												logger.info("RecordingEditor - NEVER HERE row Updated");

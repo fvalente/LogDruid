@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -63,6 +63,14 @@ public class DateFormat {
 		this.pattern = pattern;
 	}
 
+	public DateFormat clone (){
+		String _name=name.toString();
+		String _pattern =pattern.toString();
+		String _dateFormat= dateFormat.toString();
+		
+		return new DateFormat(_name, _pattern, _dateFormat);
+	}
+	
 	public String getDateFormat() {
 		return dateFormat;
 	}

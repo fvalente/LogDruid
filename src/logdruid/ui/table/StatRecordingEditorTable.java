@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -30,9 +31,12 @@ import org.apache.log4j.Logger;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.text.ParseException;
+
 import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -46,18 +50,17 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;
+import logdruid.ui.NoProcessingRegexTableRenderer;
 import logdruid.util.DataMiner;
 import logdruid.util.PatternCache;
 
 public class StatRecordingEditorTable extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private boolean DEBUG = false;
-	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
-	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static ArrayList records = null;
 	private MyTableModel model;
-	private String[] header = { "Name", "Before", "Type", "After", "selected", "Value" };
+	private String[] header = { "Name", "Before", "Inside type", "Inside regex", "After", "Active", "Show", "Value" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	JTable table = null;
 	private String theLine = "";
@@ -74,7 +77,10 @@ public class StatRecordingEditorTable extends JPanel {
 
 		model = new MyTableModel(data, header);
 		table = new JTable(model);
-		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setFont(new Font("SansSerif", Font.PLAIN, 11));
+		// table.setPreferredScrollableViewportSize(new Dimension(500, 200));
+		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 		this.theLine = textPane.getText();
 		this.examplePane = textPane;
@@ -86,10 +92,12 @@ public class StatRecordingEditorTable extends JPanel {
 
 		// Fiddle with the Type column's cell editors/renderers.
 		setUpTypeColumn(table, table.getColumnModel().getColumn(2));
-
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(1));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(3));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(4));
 		// Add the scroll pane to this panel.
 		add(scrollPane);
-		Add();
+		//Add();
 		FixValues();
 
 	}
@@ -110,23 +118,26 @@ public class StatRecordingEditorTable extends JPanel {
 		initColumnSizes(table);
 		// Fiddle with the Type column's cell editors/renderers.
 		setUpTypeColumn(table, table.getColumnModel().getColumn(2));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(3));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(1));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(4));
+		
 		// Add the scroll pane to this panel.
 		add(scrollPane);
 
-		if (re.getClass() == EventRecording.class) {
-			records = ((EventRecording) re).getRecordingItem();
-		} else if (re.getClass() == StatRecording.class) {
+
 			records = ((StatRecording) re).getRecordingItem();
-		} else if (re.getClass() == MetadataRecording.class) {
-			records = ((MetadataRecording) re).getRecordingItem();
-		}
 		// Collections.sort(records);
 		if (records != null) {
-			Iterator it = records.iterator();
+			Iterator<RecordingItem> it = records.iterator();
 
 			while (it.hasNext()) {
-				RecordingItem rI = (RecordingItem) it.next();
-				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), rI.getAfter(), rI.isSelected(), "" });
+				RecordingItem rI = it.next();
+				String inside="";
+				inside= DataMiner.getMainRegex( rI.getType(),rI.getInside(), repo.getDateFormat(re.getDateFormatID())) ;
+				logger.info("inside: " + inside);
+				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), inside,rI.getAfter(), rI.isSelected(),rI.isShow(), "" });
+				logger.info("added: " + rI.getName());
 			}
 			FixValues();
 		}
@@ -136,11 +147,11 @@ public class StatRecordingEditorTable extends JPanel {
 		String patternString = "";
 		Matcher matcher;
 		PatternCache patternCache=new PatternCache();
-		Iterator it = data.iterator();
+		Iterator<Object[]> it = data.iterator();
 		Object[] obj;
 
 		while (it.hasNext()) {
-			obj = (Object[]) it.next();
+			obj = it.next();
 			String stBefore = (String) obj[1];
 			String stType = (String) obj[2];
 			String stAfter = (String) obj[3];
@@ -172,15 +183,14 @@ public class StatRecordingEditorTable extends JPanel {
 				// doc.insertString(doc.getLength(),line+"\n", null);
 
 				for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
-					model.setValueAt(matcher.group(i2), i2 - 1, 5);
+					model.setValueAt(matcher.group(i2), i2 - 1, 8);
 					h.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
 				}
-
-			}
+				}
+			logger.info("currIndex: " + currIndex + "matcher.end(i2): " + lines[i].length()+",l: "+lines[i]);
 			currIndex += lines[i].length()+1 ;
 			}
 			}
-
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			// System.exit(1);
@@ -189,7 +199,6 @@ public class StatRecordingEditorTable extends JPanel {
 	}
 
 	private void initColumnSizes(JTable theTable) {
-		MyTableModel model = (MyTableModel) theTable.getModel();
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
@@ -197,7 +206,7 @@ public class StatRecordingEditorTable extends JPanel {
 		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 8; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
@@ -212,22 +221,30 @@ public class StatRecordingEditorTable extends JPanel {
 		}
 	}
 
-	public void setUpTypeColumn(JTable theTable, TableColumn TypeColumn) {
+
+	public void setUpInsideRegexColumn(JTable theTable, TableColumn typeColumn) {
+		DefaultTableCellRenderer renderer = new NoProcessingRegexTableRenderer();
+	//	renderer.setBackground(Color.GRAY);
+		typeColumn.setCellRenderer(renderer);
+	}
+	
+	public void setUpTypeColumn(JTable theTable, TableColumn typeColumn) {
 		// Set up the editor for the Type cells.
-		JComboBox comboBox = new JComboBox();
-		comboBox.addItem("word");
+		JComboBox<String> comboBox = new JComboBox<String>();
+		comboBox.addItem("date");
+		comboBox.addItem("double");
+		comboBox.addItem("long");
+		comboBox.addItem("manual");
+		comboBox.addItem("percent");
 		comboBox.addItem("string");
 		comboBox.addItem("stringminimum");
-		comboBox.addItem("long");
-		comboBox.addItem("double");
-		comboBox.addItem("date");
-		comboBox.addItem("percent");
-		TypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
+		comboBox.addItem("word");
+		typeColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		// Set up tool tips for the Type cells.
 		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
 		renderer.setToolTipText("Click for combo box");
-		TypeColumn.setCellRenderer(renderer);
+		typeColumn.setCellRenderer(renderer);
 	}
 
 	class MyTableModel extends AbstractTableModel {
@@ -259,7 +276,7 @@ public class StatRecordingEditorTable extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			return data.get(row)[column];
+				return data.get(row)[column];
 		}
 
 		@Override
@@ -268,36 +285,43 @@ public class StatRecordingEditorTable extends JPanel {
 			fireTableCellUpdated(row, column);
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<? extends Object> getColumnClass(int c) {
+			if (getValueAt(0, c)!=null){
 			return getValueAt(0, c).getClass();
+			} else return String.class;
 		}
 
 		public boolean isCellEditable(int row, int col) {
-			if (col > 4) {
+			// Note that the data/cell address is constant,
+			// no matt&er where the cell appears onscreen.
+			if (col > 6) {
 				return false;
-			} else {
+			} else {if (col==4 && !data.get(row)[3].equals("manual")){
+				return false;
+			} else{
 				return true;
 			}
 		}
 	}
-
+	}
 	public ArrayList<RecordingItem> getRecordingItems() {
 		ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>();
-		for (int i = 0; i < data.size(); i++) { // model.getRowCount()
-			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
-					.getValueAt(i, 3), (Boolean) model.getValueAt(i, 4), (String) model.getValueAt(i, 5)));
+		for (int i = 0; i < data.size(); i++) { // model.getRowCount()			
+			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1),
+					(String) model.getValueAt(i, 2), (String) model.getValueAt(i,3),
+					(String) model.getValueAt(i, 4),(Boolean) model.getValueAt(i, 5),
+					(Boolean) model.getValueAt(i, 6), (String) model.getValueAt(i, 7)));
 		}
 		return toReturn;
 	}
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "long", "", Boolean.TRUE, "" });
+		data.add(new Object[] { "default", ".*", "long",DataMiner.getTypeString("long"),  "", Boolean.TRUE,Boolean.TRUE, "" });
 		table.repaint();
 	}
 
 	public void Insert() {
-		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "", ".*", "long", "",
-				Boolean.TRUE, "" });
+		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "default", ".*", "long",DataMiner.getTypeString("long"),  "", Boolean.TRUE,Boolean.TRUE, "" });
 		table.repaint();
 	}
 

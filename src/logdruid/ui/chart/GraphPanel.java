@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -702,13 +702,19 @@ public class GraphPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (!mainFrame1.cd.disabledSeries.contains(name)){
-				logger.debug("add "+ name);
+				if (logger.isDebugEnabled()){
+					logger.debug("add "+ name);
+				}
 				mainFrame1.cd.addDisabledSeries(name);
 			}else {
-				logger.debug("remove "+ name);
+				if (logger.isDebugEnabled()){
+					logger.debug("remove "+ name);
+				}
 				mainFrame1.cd.removeDisabledSeries(name);
 			}
-			logger.debug("cd.disabledSeries: "+ mainFrame1.cd.disabledSeries );
+			if (logger.isDebugEnabled()){
+				logger.debug("cd.disabledSeries: "+ mainFrame1.cd.disabledSeries );
+			}
 		//	renderer.setSeriesVisible(i, !renderer.getSeriesVisible(i));
 		//	localAxis.setVisible(!localAxis.isVisible());
 			Component[] comp=jpanel.getComponents();
@@ -720,17 +726,22 @@ public class GraphPanel extends JPanel {
 					if (((JPanel)comp[i]).getComponent(1).getClass().equals(ChartPanel.class)){
 				//		logger.debug("is ChartPanel");
 					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxisCount();
-				//	if (logger.isDebugEnabled()){
+					if (logger.isDebugEnabled()){
 						logger.debug(nbAxis);
 						logger.debug(((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getTitle().getText());
-				//	}					
+					}					
 					int i2=0;
 					while (i2<nbAxis){
-						if (logger.isDebugEnabled()){logger.debug(localAxis.getLabel());}
-						logger.debug(localAxis.getLabel());
+						if (logger.isDebugEnabled()){
+							logger.debug(localAxis.getLabel());
+							logger.debug(localAxis.getLabel());
+						}
+
 						if (((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
 							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
+							if (logger.isDebugEnabled()){
 							logger.debug("cd.disabledSeries: "+ cd.disabledSeries );
+							}
 							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
 						}
 						i2++;

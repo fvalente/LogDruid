@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -32,11 +32,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.text.ParseException;
+
 import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,23 +47,26 @@ import logdruid.data.record.StatRecording;
 import logdruid.data.record.ReportRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
+import logdruid.ui.RegexTableRenderer;
 import logdruid.util.DataMiner;
 import logdruid.util.PatternCache;
+
 import java.awt.Font;
+
 import javax.swing.ListSelectionModel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ReportRecordingEditorTable extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private boolean DEBUG = false;
-	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
-	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
-	static ArrayList records = null;
+	static ArrayList<RecordingItem>  records = null;
 	private MyTableModel model;
-	private String[] header = { "Name", "Before", "Type", "Processing", "After", "selected", "Value" };
+	private String[] header = { "Name", "Processing","Before", "Inside type", "Inside regex",  "After",  "Active", "Show",  "Value" };
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	JTable table = null;
-	private String theLine = "";
 	private JTextPane examplePane;
 	private Repository rep = null;
 	private Recording recording;
@@ -75,7 +78,7 @@ public class ReportRecordingEditorTable extends JPanel {
 	public ReportRecordingEditorTable(JTextPane textPane) {
 		super(new GridLayout(1, 0));
 
-		model = new MyTableModel(data, header);
+		model = new MyTableModel(data, header,null);
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -83,7 +86,7 @@ public class ReportRecordingEditorTable extends JPanel {
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 
-		this.theLine = textPane.getText();
+		textPane.getText();
 		this.examplePane = textPane;
 		// Create the scroll pane and add the table to it.
 		JScrollPane scrollPane = new JScrollPane(table);
@@ -92,12 +95,15 @@ public class ReportRecordingEditorTable extends JPanel {
 		initColumnSizes(table);
 
 		// Fiddle with the type and processing column's cell editors/renderers.
-		setUpTypeColumn(table, table.getColumnModel().getColumn(2));
-		setUpProcessingColumn(table, table.getColumnModel().getColumn(3));
+		setUpProcessingColumn(table, table.getColumnModel().getColumn(1));
+		setUpTypeColumn(table, table.getColumnModel().getColumn(3));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(4));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(2));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(5));
 
 		// Add the scroll pane to this panel.
 		add(scrollPane);
-		Add();
+		//Add();
 		FixValues();
 
 	}
@@ -105,32 +111,38 @@ public class ReportRecordingEditorTable extends JPanel {
 	public ReportRecordingEditorTable(Repository repo, Recording re, JTextPane textPane) {
 		super(new GridLayout(1, 0));
 		this.examplePane = textPane;
-		model = new MyTableModel(data, header);
+		model = new MyTableModel(data, header,repo);
 		table = new JTable(model);
 		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		table.setFillsViewportHeight(true);
 		rep = repo;
-		this.theLine = textPane.getText();
+		textPane.getText();
 		recording = re;
 		// Create the scroll pane and add the table to it.
 		JScrollPane scrollPane = new JScrollPane(table);
 		// Set up column sizes.
 		initColumnSizes(table);
 		// Fiddle with the type and processing column's cell editors/renderers.
-		setUpTypeColumn(table, table.getColumnModel().getColumn(2));
-		setUpProcessingColumn(table, table.getColumnModel().getColumn(3));
+		setUpTypeColumn(table, table.getColumnModel().getColumn(3));
+		setUpProcessingColumn(table, table.getColumnModel().getColumn(1));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(4));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(2));
+		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(5));
 
 		// Add the scroll pane to this panel.
 		add(scrollPane);
-		records = ((ReportRecording) re).getRecordingItem();
 		
+		records = ((ReportRecording) re).getRecordingItem();
 		// Collections.sort(records);
 		if (records != null) {
 			Iterator it = records.iterator();
-
 			while (it.hasNext()) {
 				RecordingItem rI = (RecordingItem) it.next();
-				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), rI.getProcessingType(), rI.getAfter(), rI.isSelected(), "" });
+				String inside="";
+						inside= DataMiner.getMainRegex( rI.getType(),rI.getInside(), repo.getDateFormat(re.getDateFormatID())) ;
+						logger.info("inside: " + inside);
+				data.add(new Object[] { rI.getName(), rI.getProcessingType(), rI.getBefore(), rI.getType(), inside,rI.getAfter(), rI.isSelected(),rI.isShow(), "" });
+				logger.info("added: " + rI.getName());
 			}
 			FixValues();
 		}
@@ -145,17 +157,23 @@ public class ReportRecordingEditorTable extends JPanel {
 
 		while (it.hasNext()) {
 			obj = (Object[]) it.next();
-			String stBefore = (String) obj[1];
-			String stType = (String) obj[2];
-			String stAfter = (String) obj[4];
+			String stBefore = (String) obj[2];
+			String stType = (String) obj[3];
+			String stInside = (String) obj[4];
+			String stAfter = (String) obj[5];
 			logger.info("stType: " + stType);
 			if (stType.equals("date") && rep.getDateFormat(recording.getDateFormatID()).getPattern() != null) {
 				patternString += stBefore + "(" + rep.getDateFormat(recording.getDateFormatID()).getPattern() + ")" + stAfter;
 				logger.info("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
 				logger.info("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
 			} else {
-				patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
-				logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				if (stType.equals("manual")){
+					patternString += stBefore + "(" + stInside + ")" + stAfter;	
+					logger.info("getTypeString(stType) -: " + stInside);					
+				}else{
+					patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
+					logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				}
 			}
 		}
 
@@ -175,7 +193,7 @@ public class ReportRecordingEditorTable extends JPanel {
 				// doc.insertString(doc.getLength(),line+"\n", null);
 
 				for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
-					model.setValueAt(matcher.group(i2), i2 - 1, 6);
+					model.setValueAt(matcher.group(i2), i2 - 1, 8);
 					h.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
 				}
 				}
@@ -183,9 +201,6 @@ public class ReportRecordingEditorTable extends JPanel {
 			currIndex += lines[i].length()+1 ;
 			}
 			}
-
-			
-
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			// System.exit(1);
@@ -201,12 +216,10 @@ public class ReportRecordingEditorTable extends JPanel {
 		int cellWidth = 0;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 9; i++) {
 			column = theTable.getColumnModel().getColumn(i);
-
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
-
 			cellWidth = comp.getPreferredSize().width;
 
 			if (DEBUG) {
@@ -228,30 +241,66 @@ public class ReportRecordingEditorTable extends JPanel {
 		typeColumn.setCellRenderer(renderer);
 	}
 
+	public void setUpInsideRegexColumn(JTable theTable, TableColumn typeColumn) {
+		DefaultTableCellRenderer renderer = new RegexTableRenderer();
+	//	renderer.setBackground(Color.GRAY);
+		typeColumn.setCellRenderer(renderer);
+	}
+	
+	
 	public void setUpTypeColumn(JTable theTable, TableColumn typeColumn) {
 		// Set up the editor for the type cells.
-		JComboBox comboBox = new JComboBox();
-		comboBox.addItem("word");
+		JComboBox<String> comboBox = new JComboBox<String>();
+		comboBox.addItem("date");
+		comboBox.addItem("double");
+		comboBox.addItem("long");
+		comboBox.addItem("manual");
+		comboBox.addItem("percent");
 		comboBox.addItem("string");
 		comboBox.addItem("stringminimum");
-		comboBox.addItem("long");
-		comboBox.addItem("double");
-		comboBox.addItem("date");
-		comboBox.addItem("percent");
+		comboBox.addItem("word");
 
 		typeColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		// Set up tool tips for the type cells.
-		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer renderer = new RegexTableRenderer();
 		renderer.setToolTipText("Click for combo box");
 		typeColumn.setCellRenderer(renderer);
+		comboBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				 JComboBox combo = (JComboBox) e.getSource();
+				   Object selected = combo.getSelectedItem();
+				   if (table.getSelectedRow()!=-1){
+				   if(!model.getValueAt(table.getSelectedRow(), 3).equals("manual")) {   
+					 //  model.setValueAt(".*", table.getSelectedRow(), 4);
+						logger.info((String) model.getValueAt(table.getSelectedRow(), 3));
+						logger.info((String) model.getValueAt(table.getSelectedRow(), 4));
+						model.setValueAt(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 4), rep.getDateFormat(recording.getDateFormatID())), table.getSelectedRow(), 4);
+						model.fireTableCellUpdated(table.getSelectedRow(), 4);
+				   }
+				   else {
+						logger.info("here");
+						logger.info((String) model.getValueAt(table.getSelectedRow(), 3));
+						logger.info((String) model.getValueAt(table.getSelectedRow(), 4));
+						/*
+						logger.info(rep.getDateFormat(recording.getDateFormatID()));*/
+						
+						logger.info(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 4), rep.getDateFormat(recording.getDateFormatID())));
+						model.setValueAt(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 4), rep.getDateFormat(recording.getDateFormatID())), table.getSelectedRow(), 4);
+						model.fireTableCellUpdated(table.getSelectedRow(), 4);
+					}
+				   }}
+				}
+				);
 	}
 
 	class MyTableModel extends AbstractTableModel {
 		private String[] header;
 		private ArrayList<Object[]> data;
 
-		public MyTableModel(ArrayList<Object[]> data, String[] header) {
+		public MyTableModel(ArrayList<Object[]> data, String[] header,Repository rep) {
 			this.header = header;
 			this.data = data;
 		}
@@ -276,7 +325,7 @@ public class ReportRecordingEditorTable extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			return data.get(row)[column];
+				return data.get(row)[column];
 		}
 
 		@Override
@@ -291,7 +340,9 @@ public class ReportRecordingEditorTable extends JPanel {
 		 * would contain text ("true"/"false"), rather than a check box.
 		 */
 		public Class getColumnClass(int c) {
+			if (getValueAt(0, c)!=null){
 			return getValueAt(0, c).getClass();
+			} else return String.class;
 		}
 
 		/*
@@ -300,10 +351,13 @@ public class ReportRecordingEditorTable extends JPanel {
 		public boolean isCellEditable(int row, int col) {
 			// Note that the data/cell address is constant,
 			// no matt&er where the cell appears onscreen.
-			if (col > 5) {
+			if (col > 7) {
 				return false;
-			} else {
+			} else {if (col==4 && !data.get(row)[3].equals("manual")){
+				return false;
+			} else{
 				return true;
+			}
 			}
 		}
 
@@ -311,21 +365,27 @@ public class ReportRecordingEditorTable extends JPanel {
 
 	public ArrayList<RecordingItem> getRecordingItems() {
 		ArrayList<RecordingItem> toReturn = new ArrayList<RecordingItem>();
-		for (int i = 0; i < data.size(); i++) { // model.getRowCount()
-			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 1), (String) model.getValueAt(i, 2), (String) model
-					.getValueAt(i, 3), (String) model.getValueAt(i, 4), (Boolean) model.getValueAt(i, 5), (String) model.getValueAt(i, 6)));
+		for (int i = 0; i <data.size(); i++) { // model.getRowCount()
+			logger.info((String) model.getValueAt(i, 0));
+			//RecordingItem(String name, String before, String type, String processingType,            String insideRegex, String after, Boolean isSelected, Boolean show, String value) {
+			toReturn.add(new RecordingItem((String) model.getValueAt(i, 0), (String) model.getValueAt(i, 2),
+					(String) model.getValueAt(i, 3), (String) model.getValueAt(i, 1),
+					(String) model.getValueAt(i, 4),(String) model.getValueAt(i, 5),
+					(Boolean) model.getValueAt(i, 6), (Boolean) model.getValueAt(i, 7), (String) model.getValueAt(i, 8)));
+			//private String[] header = { "Name", "Processing", "Before", "Inside type",            "Inside regex", "After", "Active", "Show", "Value" };
+			//					rI.getName(), rI.getProcessingType(), rI.getBefore(), rI.getType(), inside,rI.getAfter(), rI.isSelected(),rI.isShow(), "" }); 
 		}
 		return toReturn;
 	}
 
 	public void Add() {
-		data.add(new Object[] { "", ".*", "long", "capture", "", Boolean.TRUE, "" });
+		data.add(new Object[] { "default", "capture", ".*", "long", DataMiner.getTypeString("long"), "", Boolean.TRUE,  Boolean.TRUE,"" });
 		table.repaint();
 	}
 
 	public void Insert() {
-		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "", ".*", "long", "capture",
-				"", Boolean.TRUE, "" });
+		data.add(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1), new Object[] { "default", "capture", ".*", "long",
+				 DataMiner.getTypeString("long"),"", Boolean.TRUE, Boolean.TRUE, "" });
 		table.repaint();
 	}
 

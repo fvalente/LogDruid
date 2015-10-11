@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -960,12 +960,8 @@ public class DataMiner {
 								logger.debug("patternString: " + patternString);
 							if (logger.isDebugEnabled())
 								logger.debug("filename: " + fileName);
-							// Pattern pattern = Pattern.compile(patternString +
-							// ".*");
-							// Matcher matcher = pattern.matcher(fileName);
 							matcher = patternCache.getPattern(patternString + ".*",rec.isCaseSensitive()).matcher(
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(fileName.getFile().getCanonicalPath()).toURI()).getPath());
-							// ***
 							if (matcher.find()) {
 								if (logger.isDebugEnabled())
 									logger.debug("found filename " + fileName + " with group");
@@ -1025,6 +1021,64 @@ public class DataMiner {
 		return sourceFileGroup;
 	}
 
+	private static Map<Recording, String> getRegexp(Repository repo, Source source) {
+		Map<Recording, String> recMatch = new HashMap<Recording, String>();
+		Map<Recording, Boolean> activeRecordingOnSourceCache = new HashMap<Recording, Boolean>();
+		ArrayList<Recording> recordings;
+		recordings = repo.getRecordings(StatRecording.class,true);
+		recordings.addAll(repo.getRecordings(EventRecording.class,true));
+		recordings.addAll(repo.getRecordings(ReportRecording.class,true));
+		StringBuffer sb = new StringBuffer(100);
+
+		Iterator<Recording> recordingIterator = recordings.iterator();
+		while (recordingIterator.hasNext()) {
+			Recording rec = recordingIterator.next();
+			if (!activeRecordingOnSourceCache.containsKey(rec)) {
+				activeRecordingOnSourceCache.put(rec, source.isActiveRecordingOnSource(rec));
+			}
+			if (activeRecordingOnSourceCache.get(rec)) {
+				if (rec.getIsActive() == true) {
+					ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
+					Iterator<RecordingItem> recItemIte = recordingItem.iterator();
+					if (logger.isDebugEnabled()) {
+						logger.debug("Record: " + rec.getName());
+					}
+					sb.setLength(0);
+					int cnt = 0;
+					while (recItemIte.hasNext()) {
+						RecordingItem recItem = recItemIte.next();
+						String stBefore = (String) recItem.getBefore();
+						String stType = (String) recItem.getType();
+						String stAfter = (String) recItem.getAfter();
+						String stInside = recItem.getInside();
+							sb.append(stBefore);
+							sb.append("(");
+							sb.append(getMainRegex(stType,stInside,repo.getDateFormat(rec.getDateFormatID())));
+							sb.append(")");
+							sb.append(stAfter);				
+					}
+					recMatch.put(rec, sb.toString());
+					 logger.info("2**** regexp: " +rec.getRegexp());
+					if (logger.isDebugEnabled()) {
+						logger.debug("Pattern: " + sb.toString());
+					}
+				}
+			}
+		}
+		return recMatch;
+	}
+
+	public static String getMainRegex(String stType, String stInside, DateFormat dateFormat) {
+		if (stType.equals("date")) {
+		return dateFormat.getPattern();
+		} else{
+			if (!stType.equals("manual")){
+				return (getTypeString(stType));
+			} else {
+				return (stInside);
+			}}
+	}
+
 	// public static get
 	public static String getTypeString(String type) {
 		String typeString = "";
@@ -1060,62 +1114,7 @@ public class DataMiner {
 		}
 		return typeString;
 	}
-
-	private static Map<Recording, String> getRegexp(Repository repo, Source source) {
-		Map<Recording, String> recMatch = new HashMap<Recording, String>();
-		Map<Recording, Boolean> activeRecordingOnSourceCache = new HashMap<Recording, Boolean>();
-		ArrayList<Recording> recordings;
-		recordings = repo.getRecordings(StatRecording.class,true);
-		recordings.addAll(repo.getRecordings(EventRecording.class,true));
-		recordings.addAll(repo.getRecordings(ReportRecording.class,true));
-		StringBuffer sb = new StringBuffer(100);
-
-		Iterator<Recording> recordingIterator = recordings.iterator();
-		while (recordingIterator.hasNext()) {
-			Recording rec = recordingIterator.next();
-			if (!activeRecordingOnSourceCache.containsKey(rec)) {
-				activeRecordingOnSourceCache.put(rec, source.isActiveRecordingOnSource(rec));
-			}
-			if (activeRecordingOnSourceCache.get(rec)) {
-				if (rec.getIsActive() == true) {
-					ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
-					Iterator<RecordingItem> recItemIte = recordingItem.iterator();
-					if (logger.isDebugEnabled()) {
-						logger.debug("Record: " + rec.getName());
-					}
-					sb.setLength(0);
-					int cnt = 0;
-					while (recItemIte.hasNext()) {
-						RecordingItem recItem = recItemIte.next();
-						String stBefore = (String) recItem.getBefore();
-						String stType = (String) recItem.getType();
-						String stAfter = (String) recItem.getAfter();
-						if (stType.equals("date")) {
-							sb.append(stBefore);
-							sb.append("(");
-							sb.append(repo.getDateFormat(rec.getDateFormatID()).getPattern());
-							sb.append(")");
-							sb.append(stAfter);
-						} else {
-							sb.append(stBefore);
-							sb.append("(");
-							sb.append(getTypeString(stType));
-							sb.append(")");
-							sb.append(stAfter);
-						}
-					}
-					recMatch.put(rec, sb.toString());
-					// logger.info("2**** regexp: "
-					// +rec.getRegexp());
-					if (logger.isDebugEnabled()) {
-						logger.debug("Pattern: " + sb.toString());
-					}
-				}
-			}
-		}
-		return recMatch;
-	}
-
+	
 	public static ChartData gatherSourceData(final Repository repo) {
 
 		PatternCache patternCache = new PatternCache();

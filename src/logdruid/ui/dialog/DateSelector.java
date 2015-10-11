@@ -1,6 +1,6 @@
 /*******************************************************************************
  * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014 Frederic Valente (frederic.valente@gmail.com)
+ * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -57,8 +57,6 @@ public class DateSelector extends JDialog {
 	private JTable table;
 	JPanel jPanelDetail;
 	boolean DEBUG = false;
-	static Pattern sepPattern = Pattern.compile("(.*), (.*)");
-	static Pattern equalPattern = Pattern.compile("(.*)=(.*)");
 	static Matcher m;
 	static Collection dateFormats = null;
 	private String[] header = { "name", "pattern", "FastDateFormat" };
@@ -198,7 +196,7 @@ public class DateSelector extends JDialog {
 		btnDuplicate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0) {
-					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)).clone();
 					repository.addDateFormat(df);
 					data.add(new Object[] { df.getName(), df.getPattern(), df.getDateFormat() });
 					table.repaint();
@@ -462,7 +460,7 @@ public class DateSelector extends JDialog {
 			if (col < 0) {
 				return false;
 			} else {
-				return true;
+				return false;
 			}
 		}
 
