@@ -22,14 +22,14 @@ public class PatternCache {
 	private static Map<String, Pattern> pattern = new HashMap<String, Pattern>();
 
 	public Pattern getPattern(String regexp, boolean caseSensitive) {
-		if (!pattern.containsKey(regexp)) {
+		if (!pattern.containsKey(regexp+Boolean.toString(caseSensitive))) {
 			if (caseSensitive){
-				pattern.put(regexp, Pattern.compile(regexp));
+				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp));
 			}else{
-				pattern.put(regexp, Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));	
+				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));	
 			}
 		}
-		return pattern.get(regexp);
+		return pattern.get(regexp+Boolean.toString(caseSensitive));
 	}
 
  public static int getSize() {
