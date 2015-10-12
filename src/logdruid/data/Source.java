@@ -70,6 +70,17 @@ public class Source implements Comparable{
 
 	}
 
+	public void removeActiveRecording(Recording recording) {
+		// logger.info("toggleActiveRecording of "+recording.getName());
+		if (selectedRecordingIds.contains(recording.getId())) {
+			selectedRecordingIds.remove(recording.getId());
+			if (logger.isEnabledFor(Level.TRACE))
+				logger.trace("toggleActiveRecording removed " + recording.getName() + " now size " + selectedRecordingIds.size());
+		} 
+	}
+	
+	
+	
 	public Boolean isActiveRecordingOnSource(Recording recording) {
 
 		// logger.info("***isActiveRecordingOnSource of "+recording.getName());

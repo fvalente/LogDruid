@@ -1031,7 +1031,7 @@ public class DataMiner {
 		recordings = repo.getRecordings(StatRecording.class,true);
 		recordings.addAll(repo.getRecordings(EventRecording.class,true));
 		recordings.addAll(repo.getRecordings(ReportRecording.class,true));
-		StringBuffer sb = new StringBuffer(100);
+		StringBuffer sb = new StringBuffer(200);
 
 		Iterator<Recording> recordingIterator = recordings.iterator();
 		while (recordingIterator.hasNext()) {

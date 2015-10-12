@@ -184,6 +184,12 @@ public class Repository {
 
 	public void deleteRecording(int id) {
 		recordings.remove(id);
+		ArrayList<Source> sources= this.getSources();
+		Iterator<Source> ite=sources.iterator();
+		while (ite.hasNext()){
+			Source src=(Source) ite.next();
+			src.removeActiveRecording(recordings.get(id));
+		}
 	}
 
 	public Recording getRecording(int id) {
@@ -203,8 +209,17 @@ public class Repository {
 		return recReturn;
 	}
 
-	public Recording duplicateRecording(int id) {
-		return ((Recording) (recordings.get(id)).duplicate());
+	public void duplicateRecording(int id) {
+		Recording newRecording = recordings.get(id).duplicate();
+		this.addRecording(newRecording);
+		ArrayList<Source> sources= this.getSources();
+		Iterator<Source> ite=sources.iterator();
+		while (ite.hasNext()){
+			Source src=(Source) ite.next();
+			if (src.isActiveRecordingOnSource(recordings.get(id))){
+				src.toggleActiveRecording(newRecording);
+			}
+		}
 	}
 
 	public void update(Repository repo) {

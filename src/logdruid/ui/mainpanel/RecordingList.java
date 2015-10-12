@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 import logdruid.data.DataVault;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
+import logdruid.data.Source;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
@@ -212,9 +213,9 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				int selectRow = ((table.getSelectedRow() != -1) ? table.getSelectedRow() : -1);
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-					repository.addRecording(repository.getRecording(table.convertRowIndexToModel(table.getSelectedRow())).duplicate());
-					model.fireTableRowsInserted(rowCount, rowCount);
-					table.setRowSelectionInterval(selectRow, selectRow);
+				rep.duplicateRecording(table.convertRowIndexToModel(table.getSelectedRow()));
+				model.fireTableRowsInserted(rowCount, rowCount);
+				table.setRowSelectionInterval(selectRow+1, selectRow+1);
 			}
 		});
 
