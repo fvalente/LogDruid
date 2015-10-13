@@ -51,6 +51,7 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.ui.editor.StatRecordingEditor;
 import logdruid.util.DataMiner;
+import javax.swing.JScrollPane;
 
 public class DateSelector extends JDialog {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -135,45 +136,47 @@ public class DateSelector extends JDialog {
 		gbc_panel_1.gridx = 1;
 		gbc_panel_1.gridy = 0;
 		contentPanel.add(panel_1, gbc_panel_1);
+		panel_1.setMinimumSize(new Dimension(0, 200));
+		panel_1.setPreferredSize(new Dimension(0, 200));
 		panel_1.setLayout(new BorderLayout(0, 0));
-
-		table = new JTable(model);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setBorder(UIManager.getBorder("TextPane.border"));
-		table.setPreferredScrollableViewportSize(new Dimension(0, 0));
-		table.setFillsViewportHeight(true);
-
-		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-			public void valueChanged(ListSelectionEvent e) {
-				// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
-				// persist repository
-				// display selected row
-
-				if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0) {
-					/*
-					 * recEditor = new RecordingEditor(repository
-					 * .getRecordings().get(((table.getSelectedRow()!=-1)?table.
-					 * convertRowIndexToModel(table.getSelectedRow()):-1)),
-					 * repository); jPanelDetail.removeAll();
-					 */
-					// jPanelDetail.add(recEditor, gbc_jPanelDetail);
-					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
-					textFieldName.setText((String) df.getName());
-					textFieldPattern.setText((String) df.getPattern());
-					textField.setText((String) df.getDateFormat());
-					// jPanelDetail.revalidate();
-					// jPanelDetail.repaint();
-					// jPanelDetail.setVisible(true);
-					// reloadTable(); those 2 ********
-					// jPanelDetail.revalidate();
-				}
-			}
-		});
-		// Set up column sizes.
-		initColumnSizes(table);
-		panel_1.add(table);
-
+				table = new JTable(model);
+				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				table.setBorder(UIManager.getBorder("TextPane.border"));
+				table.setPreferredScrollableViewportSize(new Dimension(0, 0));
+				table.setFillsViewportHeight(true);
+				
+						table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+				
+							public void valueChanged(ListSelectionEvent e) {
+								// ((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)
+								// persist repository
+								// display selected row
+				
+								if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0) {
+									/*
+									 * recEditor = new RecordingEditor(repository
+									 * .getRecordings().get(((table.getSelectedRow()!=-1)?table.
+									 * convertRowIndexToModel(table.getSelectedRow()):-1)),
+									 * repository); jPanelDetail.removeAll();
+									 */
+									// jPanelDetail.add(recEditor, gbc_jPanelDetail);
+									DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+									textFieldName.setText((String) df.getName());
+									textFieldPattern.setText((String) df.getPattern());
+									textField.setText((String) df.getDateFormat());
+									// jPanelDetail.revalidate();
+									// jPanelDetail.repaint();
+									// jPanelDetail.setVisible(true);
+									// reloadTable(); those 2 ********
+									// jPanelDetail.revalidate();
+								}
+							}
+						});
+						// Set up column sizes.
+						initColumnSizes(table);
+					//	panel_1.add(table);
+						JScrollPane scrollPane = new JScrollPane(table);
+						panel_1.add(scrollPane, BorderLayout.CENTER);
 		JPanel panel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
 		flowLayout.setAlignment(FlowLayout.LEFT);
@@ -231,14 +234,15 @@ public class DateSelector extends JDialog {
 		gbl_jPanelDetail.columnWidths = new int[] { 169 };
 		gbl_jPanelDetail.rowHeights = new int[] { 0, 0, 0, 0, 150, 0 };
 		gbl_jPanelDetail.columnWeights = new double[] { 1.0, 0.0 };
-		gbl_jPanelDetail.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, 1.0, 0.0 };
+		gbl_jPanelDetail.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
 		jPanelDetail.setLayout(gbl_jPanelDetail);
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBorder(null);
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_panel_2.gridwidth = 2;
-		gbc_panel_2.anchor = GridBagConstraints.NORTHWEST;
+		gbc_panel_2.anchor = GridBagConstraints.NORTH;
 		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_2.gridx = 0;
 		gbc_panel_2.gridy = 0;
@@ -257,9 +261,10 @@ public class DateSelector extends JDialog {
 		flowLayout_1.setAlignment(FlowLayout.LEFT);
 		panel_3.setBorder(null);
 		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+		gbc_panel_3.fill = GridBagConstraints.HORIZONTAL;
 		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_3.gridwidth = 2;
-		gbc_panel_3.anchor = GridBagConstraints.NORTHWEST;
+		gbc_panel_3.anchor = GridBagConstraints.NORTH;
 		gbc_panel_3.gridx = 0;
 		gbc_panel_3.gridy = 1;
 		jPanelDetail.add(panel_3, gbc_panel_3);
@@ -284,7 +289,7 @@ public class DateSelector extends JDialog {
 		FlowLayout flowLayout_2 = (FlowLayout) panel_4.getLayout();
 		flowLayout_2.setAlignment(FlowLayout.LEFT);
 		GridBagConstraints gbc_panel_4 = new GridBagConstraints();
-		gbc_panel_4.anchor = GridBagConstraints.WEST;
+		gbc_panel_4.fill = GridBagConstraints.HORIZONTAL;
 		gbc_panel_4.insets = new Insets(0, 0, 5, 5);
 		gbc_panel_4.gridx = 0;
 		gbc_panel_4.gridy = 2;
@@ -326,7 +331,6 @@ public class DateSelector extends JDialog {
 		textPane.setBackground(UIManager.getColor("windowBorder"));
 		panel_6.add(textPane);
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
-		gbc_btnSave.anchor = GridBagConstraints.WEST;
 		gbc_btnSave.insets = new Insets(0, 0, 0, 5);
 		gbc_btnSave.gridx = 0;
 		gbc_btnSave.gridy = 5;

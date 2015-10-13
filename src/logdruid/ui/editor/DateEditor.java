@@ -107,7 +107,8 @@ public class DateEditor extends JPanel {
 		gbc_panel_1.gridy = 0;
 		add(panel_1, gbc_panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
-
+		panel_1.setMinimumSize(new Dimension(0, 200));
+		panel_1.setPreferredSize(new Dimension(0, 200));
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setBorder(UIManager.getBorder("TextPane.border"));
@@ -171,11 +172,10 @@ public class DateEditor extends JPanel {
 		btnDuplicate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1) >= 0) {
-					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
+					DateFormat df = repository.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)).clone();
 					repository.addDateFormat(df);
 					reloadTable();
-					// data.add(new Object[] { table.getRowCount()+1,
-					// df.getName(),df.getDateFormat()});
+					data.add(new Object[] { df.getName(), df.getPattern(), df.getDateFormat() });
 					table.repaint();
 				}
 			}
@@ -303,7 +303,6 @@ public class DateEditor extends JPanel {
 		textPane.setBackground(UIManager.getColor("windowBorder"));
 		panel_6.add(textPane);
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
-		gbc_btnSave.anchor = GridBagConstraints.WEST;
 		gbc_btnSave.insets = new Insets(0, 0, 0, 5);
 		gbc_btnSave.gridx = 0;
 		gbc_btnSave.gridy = 5;
