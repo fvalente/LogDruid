@@ -13,8 +13,6 @@ package logdruid.ui.table;
 import javax.swing.JPanel;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
@@ -33,19 +31,17 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import logdruid.data.Repository;
-import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
-import logdruid.data.record.StatRecording;
 import logdruid.ui.NoProcessingRegexTableRenderer;
-import logdruid.ui.RegexTableRenderer;
 import logdruid.util.DataMiner;
 import logdruid.util.PatternCache;
 
@@ -139,25 +135,30 @@ public class MetadataRecordingEditorTable extends JPanel {
 		Object[] obj;
 
 		while (it.hasNext()) {
-			obj = it.next();
+			obj = (Object[]) it.next();
 			String stBefore = (String) obj[1];
 			String stType = (String) obj[2];
-			String stAfter = (String) obj[3];
+			String stInside = (String) obj[3];
+			String stAfter = (String) obj[4];
 			logger.info("stType: " + stType);
 			if (stType.equals("date") && rep.getDateFormat(recording.getDateFormatID()).getPattern() != null) {
 				patternString += stBefore + "(" + rep.getDateFormat(recording.getDateFormatID()).getPattern() + ")" + stAfter;
 				logger.info("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
 				logger.info("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
 			} else {
-				patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
-				logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				if (stType.equals("manual")){
+					patternString += stBefore + "(" + stInside + ")" + stAfter;	
+					logger.info("getTypeString(stType) -: " + stInside);					
+				}else{
+					patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
+					logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				}
 			}
 		}
 
 		try {
 			logger.info("theLine: " + examplePane.getText());
 			logger.info("patternString: " + patternString);
-		//	matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(examplePane.getText());
 			Highlighter h = examplePane.getHighlighter();
 			h.removeAllHighlights();
 			int currIndex = 0;
@@ -227,9 +228,23 @@ public class MetadataRecordingEditorTable extends JPanel {
 		comboBox.addItem("word");
 		typeColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
-		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer renderer = new NoProcessingRegexTableRenderer();
 		renderer.setToolTipText("Click for combo box");
 		typeColumn.setCellRenderer(renderer);
+		comboBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				 JComboBox combo = (JComboBox) e.getSource();
+				   Object selected = combo.getSelectedItem();
+				   if (table.getSelectedRow()!=-1){
+						model.setValueAt(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 3), rep.getDateFormat(recording.getDateFormatID())), table.getSelectedRow(), 3);
+						model.fireTableCellUpdated(table.getSelectedRow(), 3);
+					}
+				   }
+				}
+				);
+		
 	}
 
 	class MyTableModel extends AbstractTableModel {
@@ -281,7 +296,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 			// no matt&er where the cell appears onscreen.
 			if (col > 6) {
 				return false;
-			} else {if (col==4 && !data.get(row)[3].equals("manual")){
+			} else {if (col==3 && !data.get(row)[2].equals("manual")){
 				return false;
 			} else{
 				return true;

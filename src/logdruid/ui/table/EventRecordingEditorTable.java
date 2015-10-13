@@ -73,7 +73,6 @@ public class EventRecordingEditorTable extends JPanel {
 		// table.setPreferredScrollableViewportSize(new Dimension(500, 200));
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
-
 		textPane.getText();
 		this.examplePane = textPane;
 		// Create the scroll pane and add the table to it.
@@ -258,25 +257,11 @@ public class EventRecordingEditorTable extends JPanel {
 				 JComboBox combo = (JComboBox) e.getSource();
 				   Object selected = combo.getSelectedItem();
 				   if (table.getSelectedRow()!=-1){
-				   if(!model.getValueAt(table.getSelectedRow(), 3).equals("manual")) {   
-					 //  model.setValueAt(".*", table.getSelectedRow(), 4);
-						logger.info((String) model.getValueAt(table.getSelectedRow(), 3));
-						logger.info((String) model.getValueAt(table.getSelectedRow(), 4));
-						model.setValueAt(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 4), rep.getDateFormat(recording.getDateFormatID())), table.getSelectedRow(), 4);
-						model.fireTableCellUpdated(table.getSelectedRow(), 4);
-				   }
-				   else {
-						logger.info("here");
-						logger.info((String) model.getValueAt(table.getSelectedRow(), 3));
-						logger.info((String) model.getValueAt(table.getSelectedRow(), 4));
-						/*
-						logger.info(rep.getDateFormat(recording.getDateFormatID()));*/
-						
 						logger.info(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 4), rep.getDateFormat(recording.getDateFormatID())));
 						model.setValueAt(DataMiner.getMainRegex( (String) selected.toString(),(String) model.getValueAt(table.getSelectedRow(), 4), rep.getDateFormat(recording.getDateFormatID())), table.getSelectedRow(), 4);
 						model.fireTableCellUpdated(table.getSelectedRow(), 4);
 					}
-				   }}
+				   }
 				}
 				);
 	}
