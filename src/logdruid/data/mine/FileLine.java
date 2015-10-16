@@ -8,52 +8,29 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *******************************************************************************/
-package logdruid.data;
+package logdruid.data.mine;
 
-import java.io.File;
-import java.io.IOException;
+public class FileLine {
+	int fileId;
+	int lineNumber;
 
-import org.apache.log4j.Logger;
-
-public class FileRecord {
-	private static Logger logger = Logger.getLogger(FileRecord.class.getName());
-int id;
-File file;
-
-	public FileRecord() {
+	public FileLine() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public FileRecord(int _id, File _file) {
-		id=_id;
-		file=_file;
+	public FileLine(int _fileId, int _lineNumber) {
+		lineNumber = _lineNumber;
+		fileId = _fileId;
 	}
 
-	public int getId() {
-		return id;
+	public int getFileId() {
+		return fileId;
 	}
 
-	public String getCompletePath() {
-		try {
-			return file.getCanonicalPath();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "OUCH";
-		}
+	public int getLineNumber() {
+		return lineNumber;
 	}
-	
 	public String toString(){
-		try {
-			return file.getCanonicalPath()+" "+id;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-				}
-	public File getFile() {
-	return file;
-}
-	
+		return ""+fileId+":"+lineNumber;
+	}
 }

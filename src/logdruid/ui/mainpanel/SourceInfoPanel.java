@@ -35,10 +35,10 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import logdruid.data.ChartData;
-import logdruid.data.FileRecord;
 import logdruid.data.Repository;
 import logdruid.data.Source;
+import logdruid.data.mine.ChartData;
+import logdruid.data.mine.FileRecord;
 import logdruid.ui.WrapLayout;
 import logdruid.util.DataMiner;
 
@@ -199,6 +199,7 @@ public class SourceInfoPanel extends JPanel {
 		if (repo != null && repo.getBaseSourcePath() != null) {
 			ChartData cd = DataMiner.gatherSourceData(repo);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
+			if (hm!=null){
 			logger.info("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
 			filesDoc = textPane.getDocument();
 			Iterator it = hm.entrySet().iterator();
@@ -243,7 +244,7 @@ public class SourceInfoPanel extends JPanel {
 			textPane_1.setCaretPosition(0);
 			nbFilesValueLabel.setText("" + nbFiles);
 			filesSize.setText(""+size/1024000+"MB");
-		}
+		}}
 
 	}
 }

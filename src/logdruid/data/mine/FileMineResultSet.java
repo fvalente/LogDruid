@@ -8,11 +8,13 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *******************************************************************************/
-package logdruid.data;
+package logdruid.data.mine;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+
+import logdruid.data.ExtendedTimeSeries;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.TimeSeries;

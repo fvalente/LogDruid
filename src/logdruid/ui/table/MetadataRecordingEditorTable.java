@@ -21,8 +21,12 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
 import javax.swing.text.Highlighter;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import org.apache.log4j.Logger;
 
@@ -33,11 +37,16 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import logdruid.data.Repository;
+import logdruid.data.Source;
+import logdruid.data.mine.ChartData;
+import logdruid.data.mine.FileRecord;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
@@ -57,8 +66,12 @@ public class MetadataRecordingEditorTable extends JPanel {
 	private JTextPane examplePane;
 	private Repository rep = null;
 	private Recording recording;
+	private Source src;
+	private Document groupDoc;
+	private Document filesDoc;
 
-	public MetadataRecordingEditorTable(JTextPane textPane) {
+
+	public MetadataRecordingEditorTable(JTextPane textPane, Source source) {
 		super(new GridLayout(1, 0));
 		model = new MyTableModel(data, header);
 		table = new JTable(model);
@@ -71,7 +84,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 		this.examplePane = textPane;
 		// Create the scroll pane and add the table to it.
 		JScrollPane scrollPane = new JScrollPane(table);
-
+		src=source;
 		// Set up column sizes.
 		initColumnSizes(table);
 
@@ -87,7 +100,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 
 	}
 
-	public MetadataRecordingEditorTable(Repository repo, Recording re, JTextPane textPane) {
+	public MetadataRecordingEditorTable(Repository repo, Recording re, JTextPane textPane, Source source) {
 		super(new GridLayout(1, 0));
 		this.examplePane = textPane;
 		model = new MyTableModel(data, header);
@@ -106,7 +119,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(3));
 		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(1));
 		setUpInsideRegexColumn(table, table.getColumnModel().getColumn(4));
-		
+		src=source;
 		// Add the scroll pane to this panel.
 		add(scrollPane);
 
@@ -155,8 +168,59 @@ public class MetadataRecordingEditorTable extends JPanel {
 				}
 			}
 		}
+		examplePane.setText("");
+		Highlighter h = examplePane.getHighlighter();
+		if (rep != null && rep.getBaseSourcePath() != null && src.getActiveMetadata()!=null) {
+			ChartData cd = DataMiner.gatherSourceData(rep);
+			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
+			logger.info("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
+			filesDoc = examplePane.getDocument();
+			Iterator it2 = hm.entrySet().iterator();
+			int nbFiles = 0;
+			long size=0;
+			while (it2.hasNext()) {
+				try {
+				//	int currGroupIndex = groupDoc.getLength();
+					int currFilesIndex = filesDoc.getLength();
+					final Map.Entry sourcePairs = (Map.Entry) it2.next();
+					final String groupString = (String) sourcePairs.getKey();
+					logger.debug("groupString: "+groupString);
+					ArrayList files = (ArrayList) sourcePairs.getValue();
+					nbFiles += files.size();
+					Iterator<FileRecord> iterator =files.iterator();
+					while (iterator.hasNext())
+						{
+						FileRecord fr = iterator.next();
+						size=size+((File)fr.getFile()).length();
+						logger.info(fr.getFile().getName()+" "+((File)fr.getFile()).length());
+						}
+			//		groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + " file"+(nbFiles>1?"s":"")+")\n", null);
+					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
 
-		try {
+					SimpleAttributeSet sas = new SimpleAttributeSet(); 
+					StyleConstants.setBold(sas, true);
+					examplePane.getStyledDocument().setCharacterAttributes(currFilesIndex , groupString.length()-1, sas, false);
+				//	textPane_1.getStyledDocument().setCharacterAttributes(currGroupIndex , groupString.length()-1, sas, false);
+					
+					//h.addHighlight(currIndex , currIndex + groupString.length()-1,  DefaultHighlighter.DefaultPainter);
+					Iterator vecIt = files.iterator();
+					while (vecIt.hasNext()) {
+						filesDoc.insertString(filesDoc.getLength(),"- "+ new File(rep.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath()+ "\n", null);
+						
+					}
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			examplePane.setCaretPosition(0);
+			//textPane_1.setCaretPosition(0);
+			//nbFilesValueLabel.setText("" + nbFiles);
+			//filesSize.setText(""+size/1024000+"MB");
+		}
+		
+	/*	
+	  try {
 			logger.info("theLine: " + examplePane.getText());
 			logger.info("patternString: " + patternString);
 			Highlighter h = examplePane.getHighlighter();
@@ -168,6 +232,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 			for (int i=0; i<lines.length ; i++){
 				matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(lines[i]);
 			if (matcher.find()) {
+			
 				// int currIndex = 0;
 				// doc.insertString(doc.getLength(),line+"\n", null);
 
@@ -183,7 +248,8 @@ public class MetadataRecordingEditorTable extends JPanel {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			// System.exit(1);
-		}
+		} 
+		*/
 
 	}
 

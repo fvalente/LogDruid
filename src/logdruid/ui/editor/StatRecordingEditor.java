@@ -48,8 +48,8 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Document;
 import javax.swing.text.Highlighter;
 
-import logdruid.data.DataVault;
 import logdruid.data.Repository;
+import logdruid.data.mine.DataVault;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.StatRecording;

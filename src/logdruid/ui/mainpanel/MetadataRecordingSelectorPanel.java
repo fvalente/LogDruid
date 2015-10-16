@@ -107,7 +107,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setLayout(new BorderLayout(0, 0));
-
+		panel_1.setMinimumSize(new Dimension(0,150));
 		table = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane(table);
 		panel_1.add(scrollPane, BorderLayout.CENTER);
@@ -168,7 +168,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	}
 
 	private JPanel getEditor(Recording rec) {
-		return new MetadataRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec));
+		return new MetadataRecordingEditor(this,repository, rec.getExampleLine(), rec.getRegexp(), ((MetadataRecording) rec),source);
 	}
 
 	public void reloadTable() {
@@ -255,9 +255,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 			} else if (column == 2 ) {
 				return repository.getRecording(MetadataRecording.class,row,true).getType();
 			} else if (column == 3 ) {
-				logger.debug("getvalueat name" + ((MetadataRecording) repository.getRecording(MetadataRecording.class, row,true)).getName());
-				logger.debug("getvalueat is active" + source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row,true)));
-				return source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class, row,true));
+				return source.getActiveMetadata()==(repository.getRecording(MetadataRecording.class, row,true));
 			}
 			else return 0;
 		}
@@ -276,7 +274,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		public void setValueAt(Object value, int row, int column) {
 			if (column == 3 && source != null) {
 				logger.debug("setValueAt calls setActiveRecording");
-				source.toggleActiveRecording(repository.getRecording(MetadataRecording.class, row,true));
+				source.setActiveMetadata((MetadataRecording)repository.getRecording(MetadataRecording.class, row,true));
 				fireTableCellUpdated(row, column);
 				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));

@@ -48,19 +48,19 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import logdruid.data.ChartData;
-import logdruid.data.DataVault;
 import logdruid.data.DateFormat;
 import logdruid.data.ExtendedTimeSeries;
-import logdruid.data.FileLine;
-import logdruid.data.FileMineResult;
-import logdruid.data.FileMineResultSet;
-import logdruid.data.FileRecord;
-import logdruid.data.MineResult;
-import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
+import logdruid.data.mine.ChartData;
+import logdruid.data.mine.DataVault;
+import logdruid.data.mine.FileLine;
+import logdruid.data.mine.FileMineResult;
+import logdruid.data.mine.FileMineResultSet;
+import logdruid.data.mine.FileRecord;
+import logdruid.data.mine.MineResult;
+import logdruid.data.mine.MineResultSet;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
@@ -113,7 +113,7 @@ public class DataMiner {
 		while (sourceIterator2.hasNext()) {
 			final Source source = sourceIterator2.next();
 			// sourceFiles contains all the matched files for a given source
-			if (source.getActive()) {
+			if (source.getActive() && source.getActiveMetadata()!=null) {
 				Iterator<Entry<String, ArrayList<FileRecord>>> it = cd.getGroupFilesMap(source).entrySet().iterator();
 				while (it.hasNext()) {
 					final Map.Entry<String, ArrayList<FileRecord>> pairs = (Map.Entry<String, ArrayList<FileRecord>>) it.next();
@@ -924,15 +924,9 @@ public class DataMiner {
 		String patternString = "";
 		Map<String, ArrayList<FileRecord>> sourceFileGroup = new HashMap<String, ArrayList<FileRecord>>();
 		ArrayList<FileRecord> groupedFiles = new ArrayList<FileRecord>();
-		// ArrayList<SourceItem> sourceItemArrayList = src.getSourceItem();
-		ArrayList<Recording> recordings = (ArrayList<Recording>) repo.getRecordings(MetadataRecording.class,true);
 		Matcher matcher = null;
-		if (recordings != null) {
-			Iterator<Recording> it = recordings.iterator();
-			// logger.info("recordings not null ");
-			while (it.hasNext()) {
-				Recording rec = it.next();
-				if (src.isActiveRecordingOnSource(rec)) {
+		Recording rec = src.getActiveMetadata();
+		if (src!=null && rec!=null){
 					ArrayList<RecordingItem> rIV = ((MetadataRecording) rec).getRecordingItem();
 					Iterator<RecordingItem> itV = rIV.iterator();
 					int nbRec = 0;
@@ -972,11 +966,9 @@ public class DataMiner {
 								key = "";
 								int i = 0;
 								for (i = 0; i < matcher.groupCount(); i++) {
-									if (recordings.get(i).getIsActive()) {
 										if (logger.isDebugEnabled())
-											logger.debug("one : " + matcher.group(i));
+											logger.debug("group matched : " + matcher.group(i));
 										key += matcher.group(i + 1) + " ";
-									}
 								}
 								if (logger.isDebugEnabled())
 									logger.debug("i : " + i + " nbRec: " + nbRec);
@@ -1017,11 +1009,13 @@ public class DataMiner {
 						// src.getSourceName());
 
 					}
-				}
-			}
-		}
+		
+			
+		
 		// TODO Auto-generated method stub
 		return sourceFileGroup;
+		}
+else {return null;}
 	}
 
 	private static Map<Recording, String> getRegexp(Repository repo, Source source) {
@@ -1196,8 +1190,8 @@ public class DataMiner {
 			Map<Integer, FileRecord> sourceFiles = (Map<Integer, FileRecord>) sourcePairs.getValue();
 			sourceFileGroup = getSourceFileGroup(sourceFiles, src, repo);
 			if (logger.isEnabledFor(Level.INFO))
-				logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + src.getSourceName());
-			logger.debug(sourceFileGroup.toString());
+		//		logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + src.getSourceName());
+		//	logger.debug(sourceFileGroup.toString());
 			cd.setGroupFilesArrayListMap(src, sourceFileGroup);
 		}
 		return cd;

@@ -52,10 +52,10 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import logdruid.data.DataVault;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
+import logdruid.data.mine.DataVault;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
@@ -196,8 +196,7 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
 				Recording re = new MetadataRecording("name", "regex", "example line", "", true, true, null);
-				recEditor = new MetadataRecordingEditor(thiis, repository, "the line", "regex",
-						(MetadataRecording) re);
+				recEditor = new MetadataRecordingEditor(thiis, repository, "the line", "regex",	(MetadataRecording) re,null);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
@@ -328,7 +327,7 @@ public class RecordingList extends JPanel {
 			editorPanel = new StatRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((StatRecording) rec));
 		} else if (rec.getClass() == MetadataRecording.class) {
 			editorPanel = new MetadataRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(),
-					((MetadataRecording) rec));
+					((MetadataRecording) rec),null);
 		} else if (rec.getClass() == EventRecording.class) {
 			editorPanel = new EventRecordingEditor(thiis, repository, rec.getExampleLine(), rec.getRegexp(), ((EventRecording) rec));
 		} else if (rec.getClass() == ReportRecording.class) {

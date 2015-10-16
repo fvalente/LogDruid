@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
+import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.util.DataMiner;
 
@@ -214,12 +215,13 @@ public class Repository {
 		this.addRecording(newRecording);
 		ArrayList<Source> sources= this.getSources();
 		Iterator<Source> ite=sources.iterator();
+		if (!MetadataRecording.class.isInstance(recordings.get(id))){
 		while (ite.hasNext()){
 			Source src=(Source) ite.next();
 			if (src.isActiveRecordingOnSource(recordings.get(id))){
 				src.toggleActiveRecording(newRecording);
 			}
-		}
+		}}
 	}
 
 	public void update(Repository repo) {

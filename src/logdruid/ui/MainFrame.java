@@ -34,6 +34,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicBorders.SplitPaneBorder;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -49,12 +50,12 @@ import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import logdruid.data.ChartData;
-import logdruid.data.DataVault;
-import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
+import logdruid.data.mine.ChartData;
+import logdruid.data.mine.DataVault;
+import logdruid.data.mine.MineResultSet;
 import logdruid.ui.chart.GraphPanel;
 import logdruid.ui.dialog.FileSaverDialog;
 import logdruid.ui.editor.DateEditor;
@@ -182,7 +183,7 @@ public class MainFrame extends JFrame {
 								if (working==false){
 				            	working=true;
 				            	try{
-								if (treeSelected.equals("Chart")) {
+								if (treeSelected.equals("<html><font color=\"blue\" size=3>Chart</font></html>")) {
 									graphPanel=null;
 									reportPanel=null;
 									thiis.setValueNow(0);
@@ -193,7 +194,7 @@ public class MainFrame extends JFrame {
 								cd = DataMiner.gatherSourceData(repository);
 								}
 								thiis.setValueNow(progressBarValue);
-								} else if (treeSelected.equals("Reports")) {
+								} else if (treeSelected.equals("<html>Reports</html>")) {
 									reportPanel=null;
 									graphPanel=null;
 									thiis.setValueNow(0);
@@ -317,12 +318,19 @@ public class MainFrame extends JFrame {
 		flowLayout.setAlignment(FlowLayout.LEFT);
 		contentPane.add(panel_2, BorderLayout.NORTH);
 		DefaultTreeModel defaultTreeModel;
-		DMTnode_sources = new DefaultMutableTreeNode("Sources");
+		DMTnode_sources = new DefaultMutableTreeNode("<html><font size=3>Sources</font></html>");
 		panel_7.setLayout(new BorderLayout(0, 0));
 		panel_7.setSize(150, 10000);
-		panel_7.setMinimumSize(new Dimension(130, 1000));
+		panel_7.setMinimumSize(new Dimension(137, 1000));
 		tree = new JTree();
 		panel_7.add(tree);
+		DefaultTreeCellRenderer renderer =
+                (DefaultTreeCellRenderer) tree.getCellRenderer();
+       // renderer.setTextSelectionColor(Color.white);
+       // renderer.setBackgroundSelectionColor(Color.blue);
+        renderer.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        //setBorderSelectionColor(Color.black);
+		
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent arg0) {
@@ -348,7 +356,7 @@ public class MainFrame extends JFrame {
 				DefaultMutableTreeNode DMTnode_2;
 
 				DefaultMutableTreeNode DMTconfiguration;
-				DMTnode_1 = new DefaultMutableTreeNode("Configuration");
+				DMTnode_1 = new DefaultMutableTreeNode("<html><font size=3>Configuration</font></html>");
 				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Preferences"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
@@ -358,8 +366,8 @@ public class MainFrame extends JFrame {
 				add(DMTnode_1);
 				add(DMTnode_1);
 				add(DMTnode_sources);
-				add(new DefaultMutableTreeNode("Chart"));
-				add(new DefaultMutableTreeNode("Reports"));
+				add(new DefaultMutableTreeNode("<html><font color=\"blue\" size=3>Chart</font></html>"));
+				add(new DefaultMutableTreeNode("<html><font color=\"blue\" size=3>Report</font></html>"));
 
 			}
 		}));
@@ -447,7 +455,7 @@ public class MainFrame extends JFrame {
 		chckbxRelative.setFont(new Font("Dialog", Font.BOLD, 11));
 		chckbxRelative.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (treeSelected.equals("Chart")) {
+				if (treeSelected.equals("<html><font color=\"blue\" size=3>Chart</font></html>")) {
 					graphPanel.load(panel_2);
 				}
 			}
@@ -457,7 +465,7 @@ public class MainFrame extends JFrame {
 		btnRefresh.setFont(new Font("Dialog", Font.BOLD, 11));
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (treeSelected.equals("Chart")) {
+				if (treeSelected.equals("<html><font color=\"blue\" size=3>Chart</font></html>")) {
 					graphPanel.resetTimePeriod(panel_2);
 					graphPanel.loadGroupCheckbox(panel_2);
 					graphPanel.load(panel_2);
@@ -471,7 +479,7 @@ public class MainFrame extends JFrame {
 		btnReset.setFont(new Font("Dialog", Font.BOLD, 11));
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (treeSelected.equals("Chart")) {
+				if (treeSelected.equals("<html><font color=\"blue\" size=3>Chart</font></html>")) {
 					graphPanel.loadGroupCheckbox(panel_2);
 					graphPanel.load(panel_2);
 				}
@@ -572,10 +580,10 @@ public class MainFrame extends JFrame {
 			if (((Source) sources.get(i)).getActive()) {
 				String name = ((Source) sources.get(i)).getSourceName();
 				DMTNsources_child = new DefaultMutableTreeNode(name);
-				DMTNsources_child.add(new DefaultMutableTreeNode("Identification"));
-				DMTNsources_child.add(new DefaultMutableTreeNode("Data"));
-				DMTNsources_child.add(new DefaultMutableTreeNode("Event"));
-				DMTNsources_child.add(new DefaultMutableTreeNode("Report"));
+				DMTNsources_child.add(new DefaultMutableTreeNode("<html>File Grouping</html>"));
+				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Series</html>"));
+				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Events</html>"));
+				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Reports</html>"));
 				DMTnode_sources.add(DMTNsources_child);
 				DMTnode_sources.getParent();
 			}
@@ -598,7 +606,7 @@ public class MainFrame extends JFrame {
 		if (node != null) {
 			logger.info(node.toString());
 			treeSelected = node.toString();
-			if (treeSelected.equals("Sources")) {
+			if (treeSelected.equals("<html><font size=3>Sources</font></html>")) {
 				panel_1.removeAll();
 				panel_1.add(new SourcePanel(repository, thiis));
 				panel_1.revalidate();
@@ -610,19 +618,19 @@ public class MainFrame extends JFrame {
 				panel_1.removeAll();
 				panel_1.add(new PreferencePanel(repository));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("Data")) {
+			} else if (treeSelected.equals("<html>Series</html>")) {
 				panel_1.removeAll();
 				panel_1.add(new StatRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("Event")) {
+			} else if (treeSelected.equals("<html>Events</html>")) {
 				panel_1.removeAll();
 				panel_1.add(new EventRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("Report")) {
+			} else if (treeSelected.equals("<html>Reports</html>")) {
 				panel_1.removeAll();
 				panel_1.add(new ReportRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("Reports")) {
+			} else if (treeSelected.equals("<html><font color=\"blue\" size=3>Report</font></html>")) {
 
 				Thread t =new Thread()
 		        {
@@ -658,7 +666,7 @@ public class MainFrame extends JFrame {
 		            }};
 		        t.start();
 				
-			} else if (treeSelected.equals("Identification")) {
+			} else if (treeSelected.equals("<html>File Grouping</html>")) {
 				panel_1.removeAll();
 				panel_1.add(new MetadataRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
@@ -666,7 +674,7 @@ public class MainFrame extends JFrame {
 				panel_1.removeAll();
 				panel_1.add(new DateEditor(repository));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("Chart")) {
+			} else if (treeSelected.equals("<html><font color=\"blue\" size=3>Chart</font></html>")) {
 				if (working==false){
 					Thread t =new Thread()
 			        {
@@ -726,11 +734,11 @@ public class MainFrame extends JFrame {
  * DefaultMutableTreeNode("Chartting")); node_1.add(new
  * DefaultMutableTreeNode("Reporting")); node_1.add(new
  * DefaultMutableTreeNode("Advanced")); add(node_1); node_1 = new
- * DefaultMutableTreeNode("Sources"); node_2 = new
+ * DefaultMutableTreeNode("<html><font size=3>Sources</font></html>"); node_2 = new
  * DefaultMutableTreeNode("Method Servers"); node_2.add(new
  * DefaultMutableTreeNode("File Pattern")); node_2.add(new
  * DefaultMutableTreeNode("Recordings")); node_2.add(new
  * DefaultMutableTreeNode("Date Format")); node_1.add(node_2); add(node_1);
- * add(new DefaultMutableTreeNode("Chart")); add(new
- * DefaultMutableTreeNode("Report"));
+ * add(new DefaultMutableTreeNode("<html><font color=\"blue\" size=3>Chart</font></html>")); add(new
+ * DefaultMutableTreeNode("<html><font color=\"blue\" size=3>Report</font></html>"));
  */

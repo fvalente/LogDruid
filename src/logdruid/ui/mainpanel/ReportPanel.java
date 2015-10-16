@@ -55,11 +55,11 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import logdruid.data.DataVault;
-import logdruid.data.MineResultSet;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
+import logdruid.data.mine.DataVault;
+import logdruid.data.mine.MineResultSet;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;

@@ -11,6 +11,7 @@
 package logdruid.ui.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Label;
 
@@ -51,6 +52,7 @@ import javax.swing.text.Highlighter;
 import logdruid.data.Repository;
 //import logdruid.newui.MetadataSelectorPanel.MyTableModel2;
 
+import logdruid.data.Source;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
@@ -94,6 +96,7 @@ public class MetadataRecordingEditor extends JPanel {
 	Document doc;
 	JCheckBox chckbxActive;
 	JCheckBox chckbxCaseSensitive;
+	Source selectedSource;
 
 	// private JList recordingList;
 
@@ -101,25 +104,26 @@ public class MetadataRecordingEditor extends JPanel {
 	 * Create the dialog.
 	 */
 	public MetadataRecordingEditor(final JPanel newRecordingList, MetadataRecording re, Repository repo) {
-		this(newRecordingList, repo, re.getExampleLine(), re.getRegexp(), re);
+		this(newRecordingList, repo, re.getExampleLine(), re.getRegexp(), re,null);
 	}
 
 	public MetadataRecordingEditor(Repository repo, String theLine, String regex, MetadataRecording re) {
-		this(null, repo, theLine, regex, re);
+		this(null, repo, theLine, regex, re,null);
 	}
 
 	/**
 	 * Create the dialog.
+	 * @param source 
 	 * 
 	 * @wbp.parser.constructor
 	 */
 	public MetadataRecordingEditor(final JPanel newRecordingList, Repository repo, String theLine, String regex,
-			final MetadataRecording re) {
+			final MetadataRecording re, Source source) {
 		// setBounds(0, 0, 1015, 467);
 
 		repository = repo;
 		recording = re;
-
+		selectedSource = source;
 		BorderLayout borderLayout = new BorderLayout();
 		this.setLayout(borderLayout);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -137,13 +141,14 @@ public class MetadataRecordingEditor extends JPanel {
 				panel_1_1.add(scrollPane);
 				{
 					examplePane = new JTextPane();
-					examplePane.setText(theLine);
+				//	examplePane.setText(theLine);
 					scrollPane.setViewportView(examplePane);
 				}
 			}
 			
 					{
 						panel.setLayout(new BorderLayout(0, 0));
+						panel.setMinimumSize(new Dimension(0,200));
 						{
 							panel_1 = new JPanel();
 							panel.add(panel_1, BorderLayout.NORTH);
@@ -358,17 +363,6 @@ public class MetadataRecordingEditor extends JPanel {
 		
 			
 
-			
-		
-		if (re != null) {
-			txtName.setText(re.getName());
-			txtRegularExp.setText(re.getRegexp());
-			txtDate.setText(((MetadataRecording) re).getDateFormat());
-			examplePane.setText(re.getExampleLine());
-			scrollPane.repaint();
-			panel_1.repaint();
-
-		}
 		{
 			JSplitPane splitPane = new JSplitPane();
 			splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -381,14 +375,20 @@ public class MetadataRecordingEditor extends JPanel {
 				JPanel panelb = new JPanel();
 				splitPane.setBottomComponent(panel_1_1);
 			}
-		}
+		}		
 		
 		if (re == null) {
-			recordingEditorTablePanel = new MetadataRecordingEditorTable(examplePane);
+			recordingEditorTablePanel = new MetadataRecordingEditorTable(examplePane,source);
 			logger.info("RecordingEditor - re=null");
 		} else {
-			recordingEditorTablePanel = new MetadataRecordingEditorTable(repo, re, examplePane);
-			logger.info("RecordingEditor - re!=null examplePane: " + examplePane.getText());
+			txtName.setText(re.getName());
+			txtRegularExp.setText(re.getRegexp());
+			txtDate.setText(((MetadataRecording) re).getDateFormat());
+		//	examplePane.setText(re.getExampleLine());
+			scrollPane.repaint();
+			panel_1.repaint();
+			recordingEditorTablePanel = new MetadataRecordingEditorTable(repo, re, examplePane,source);
+		//	logger.info("RecordingEditor - re!=null examplePane: " + examplePane.getText());
 		}
 		recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
 		recordingEditorTablePanel.setOpaque(true);

@@ -8,7 +8,7 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *******************************************************************************/
-package logdruid.data;
+package logdruid.data.mine;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ArrayList;
 
+import logdruid.data.ExtendedTimeSeries;
+import logdruid.data.Repository;
+import logdruid.data.Source;
 import logdruid.util.DataMiner;
 
 import org.apache.commons.lang3.time.FastDateFormat;

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Iterator;
 import java.util.ArrayList;
 
+import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.util.DataMiner;
 
@@ -26,6 +27,7 @@ public class Source implements Comparable{
 	private String sourceName;
 	private String sourcePattern;
 	private Boolean active;
+	private MetadataRecording activeMetadataRecording;
 	private ArrayList<SourceItem> sourceItemArrayList;
 	private ArrayList<String> selectedRecordingIds;
 
@@ -35,7 +37,6 @@ public class Source implements Comparable{
 		sourceItemArrayList = _sourceItemArrayList;
 		setActive(_active);
 		selectedRecordingIds = new ArrayList<String>();
-
 		logger.info("Source loaded");
 
 	}
@@ -48,14 +49,15 @@ public class Source implements Comparable{
 		this.sourcePattern = sourcePattern;
 	}
 
-	/*
-	 * public void setActiveRecording(Recording recording){
-	 * selectedRecordingIds.add(recording.getId());
-	 * 
-	 * } public void unsetActiveRecording(Recording recording){
-	 * selectedRecordingIds.remove(recording.getId()); }
-	 */
+	public void setActiveMetadata(MetadataRecording _activeMetadataRecording){
+		activeMetadataRecording=_activeMetadataRecording;
+	}
 
+	public MetadataRecording getActiveMetadata(){
+		return activeMetadataRecording;
+	}
+	
+	
 	public void toggleActiveRecording(Recording recording) {
 		// logger.info("toggleActiveRecording of "+recording.getName());
 		if (selectedRecordingIds.contains(recording.getId())) {
@@ -82,7 +84,12 @@ public class Source implements Comparable{
 	
 	
 	public Boolean isActiveRecordingOnSource(Recording recording) {
-
+		if (MetadataRecording.class.isInstance(recording)){
+				if (getActiveMetadata()!=null && getActiveMetadata()==recording){
+					return true;
+				}
+				else return false;
+		}
 		// logger.info("***isActiveRecordingOnSource of "+recording.getName());
 		Boolean b = false;
 		Iterator it = selectedRecordingIds.iterator();

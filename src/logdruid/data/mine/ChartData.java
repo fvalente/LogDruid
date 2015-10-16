@@ -8,12 +8,14 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *******************************************************************************/
-package logdruid.data;
+package logdruid.data.mine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+
+import logdruid.data.Source;
 
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
