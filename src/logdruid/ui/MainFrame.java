@@ -175,8 +175,8 @@ public class MainFrame extends JFrame {
 					TreePath tp = tree.getSelectionPath();
 					File file = fileChooserDialog.getSelectedFile();
 					configFile = fileChooserDialog.getSelectedFile();
-					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
 					repository = (Repository) Persister.open(fileChooserDialog.getSelectedFile());
+					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
 					updateTreeSources(repository.getSources());
 	//				tree.setSelectionPath(tp);
 
