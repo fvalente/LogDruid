@@ -202,7 +202,7 @@ public class DataMiner {
 		Map<String, Map<Date, FileLine>> fileLine = new HashMap<String, Map<Date, FileLine>>();
 		Collection<Callable<FileMineResult>> tasks = new ArrayList<Callable<FileMineResult>>();
 		
-		final Map<Recording, String> recMatch1 = getRegexp(repo, source); 
+		final Map<Recording, String> recMatch1 = getAllRegexSingleMap(repo, source); 
 
 		ArrayList<Object> mapArrayList;
 		mapArrayList = new ArrayList<>();
@@ -537,7 +537,7 @@ public class DataMiner {
 												startDate = date1;
 											}
 
-											if (isStatRecording) {
+											if (isStatRecording && (Preferences.getBooleanPreference("gatherstats"))) {
 												if (statMap.containsKey(recItem2.getName())) {
 													ts = statMap.get(recItem2.getName());
 												} else {
@@ -582,7 +582,7 @@ public class DataMiner {
 												// updating
 												// the TimeSeries in the Map
 
-											} else if (classCache.getClass(rec).equals(EventRecording.class)) {
+											} else if (classCache.getClass(rec).equals(EventRecording.class) &&  (Preferences.getBooleanPreference("gatherevents"))) {
 												if (eventMap.containsKey(recItem2.getName())) {
 													ts = eventMap.get(recItem2.getName());
 												} else {
@@ -603,7 +603,22 @@ public class DataMiner {
 														ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 100)));
 													}
 
-												} else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
+												} else if (((RecordingItem) recItem2).getProcessingType().equals("duration")) {
+													try {
+														ts.getTimeSeries().addOrUpdate(
+																(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2
+																		.group(count)))))));
+													} catch (ParseException e) {
+														// TODO
+														// Auto-generated
+														// catch block
+														e.printStackTrace();
+													}
+												
+												// ts.addOrUpdate((new
+												// TimeSeriesDataItem(fMS,
+												// 100)));
+											} else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
 													TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
 													if (t != null) {
 														if (!recItem2.getType().equals("date")) {
@@ -634,24 +649,8 @@ public class DataMiner {
 													}
 
 												} else if (((RecordingItem) recItem2).getProcessingType().equals("capture")) {
-
-												} else {
-													if (!recItem2.getType().equals("date")) {
-														try {
-															ts.getTimeSeries().addOrUpdate(
-																	(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2
-																			.group(count)))))));
-														} catch (ParseException e) {
-															// TODO
-															// Auto-generated
-															// catch block
-															e.printStackTrace();
-														}
-													}
-													// ts.addOrUpdate((new
-													// TimeSeriesDataItem(fMS,
-													// 100)));
-												}
+													
+												} 
 												// logger.debug(recItem2.getName()
 												// +
 												// " " +
@@ -679,7 +678,7 @@ public class DataMiner {
 									// " and "
 									// +statHit);
 								}
-							} else {
+							} else { if (Preferences.getBooleanPreference("gatherreports")){
 								int count = 0;
 								if (((ReportRecording) rec).getSubType().equals("histogram") && rec.getIsActive()) {
 									List<Object> temp = new ArrayList<Object>();
@@ -790,7 +789,7 @@ public class DataMiner {
 									}
 									}
 								}
-								
+							}
 							}
 						}
 						if (timings || matches) {
@@ -1018,15 +1017,44 @@ public class DataMiner {
 else {return null;}
 	}
 
-	private static Map<Recording, String> getRegexp(Repository repo, Source source) {
+	private static Map<Class,Map<Recording, String>> getAllRegexp(Repository repo, Source source) {
+		Map<Class,Map<Recording, String>> recMatch = new HashMap<Class,Map<Recording, String>>();
+		recMatch.put(StatRecording.class,getRegexp(repo,source,StatRecording.class));
+		recMatch.put(EventRecording.class,getRegexp(repo,source,StatRecording.class));
+		recMatch.put(ReportRecording.class,getRegexp(repo,source,StatRecording.class));
+		return recMatch;
+	}
+
+	private static Map<Recording, String> getAllRegexSingleMap(Repository repo, Source source) {
+		Map<Recording, String> recMatch = new HashMap<Recording, String>();
+		if (Preferences.getBooleanPreference("gatherstats")){
+			Map<Recording, String> g1= getRegexp(repo,source,StatRecording.class);
+			if (g1!=null){
+			recMatch.putAll(g1);
+			}
+		}
+		if (Preferences.getBooleanPreference("gatherevents")){
+			Map<Recording, String> g2= getRegexp(repo,source,EventRecording.class);
+			if (g2!=null){
+				recMatch.putAll(g2);	
+			}
+		}
+		if (Preferences.getBooleanPreference("gatherreports")){
+			Map<Recording, String> g3= getRegexp(repo,source,ReportRecording.class);
+			if (g3!=null){
+			recMatch.putAll(g3);
+			}
+		}
+		return recMatch;
+	}
+	
+	
+	private static Map<Recording, String> getRegexp(Repository repo, Source source, Class recordingClass) {
 		Map<Recording, String> recMatch = new HashMap<Recording, String>();
 		Map<Recording, Boolean> activeRecordingOnSourceCache = new HashMap<Recording, Boolean>();
 		ArrayList<Recording> recordings;
-		recordings = repo.getRecordings(StatRecording.class,true);
-		recordings.addAll(repo.getRecordings(EventRecording.class,true));
-		recordings.addAll(repo.getRecordings(ReportRecording.class,true));
 		StringBuffer sb = new StringBuffer(200);
-
+		recordings = repo.getRecordings(recordingClass,true);
 		Iterator<Recording> recordingIterator = recordings.iterator();
 		while (recordingIterator.hasNext()) {
 			Recording rec = recordingIterator.next();
@@ -1048,13 +1076,13 @@ else {return null;}
 						String stType = (String) recItem.getType();
 						String stAfter = (String) recItem.getAfter();
 						String stInside = recItem.getInside();
-							sb.append(stBefore);
-							sb.append("(");
-							sb.append(getMainRegex(stType,stInside,repo.getDateFormat(rec.getDateFormatID())));
-							sb.append(")");
-							sb.append(stAfter);				
+						sb.append(stBefore);
+						sb.append("(");
+						sb.append(getMainRegex(stType,stInside,repo.getDateFormat(rec.getDateFormatID())));
+						sb.append(")");
+						sb.append(stAfter);				
 					}
-					recMatch.put(rec, sb.toString());
+						recMatch.put(rec, sb.toString());
 					if (logger.isDebugEnabled()) {
 						logger.debug("2**** regexp: " +rec.getRegexp());
 						logger.debug("Pattern: " + sb.toString());
@@ -1254,7 +1282,7 @@ else {return null;}
 						buf1st = new BufferedReader(flstr);
 						String line;
 						logger.info("matched file:" + fileName);
-						recMatch = getRegexp(repo, src);
+						recMatch = getAllRegexSingleMap(repo, src);
 						int lineCount = 0;
 						try {
 							while ((line = buf1st.readLine()) != null) {

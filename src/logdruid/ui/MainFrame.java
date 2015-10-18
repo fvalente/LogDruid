@@ -94,6 +94,8 @@ import java.awt.GridBagConstraints;
 import javax.swing.BoxLayout;
 
 import java.awt.Insets;
+import org.eclipse.wb.swing.FocusTraversalOnArray;
+import javax.swing.border.LineBorder;
 
 public class MainFrame extends JFrame {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -360,10 +362,6 @@ public class MainFrame extends JFrame {
 				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Preferences"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Recordings"));
-				// DMTnode_1.add(new DefaultMutableTreeNode("Chartting"));
-				// DMTnode_1.add(new DefaultMutableTreeNode("Reporting"));
-				// DMTnode_1.add(new DefaultMutableTreeNode("Advanced"));
-				add(DMTnode_1);
 				add(DMTnode_1);
 				add(DMTnode_sources);
 				add(new DefaultMutableTreeNode("<html><font color=\"blue\" size=3>Chart</font></html>"));
@@ -375,6 +373,44 @@ public class MainFrame extends JFrame {
 		tree.setSelectionRow(0);
 		tree.setRootVisible(false);
 		tree.setSelectionRow(1);
+		
+		JPanel panel_8 = new JPanel();
+		panel_7.add(panel_8, BorderLayout.SOUTH);
+		panel_8.setLayout(new BoxLayout(panel_8, BoxLayout.PAGE_AXIS));
+		
+		JSeparator separator_1 = new JSeparator();
+		panel_8.add(separator_1);
+		
+		final JCheckBox checkBoxStat = new JCheckBox("Stat");
+		checkBoxStat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Preferences.setPreference("gatherstats", ((Boolean)checkBoxStat.isSelected()).toString());
+			}
+		});
+		checkBoxStat.setSelected(Preferences.getBooleanPreference("gatherstats"));
+		panel_8.add(checkBoxStat);
+		checkBoxStat.setFont(new Font("Dialog", Font.PLAIN, 11));
+		
+		final JCheckBox checkBoxEvent = new JCheckBox("Event");
+		checkBoxEvent.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Preferences.setPreference("gatherevents", ((Boolean)checkBoxEvent.isSelected()).toString());
+			}
+		});
+		checkBoxEvent.setSelected(Preferences.getBooleanPreference("gatherevents"));
+		checkBoxEvent.setFont(new Font("Dialog", Font.PLAIN, 11));
+		panel_8.add(checkBoxEvent);
+		
+		final JCheckBox checkBoxReport = new JCheckBox("Report");
+		checkBoxReport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Preferences.setPreference("gatherreports", ((Boolean)checkBoxReport.isSelected()).toString());
+			}
+		});
+		checkBoxReport.setSelected(Preferences.getBooleanPreference("gatherreports"));
+		checkBoxReport.setFont(new Font("Dialog", Font.PLAIN, 11));
+		panel_8.add(checkBoxReport);
+		panel_8.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{checkBoxStat, checkBoxReport, checkBoxEvent}));
 
 		JButton btnMain = new JButton("Gather");
 		btnMain.setForeground(Color.BLUE);

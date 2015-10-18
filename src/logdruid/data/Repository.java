@@ -49,6 +49,9 @@ public class Repository {
 		preferences.put("ThreadPool_Group", "4");
 		preferences.put("ThreadPool_File", "8");
 		preferences.put("editorCommand", "gvim -R +$line $file");
+		preferences.put("gatherstats", "true");
+		preferences.put("gatherevents", "true");
+		preferences.put("gatherreports", "true");
 		recordings = new ArrayList<Recording>();
 		dates = new ArrayList<DateFormat>();
 		sources = new ArrayList<Source>();

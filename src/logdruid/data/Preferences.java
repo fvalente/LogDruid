@@ -68,6 +68,15 @@ public class Preferences {
 		if (!prefData.preferences.containsKey("editorCommand")) {
 			prefData.preferences.put("editorCommand", "gvim -R +$line $file");
 		}
+		if (!prefData.preferences.containsKey("gatherstats")) {
+			prefData.preferences.put("gatherstats", "true");
+		}
+		if (!prefData.preferences.containsKey("gatherevents")) {
+			prefData.preferences.put("gatherevents", "true");
+		}
+		if (!prefData.preferences.containsKey("gatherreports")) {
+			prefData.preferences.put("gatherreports", "true");
+		}
 		
 		return prefData.preferences;
 	}
@@ -103,6 +112,11 @@ public class Preferences {
 	
 	public void setMatches(boolean matches) {
 		setPreference("matches", Boolean.toString(matches));
+	}
+	
+	public static boolean getBooleanPreference( String key){
+		// TBD : implement a cache 
+		return Boolean.parseBoolean(getPreferences().get(key));
 	}
 
 	public static void persist() {
