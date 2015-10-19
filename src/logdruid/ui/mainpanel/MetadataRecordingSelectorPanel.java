@@ -27,9 +27,12 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import java.awt.Color;
 
@@ -102,7 +105,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		
 		model = new logdruid.ui.mainpanel.MetadataRecordingSelectorPanel.MyTableModel(data, header);
 
-		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
+		logger.debug("source is " + ((source == null) ? "null" : src.getSourceName()));
 		setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_1 = new JPanel();
@@ -129,6 +132,37 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		splitPane.setTopComponent(panel_1);
 
 		jPanelDetail.setLayout(new BorderLayout(0, 0));
+		table.getModel().addTableModelListener(new TableModelListener(){
+			 public void tableChanged(TableModelEvent e) {
+			        int row = e.getFirstRow();
+			        int column = e.getColumn();
+			        TableModel model = (TableModel)e.getSource();
+			        String columnName = model.getColumnName(column);
+			        Object data = model.getValueAt(row, column);
+			        if (e.getColumn()==3)
+			        {
+			        	source.setActiveMetadata((MetadataRecording)repository.getRecording(MetadataRecording.class, row,true));
+			        }
+					int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+
+					logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
+					if (selectedRow >= 0) {
+
+						if (jPanelDetail != null) {
+							logger.debug("ListSelectionListener - valueChanged");
+							jPanelDetail.removeAll();
+							recEditor = getEditor(repository.getRecording(MetadataRecording.class, selectedRow,true));
+							if (recEditor != null) {
+								jPanelDetail.add(recEditor, BorderLayout.CENTER);
+							}
+							reloadTable();
+							jPanelDetail.revalidate();
+						}
+					}
+			    }
+			{
+		}
+		});
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
@@ -137,7 +171,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				// display selected row
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 
-				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
 
 					if (jPanelDetail != null) {
@@ -153,14 +187,17 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				}
 			}
 		});
+		
 		if (repository.getRecordings(MetadataRecording.class,true).size() > 0) {
-			recEditor = getEditor(repository.getRecording(MetadataRecording.class, 0,true));
+			recEditor = getEditor(repository.getRecording(MetadataRecording.class,0,true));
 			jPanelDetail.add(recEditor, BorderLayout.CENTER);
-			table.setRowSelectionInterval(0, 0);
+
 		}
-		if (model.getRowCount()>0){
+		if (model.getRowCount()>0 && (source.getActiveMetadata()!=null)){
 			table.getRowSorter().toggleSortOrder(0);
 			table.setRowSelectionInterval(0, 0);
+			 ArrayList records = rep.getRecordings(MetadataRecording.class,true);
+			table.setRowSelectionInterval(table.convertRowIndexToView(records.indexOf(source.getActiveMetadata())),table.convertRowIndexToView(records.indexOf(source.getActiveMetadata())));
 		}
 		//reloadTable();
 		// jPanelDetail.revalidate();
@@ -174,7 +211,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 	public void reloadTable() {
 		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		records = repository.getRecordings(MetadataRecording.class,true);
-		logger.info("reloadTable - nb records : " + records.size());
+		logger.debug("reloadTable - nb records : " + records.size());
 		Iterator it = records.iterator();
 		int count = 0;
 		data.clear();
@@ -189,9 +226,8 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 				logger.debug("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
 			}
 			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), bool });
-			logger.info("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
+			logger.debug("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
 		}
-		// model.fireTableDataChanged();
 		logger.debug("reloadTable - 2");
 		// this.repaint();
 		table.repaint();
@@ -262,24 +298,22 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 		public void addRow(Object[] obj) {
 			data.add(obj);
-	//		table.repaint();
 		}
 
 		public void updateRow(int rowId, Object[] obj) {
 			data.set(rowId, obj);
-	//		table.repaint();
-		}
+			}
 
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			if (column == 3 && source != null) {
 				logger.debug("setValueAt calls setActiveRecording");
 				source.setActiveMetadata((MetadataRecording)repository.getRecording(MetadataRecording.class, row,true));
+				data.get(row)[column] = value;
 				fireTableCellUpdated(row, column);
-				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
+				// logger.debug("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
-
 				data.get(row)[column] = value;
 				fireTableCellUpdated(row, column);
 			}
@@ -319,7 +353,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 
 		/*
 		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " + value +
+		 * logger.debug("Setting value at " + row + "," + col + " to " + value +
 		 * " (an instance of " + value.getClass() + ")"); } if(4 == col) {}
 		 * 
 		 * }
@@ -327,15 +361,15 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 		/*
 		 * data[row][col] = value; fireTableCellUpdated(row, col);
 		 * 
-		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
+		 * if (DEBUG) { logger.debug("New value of data:"); printDebugData(); } }
 		 * 
 		 * private void printDebugData() { int numRows = getRowCount(); int
 		 * numCols = getColumnCount();
 		 * 
 		 * for (int i=0; i < numRows; i++) { System.out.print("    row " + i +
 		 * ":"); for (int j=0; j < numCols; j++) { System.out.print("  " +
-		 * data[i][j]); } logger.info(); }
-		 * logger.info("--------------------------"); }
+		 * data[i][j]); } logger.debug(); }
+		 * logger.debug("--------------------------"); }
 		 */
 	}
 

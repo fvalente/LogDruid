@@ -135,9 +135,9 @@ public class StatRecordingEditorTable extends JPanel {
 				RecordingItem rI = it.next();
 				String inside="";
 				inside= DataMiner.getMainRegex( rI.getType(),rI.getInside(), repo.getDateFormat(re.getDateFormatID())) ;
-				logger.info("inside: " + inside);
+				logger.debug("inside: " + inside);
 				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), inside,rI.getAfter(), rI.isSelected(),rI.isShow(), "" });
-				logger.info("added: " + rI.getName());
+				logger.debug("added: " + rI.getName());
 			}
 			FixValues();
 		}
@@ -155,20 +155,20 @@ public class StatRecordingEditorTable extends JPanel {
 			String stBefore = (String) obj[1];
 			String stType = (String) obj[2];
 			String stAfter = (String) obj[3];
-			logger.info("stType: " + stType);
+			logger.debug("stType: " + stType);
 			if (stType.equals("date") && rep.getDateFormat(recording.getDateFormatID()).getPattern() != null) {
 				patternString += stBefore + "(" + rep.getDateFormat(recording.getDateFormatID()).getPattern() + ")" + stAfter;
-				logger.info("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
-				logger.info("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
+				logger.debug("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
+				logger.debug("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
 			} else {
 				patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
-				logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				logger.debug("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
 			}
 		}
 
 		try {
-			logger.info("theLine: " + examplePane.getText());
-			logger.info("patternString: " + patternString);
+			logger.debug("theLine: " + examplePane.getText());
+			logger.debug("patternString: " + patternString);
 
 			Highlighter h = examplePane.getHighlighter();
 			h.removeAllHighlights();
@@ -187,7 +187,7 @@ public class StatRecordingEditorTable extends JPanel {
 					h.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
 				}
 				}
-			logger.info("currIndex: " + currIndex + "matcher.end(i2): " + lines[i].length()+",l: "+lines[i]);
+			logger.debug("currIndex: " + currIndex + "matcher.end(i2): " + lines[i].length()+",l: "+lines[i]);
 			currIndex += lines[i].length()+1 ;
 			}
 			}
@@ -214,7 +214,7 @@ public class StatRecordingEditorTable extends JPanel {
 			cellWidth = comp.getPreferredSize().width;
 
 			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
+				logger.debug("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
 			}
 
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));

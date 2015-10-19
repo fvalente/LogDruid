@@ -99,16 +99,16 @@ public class ReportRecordingSelectorPanel extends JPanel {
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
-			logger.info(record.getName());
-			logger.info(record.getRegexp());
-			logger.info(record.getType());
-			logger.info(src.getSourceName());
-			logger.info(src.isActiveRecordingOnSource(record));
+			logger.debug(record.getName());
+			logger.debug(record.getRegexp());
+			logger.debug(record.getType());
+			logger.debug(src.getSourceName());
+			logger.debug(src.isActiveRecordingOnSource(record));
 				data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), src.isActiveRecordingOnSource(record),((ReportRecording)record).getSubType() });
 			}
 		
 		model = new logdruid.ui.mainpanel.ReportRecordingSelectorPanel.MyTableModel(data, header);
-		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
+		logger.debug("source is " + ((source == null) ? "null" : src.getSourceName()));
 		JPanel panel_1 = new JPanel();
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
@@ -147,7 +147,7 @@ public class ReportRecordingSelectorPanel extends JPanel {
 
 			public void valueChanged(ListSelectionEvent e) {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
 					if (jPanelDetail != null) {
 						logger.debug("ListSelectionListener - valueChanged");
@@ -179,29 +179,29 @@ public class ReportRecordingSelectorPanel extends JPanel {
 	public void reloadTable() {
 		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		records = repository.getRecordings(ReportRecording.class);
-		logger.info("reloadTable - nb records : " + records.size());
+		logger.debug("reloadTable - nb records : " + records.size());
 		Iterator it = records.iterator();
 		int count = 0;
 		data.clear();
 		// this.repaint();
 
-		logger.info("reloadTable - 1");
+		logger.debug("reloadTable - 1");
 		while (it.hasNext()) {
 			Boolean bool = false;
 			Recording record = (Recording) it.next();
 			if (source != null) {
 				bool = source.isActiveRecordingOnSource(record);
-				logger.info("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
+				logger.debug("ReloadTable with " + record.getName() + " with isActiveRecordingOnSource: " + source.isActiveRecordingOnSource(record));
 			}
 			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), bool });
-			logger.info("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
+			logger.debug("name: " + record.getName() + "regexp: " + record.getRegexp() + "isActive: " + record.getIsActive());
 		}
 		// model.fireTableDataChanged();
-		logger.info("reloadTable - 2");
+		logger.debug("reloadTable - 2");
 		// this.repaint();
 		table.repaint();
 
-		logger.info("reloadTable - 3");
+		logger.debug("reloadTable - 3");
 		this.revalidate();
 
 	}
@@ -289,7 +289,7 @@ public class ReportRecordingSelectorPanel extends JPanel {
 				logger.debug("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(ReportRecording.class, row,true));
 				fireTableCellUpdated(row, column);
-				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
+				// logger.debug("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
 				((Object[]) data.get(row))[column] = value;

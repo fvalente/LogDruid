@@ -131,16 +131,16 @@ public class SourceEditorTable extends JPanel {
 			String stType = (String) obj[2];
 			String stAfter = (String) obj[3];
 			if (logger.isEnabledFor(Level.INFO))
-				logger.info("stType: " + stType);
-			logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				logger.debug("stType: " + stType);
+			logger.debug("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
 			patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
 		}
 
 		try {
 			if (logger.isEnabledFor(Level.INFO))
-				logger.info("theLine: " + theLine);
+				logger.debug("theLine: " + theLine);
 			if (logger.isEnabledFor(Level.INFO))
-				logger.info("patternString: " + patternString);
+				logger.debug("patternString: " + patternString);
 			Pattern pattern = Pattern.compile(patternString);
 			Matcher matcher = pattern.matcher(theLine);
 			int currIndex = 0;
@@ -152,7 +152,7 @@ public class SourceEditorTable extends JPanel {
 				for (int i = 1; i <= matcher.groupCount(); i++) {
 					model.setValueAt(matcher.group(i), i - 1, 5);
 					h.addHighlight(matcher.start(i), +matcher.end(i), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
-					logger.info("matcher.start(i): " + matcher.start(i) + "matcher.end(i): " + matcher.end(i));
+					logger.debug("matcher.start(i): " + matcher.start(i) + "matcher.end(i): " + matcher.end(i));
 				}
 
 			}

@@ -22,7 +22,7 @@ public class MetadataRecording extends Recording {
 	private String dateFormat;
 
 	public String getType() {
-		return "Metadata";
+		return "File Grouping";
 	}
 
 	public MetadataRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Boolean _caseSensitive, ArrayList _recordingItem) {

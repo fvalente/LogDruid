@@ -640,7 +640,7 @@ public class MainFrame extends JFrame {
 	private void treeSelected() {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 		if (node != null) {
-			logger.info(node.toString());
+			logger.debug(node.toString());
 			treeSelected = node.toString();
 			if (treeSelected.equals("<html><font size=3>Sources</font></html>")) {
 				panel_1.removeAll();

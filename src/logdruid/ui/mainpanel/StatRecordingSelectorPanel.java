@@ -103,7 +103,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 		model = new logdruid.ui.mainpanel.StatRecordingSelectorPanel.MyTableModel(data, header);
 
 		StatRecordingSelectorPanel thiis = this;
-		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
+		logger.debug("source is " + ((source == null) ? "null" : src.getSourceName()));
 		setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_1 = new JPanel();
@@ -131,7 +131,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 
 			public void valueChanged(ListSelectionEvent e) {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
 					if (jPanelDetail != null) {
 						logger.debug("ListSelectionListener - valueChanged");
@@ -164,25 +164,25 @@ public class StatRecordingSelectorPanel extends JPanel {
 	public void reloadTable() {
 		int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		records = repository.getRecordings(StatRecording.class);
-		logger.info("reloadTable - nb records : " + records.size());
+		logger.debug("reloadTable - nb records : " + records.size());
 		// Collections.sort(records);
 		Iterator it = records.iterator();
 		int count = 0;
 		data.clear();
 		// this.repaint();
 
-		logger.info("reloadTable - 1");
+		logger.debug("reloadTable - 1");
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
 			data.add(new Object[] { record.getName(), record.getRegexp(), record.getType(), record.getIsActive() });
-			logger.info(count + record.getName() + record.getRegexp() + record.getIsActive());
+			logger.debug(count + record.getName() + record.getRegexp() + record.getIsActive());
 		}
 		// model.fireTableDataChanged();
-		logger.info("reloadTable - 2");
+		logger.debug("reloadTable - 2");
 		// this.repaint();
 		table.repaint();
 
-		logger.info("reloadTable - 3");
+		logger.debug("reloadTable - 3");
 		this.revalidate();
 
 	}
@@ -262,7 +262,7 @@ public class StatRecordingSelectorPanel extends JPanel {
 				logger.debug("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(StatRecording.class, row,true));
 				fireTableCellUpdated(row, column);
-				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
+				// logger.debug("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
 				((Object[]) data.get(row))[column] = value;

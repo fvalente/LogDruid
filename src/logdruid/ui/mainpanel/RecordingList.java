@@ -118,7 +118,7 @@ public class RecordingList extends JPanel {
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
 			Recording record = (Recording) it.next();
-			logger.info("about to call DataVault.getRecordingStats on :"+record.getName());
+			logger.debug("about to call DataVault.getRecordingStats on :"+record.getName());
 			stats = DataVault.getRecordingStats(record.getName());
 			if (stats != null) {
 				if (Preferences.getPreference("timings").equals("false") && Preferences.getPreference("matches").equals("true") ) {
@@ -168,10 +168,10 @@ public class RecordingList extends JPanel {
 			public void valueChanged(ListSelectionEvent e) {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				;
-				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
 					if (jPanelDetail != null) {
-						logger.info("ListSelectionListener - valueChanged");
+						logger.debug("ListSelectionListener - valueChanged");
 						jPanelDetail.removeAll();
 						recEditor = getEditor(repository.getRecording(selectedRow));
 						if (recEditor != null) {
@@ -189,7 +189,7 @@ public class RecordingList extends JPanel {
 		flowLayout.setHgap(2);
 		panel_1.add(panel, BorderLayout.SOUTH);
 
-		JButton btnNewMeta = new JButton("New Meta");
+		JButton btnNewMeta = new JButton("New File Grouping");
 		panel.add(btnNewMeta);
 		btnNewMeta.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -202,7 +202,7 @@ public class RecordingList extends JPanel {
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
 				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
+				logger.debug("New record - row count : " + rowCount);
 			}
 		});
 
@@ -230,7 +230,7 @@ public class RecordingList extends JPanel {
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
 				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
+				logger.debug("New record - row count : " + rowCount);
 			}
 		});
 		panel.add(btnNewStat);
@@ -239,7 +239,7 @@ public class RecordingList extends JPanel {
 		btnNewEvent.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowCount = table.getRowCount();
-				logger.info("table.getRowCount()" + table.getRowCount());
+				logger.debug("table.getRowCount()" + table.getRowCount());
 				jPanelDetail.removeAll();
 				Recording re = new EventRecording("name", "regex", "example line", "", true, true, null);
 				recEditor = new EventRecordingEditor(thiis, repository, "the line", "regex", (EventRecording) re);
@@ -248,7 +248,7 @@ public class RecordingList extends JPanel {
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
 				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
+				logger.debug("New record - row count : " + rowCount);
 			}
 		});
 		panel.add(btnNewEvent);
@@ -256,7 +256,7 @@ public class RecordingList extends JPanel {
 		btnNewReport.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int rowCount = table.getRowCount();
-				logger.info("table.getRowCount()" + table.getRowCount());
+				logger.debug("table.getRowCount()" + table.getRowCount());
 				jPanelDetail.removeAll();
 				Recording re = new ReportRecording("name", "regex", "example line", "", true, null,"histogram",true);
 				recEditor = new ReportRecordingEditor(thiis, repository, "the line", "regex", (ReportRecording) re, "histogram");
@@ -265,7 +265,7 @@ public class RecordingList extends JPanel {
 				model.addRow(new Object[] { re.getName(), re.getRegexp(), re.getType(), re.getIsActive(), 0, 0, 0, 0 });
 				model.fireTableRowsInserted(rowCount, rowCount);
 				table.setRowSelectionInterval(rowCount, rowCount);
-				logger.info("New record - row count : " + rowCount);
+				logger.debug("New record - row count : " + rowCount);
 			}
 		});
 		panel.add(btnNewReport);
@@ -278,7 +278,7 @@ public class RecordingList extends JPanel {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				;
 				int realSelectedRow=table.getSelectedRow() ;
-				logger.info("selectedRow : " + selectedRow + ", row count: " + table.getRowCount());
+				logger.debug("selectedRow : " + selectedRow + ", row count: " + table.getRowCount());
 				if (rowCount!=0){
 				repository.deleteRecording(selectedRow);
 				model.fireTableRowsDeleted(selectedRow, selectedRow);
@@ -418,15 +418,15 @@ public class RecordingList extends JPanel {
 		public void setValueAt(Object value, int row, int column) {
 		
 			if (column == 3 ) {
-				logger.info("setValueAt calls setActiveRecording");
+				logger.debug("setValueAt calls setActiveRecording");
 				repository.getRecording(row).setIsActive((Boolean)value);
 				//.toggleActiveRecording(repository.getRecording(MetadataRecording.class, row));
 				fireTableCellUpdated(row, column);
-				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
+				// logger.debug("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
 				((Object[]) data.get(row))[column] = value;
-				//	logger.info("setValueAt"+row+","+column);
+				//	logger.debug("setValueAt"+row+","+column);
 					fireTableCellUpdated(row, column);
 			}
 		}
@@ -460,20 +460,20 @@ public class RecordingList extends JPanel {
 		 */
 		/*
 		 * public void setValueAt(Object value, int row, int col) { if (DEBUG) {
-		 * logger.info("Setting value at " + row + "," + col + " to " + value +
+		 * logger.debug("Setting value at " + row + "," + col + " to " + value +
 		 * " (an instance of " + value.getClass() + ")"); }
 		 * 
 		 * data[row][col] = value; fireTableCellUpdated(row, col);
 		 * 
-		 * if (DEBUG) { logger.info("New value of data:"); printDebugData(); } }
+		 * if (DEBUG) { logger.debug("New value of data:"); printDebugData(); } }
 		 * 
 		 * private void printDebugData() { int numRows = getRowCount(); int
 		 * numCols = getColumnCount();
 		 * 
 		 * for (int i=0; i < numRows; i++) { System.out.print("    row " + i +
 		 * ":"); for (int j=0; j < numCols; j++) { System.out.print("  " +
-		 * data[i][j]); } logger.info(); }
-		 * logger.info("--------------------------"); }
+		 * data[i][j]); } logger.debug(); }
+		 * logger.debug("--------------------------"); }
 		 */
 	}
 

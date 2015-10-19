@@ -151,7 +151,7 @@ public class StatRecordingEditor extends JPanel {
 							if (lines.length>=1){
 							for (int i=0; i<lines.length ; i++)
 							{
-								logger.info("line: "+lines[i]);
+								logger.debug("line: "+lines[i]);
 								
 								Matcher matcher = pattern.matcher(lines[i]);
 							if (matcher.find()) {
@@ -228,14 +228,14 @@ public class StatRecordingEditor extends JPanel {
 				txtRegularExp.setText(re.getRegexp());
 				txtDate.setText(((StatRecording) re).getDateFormat());
 				examplePane.setText(re.getExampleLine());
-				logger.info("examplePane.setText with recording re.getExampleLine(): "+re.getExampleLine());
+				logger.debug("examplePane.setText with recording re.getExampleLine(): "+re.getExampleLine());
 				if (DataVault.getMatchedLines(re)!=null && !DataVault.getMatchedLines(re).equals("")){
 					examplePane.setText(DataVault.getMatchedLines(re));
-					logger.info("examplePane.setText with DataVault.getMatchedLines(re): "+DataVault.getMatchedLines(re));
+					logger.debug("examplePane.setText with DataVault.getMatchedLines(re): "+DataVault.getMatchedLines(re));
 				}
 				if (DataVault.getUnmatchedLines(re)!=null && !DataVault.getUnmatchedLines(re).equals("")){
 					textPane.setText(DataVault.getUnmatchedLines(re));
-					logger.info("examplePane.setText with DataVault.getUnmatchedLines(re): "+DataVault.getUnmatchedLines(re));
+					logger.debug("examplePane.setText with DataVault.getUnmatchedLines(re): "+DataVault.getUnmatchedLines(re));
 				}
 			}
 							{
@@ -276,7 +276,7 @@ public class StatRecordingEditor extends JPanel {
 									JButton btnCheck = new JButton("Check");
 									btnCheck.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent e) {
-											logger.info("check");
+											logger.debug("check");
 											recordingEditorTablePanel.FixValues();
 			
 										}
@@ -295,15 +295,15 @@ public class StatRecordingEditor extends JPanel {
 												ArrayList<RecordingItem> rIs = recordingEditorTablePanel.getRecordingItems();
 												if (newRecordingList.getClass()==RecordingList.class) {
 													if (recording == null){
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 													Recording r = new StatRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 															.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 													repository.addRecording(r);
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 													if (newRecordingList.getClass()==RecordingList.class){
-														logger.info("RecordingEditor - ok 1");
+														logger.debug("RecordingEditor - ok 1");
 													if (((RecordingList) newRecordingList).model != null) {
-														logger.info("RecordingEditor - ok 1");
+														logger.debug("RecordingEditor - ok 1");
 														((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 														((RecordingList) newRecordingList).model.fireTableDataChanged();
 													
@@ -312,7 +312,7 @@ public class StatRecordingEditor extends JPanel {
 													((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 															chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 													((RecordingList) newRecordingList).model.fireTableDataChanged();
-													logger.info("RecordingEditor - row Updated");
+													logger.debug("RecordingEditor - row Updated");
 													((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 												}}
 												else
@@ -320,7 +320,7 @@ public class StatRecordingEditor extends JPanel {
 													if (recording == null){
 														int selectedRow = ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((StatRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 													if (((StatRecordingSelectorPanel) newRecordingList).model != null) {
-														logger.info("RecordingEditor - ok 1");
+														logger.debug("RecordingEditor - ok 1");
 														((StatRecordingSelectorPanel) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 														((StatRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 														((StatRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -329,7 +329,7 @@ public class StatRecordingEditor extends JPanel {
 													int selectedRow = ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow())) : -1);
 													((StatRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 															chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
-													logger.info("RecordingEditor - row Updated");
+													logger.debug("RecordingEditor - row Updated");
 													((StatRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 													((StatRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 												}
@@ -403,10 +403,10 @@ public class StatRecordingEditor extends JPanel {
 			{
 				if (re == null) {
 					recordingEditorTablePanel = new StatRecordingEditorTable(examplePane);
-					logger.info("RecordingEditor - re=null");
+					logger.debug("RecordingEditor - re=null");
 				} else {
 					recordingEditorTablePanel = new StatRecordingEditorTable(repo, re, examplePane);
-					logger.info("RecordingEditor - re!=null");
+					logger.debug("RecordingEditor - re!=null");
 				}
 				recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
 				recordingEditorTablePanel.setOpaque(true);

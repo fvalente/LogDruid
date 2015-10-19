@@ -56,7 +56,15 @@ public class Source implements Comparable{
 	public MetadataRecording getActiveMetadata(){
 		return activeMetadataRecording;
 	}
-	
+
+/*	public int getActiveMetadataId(){
+		if ((sourceItemArrayList!=null) && (activeMetadataRecording!=null)){
+			return sourceItemArrayList.indexOf(activeMetadataRecording);	
+		}
+		else{
+			return -1;
+		}
+	}*/
 	
 	public void toggleActiveRecording(Recording recording) {
 		// logger.info("toggleActiveRecording of "+recording.getName());

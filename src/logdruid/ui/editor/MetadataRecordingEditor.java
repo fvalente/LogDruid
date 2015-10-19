@@ -270,7 +270,7 @@ public class MetadataRecordingEditor extends JPanel {
 									JButton btnCheck = new JButton("Check");
 									btnCheck.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent e) {
-											logger.info("check");
+											logger.debug("check");
 											recordingEditorTablePanel.FixValues();
 			
 										}
@@ -297,15 +297,15 @@ public class MetadataRecordingEditor extends JPanel {
 														ArrayList<RecordingItem> rIs = recordingEditorTablePanel.getRecordingItems();
 														if (newRecordingList.getClass()==RecordingList.class) {
 															if (recording == null){
-															logger.info("RecordingEditor - ok 1");
+															logger.debug("RecordingEditor - ok 1");
 															Recording r = new MetadataRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 																	.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 															repository.addRecording(r);
-															logger.info("RecordingEditor - ok 1");
+															logger.debug("RecordingEditor - ok 1");
 															if (newRecordingList.getClass()==RecordingList.class){
-																logger.info("RecordingEditor - ok 1");
+																logger.debug("RecordingEditor - ok 1");
 															if (((RecordingList) newRecordingList).model != null) {
-																logger.info("RecordingEditor - ok 1");
+																logger.debug("RecordingEditor - ok 1");
 																((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 																((RecordingList) newRecordingList).model.fireTableDataChanged();
 															
@@ -314,7 +314,7 @@ public class MetadataRecordingEditor extends JPanel {
 															((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 																	chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 															((RecordingList) newRecordingList).model.fireTableDataChanged();
-															logger.info("RecordingEditor - row Updated");
+															logger.debug("RecordingEditor - row Updated");
 															((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 														}}
 														else
@@ -322,7 +322,7 @@ public class MetadataRecordingEditor extends JPanel {
 															if (recording == null){
 																int selectedRow = ((((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((StatRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((StatRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 															if (((MetadataRecordingSelectorPanel) newRecordingList).model != null) {
-																logger.info("RecordingEditor - ok 1");
+																logger.debug("RecordingEditor - ok 1");
 																((MetadataRecordingSelectorPanel) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 																((MetadataRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 																((MetadataRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -331,7 +331,7 @@ public class MetadataRecordingEditor extends JPanel {
 															int selectedRow = ((((MetadataRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((MetadataRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 															((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 																	chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
-															logger.info("RecordingEditor - row Updated");
+															logger.debug("RecordingEditor - row Updated");
 															((MetadataRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 															((MetadataRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 														}
@@ -379,7 +379,7 @@ public class MetadataRecordingEditor extends JPanel {
 		
 		if (re == null) {
 			recordingEditorTablePanel = new MetadataRecordingEditorTable(examplePane,source);
-			logger.info("RecordingEditor - re=null");
+			logger.debug("RecordingEditor - re=null");
 		} else {
 			txtName.setText(re.getName());
 			txtRegularExp.setText(re.getRegexp());
@@ -388,7 +388,7 @@ public class MetadataRecordingEditor extends JPanel {
 			scrollPane.repaint();
 			panel_1.repaint();
 			recordingEditorTablePanel = new MetadataRecordingEditorTable(repo, re, examplePane,source);
-		//	logger.info("RecordingEditor - re!=null examplePane: " + examplePane.getText());
+		//	logger.debug("RecordingEditor - re!=null examplePane: " + examplePane.getText());
 		}
 		recordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
 		recordingEditorTablePanel.setOpaque(true);

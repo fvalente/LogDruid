@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import logdruid.data.Repository;
 import logdruid.data.Source;
@@ -132,9 +133,9 @@ public class MetadataRecordingEditorTable extends JPanel {
 				RecordingItem rI = it.next();
 				String inside="";
 				inside= DataMiner.getMainRegex( rI.getType(),rI.getInside(), repo.getDateFormat(re.getDateFormatID())) ;
-				logger.info("inside: " + inside);
+				logger.debug("inside: " + inside);
 				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), inside,rI.getAfter(), rI.isSelected(),rI.isShow(), "" });
-				logger.info("added: " + rI.getName());
+				logger.debug("added: " + rI.getName());
 			}
 			FixValues();
 		}
@@ -153,31 +154,35 @@ public class MetadataRecordingEditorTable extends JPanel {
 			String stType = (String) obj[2];
 			String stInside = (String) obj[3];
 			String stAfter = (String) obj[4];
-			logger.info("stType: " + stType);
+			logger.debug("stType: " + stType);
 			if (stType.equals("date") && rep.getDateFormat(recording.getDateFormatID()).getPattern() != null) {
 				patternString += stBefore + "(" + rep.getDateFormat(recording.getDateFormatID()).getPattern() + ")" + stAfter;
-				logger.info("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
-				logger.info("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
+				logger.debug("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
+				logger.debug("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
 			} else {
 				if (stType.equals("manual")){
 					patternString += stBefore + "(" + stInside + ")" + stAfter;	
-					logger.info("getTypeString(stType) -: " + stInside);					
+					logger.debug("getTypeString(stType) -: " + stInside);					
 				}else{
 					patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
-					logger.info("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+					logger.debug("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
 				}
 			}
 		}
 		examplePane.setText("");
 		Highlighter h = examplePane.getHighlighter();
-		if (rep != null && rep.getBaseSourcePath() != null && src.getActiveMetadata()!=null) {
+		h.removeAllHighlights();
+		//Pattern pattern = patternCache.getPattern(txtRegularExp.getText(),re.isCaseSensitive());
+		if (rep != null && rep.getBaseSourcePath() != null && src!=null && src.getActiveMetadata()!=null) {
 			ChartData cd = DataMiner.gatherSourceData(rep);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
-			logger.info("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
+			logger.debug("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
 			filesDoc = examplePane.getDocument();
 			Iterator it2 = hm.entrySet().iterator();
 			int nbFiles = 0;
 			long size=0;
+			logger.debug("---patternString: "+patternString);
+			int currIndex = 0;
 			while (it2.hasNext()) {
 				try {
 				//	int currGroupIndex = groupDoc.getLength();
@@ -186,27 +191,37 @@ public class MetadataRecordingEditorTable extends JPanel {
 					final String groupString = (String) sourcePairs.getKey();
 					logger.debug("groupString: "+groupString);
 					ArrayList files = (ArrayList) sourcePairs.getValue();
-					nbFiles += files.size();
+				/*	nbFiles += files.size();
 					Iterator<FileRecord> iterator =files.iterator();
 					while (iterator.hasNext())
 						{
 						FileRecord fr = iterator.next();
 						size=size+((File)fr.getFile()).length();
-						logger.info(fr.getFile().getName()+" "+((File)fr.getFile()).length());
-						}
+						logger.debug(fr.getFile().getName()+" "+((File)fr.getFile()).length());
+						}*/
 			//		groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + " file"+(nbFiles>1?"s":"")+")\n", null);
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
-
+					currIndex+=filesDoc.getLength()+1;
 					SimpleAttributeSet sas = new SimpleAttributeSet(); 
 					StyleConstants.setBold(sas, true);
 					examplePane.getStyledDocument().setCharacterAttributes(currFilesIndex , groupString.length()-1, sas, false);
 				//	textPane_1.getStyledDocument().setCharacterAttributes(currGroupIndex , groupString.length()-1, sas, false);
 					
-					//h.addHighlight(currIndex , currIndex + groupString.length()-1,  DefaultHighlighter.DefaultPainter);
+			//		h.addHighlight(currIndex , currIndex + groupString.length()-1,  DefaultHighlighter.DefaultPainter);
 					Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
-						filesDoc.insertString(filesDoc.getLength(),"- "+ new File(rep.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath()+ "\n", null);
-						
+						 String filePath=new File(rep.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath();		 
+						filesDoc.insertString(filesDoc.getLength(),"- "+ filePath + "\n", null);
+						/* logger.debug(filePath);	
+						matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(filePath);
+						if (matcher.find()){
+						for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
+							logger.debug("matched");
+							h.addHighlight(currIndex+matcher.start(i2)+1, +currIndex+matcher.end(i2)+1, new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
+						}
+						}
+						currIndex += filePath.length()+3 ;
+						*/
 					}
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block
@@ -217,40 +232,37 @@ public class MetadataRecordingEditorTable extends JPanel {
 			//textPane_1.setCaretPosition(0);
 			//nbFilesValueLabel.setText("" + nbFiles);
 			//filesSize.setText(""+size/1024000+"MB");
+		} else {
+			  try {
+					logger.debug("theLine: " + examplePane.getText());
+					logger.debug("patternString: " + patternString);
+					Highlighter h2 = examplePane.getHighlighter();
+					h2.removeAllHighlights();
+					int currIndex = 0;
+					
+					String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
+					if (lines.length>=1){
+					for (int i=0; i<lines.length ; i++){
+						matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(lines[i]);
+					if (matcher.find()) {
+					
+						// int currIndex = 0;
+						// doc.insertString(doc.getLength(),line+"\n", null);
+
+						for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
+							model.setValueAt(matcher.group(i2), i2 - 1, 7);
+							h2.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
+						}
+						}
+					logger.debug("currIndex: " + currIndex + "matcher.end(i2): " + lines[i].length()+",l: "+lines[i]);
+					currIndex += lines[i].length()+1 ;
+					}
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					// System.exit(1);
+				} 
 		}
-		
-	/*	
-	  try {
-			logger.info("theLine: " + examplePane.getText());
-			logger.info("patternString: " + patternString);
-			Highlighter h = examplePane.getHighlighter();
-			h.removeAllHighlights();
-			int currIndex = 0;
-			
-			String[] lines = examplePane.getText().split(System.getProperty("line.separator"));
-			if (lines.length>=1){
-			for (int i=0; i<lines.length ; i++){
-				matcher = patternCache.getPattern(patternString,recording.isCaseSensitive()).matcher(lines[i]);
-			if (matcher.find()) {
-			
-				// int currIndex = 0;
-				// doc.insertString(doc.getLength(),line+"\n", null);
-
-				for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
-					model.setValueAt(matcher.group(i2), i2 - 1, 7);
-					h.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
-				}
-				}
-			logger.info("currIndex: " + currIndex + "matcher.end(i2): " + lines[i].length()+",l: "+lines[i]);
-			currIndex += lines[i].length()+1 ;
-			}
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			// System.exit(1);
-		} 
-		*/
-
 	}
 
 	private void initColumnSizes(JTable theTable) {
@@ -267,7 +279,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 			cellWidth = comp.getPreferredSize().width;
 
 			if (DEBUG) {
-				logger.info("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
+				logger.debug("Initializing width of column " + i + ". " + "headerWidth = " + headerWidth + "; cellWidth = " + cellWidth);
 			}
 
 			column.setPreferredWidth(Math.max(headerWidth, cellWidth));

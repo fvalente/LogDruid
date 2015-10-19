@@ -200,7 +200,7 @@ public class SourceInfoPanel extends JPanel {
 			ChartData cd = DataMiner.gatherSourceData(repo);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
 			if (hm!=null){
-			logger.info("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
+			logger.debug("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
 			filesDoc = textPane.getDocument();
 			Iterator it = hm.entrySet().iterator();
 			int nbFiles = 0;
@@ -219,7 +219,7 @@ public class SourceInfoPanel extends JPanel {
 						{
 						FileRecord fr = iterator.next();
 						size=size+((File)fr.getFile()).length();
-						logger.info(fr.getFile().getName()+" "+((File)fr.getFile()).length());
+						logger.debug(fr.getFile().getName()+" "+((File)fr.getFile()).length());
 						}
 					groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + " file"+(nbFiles>1?"s":"")+")\n", null);
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);

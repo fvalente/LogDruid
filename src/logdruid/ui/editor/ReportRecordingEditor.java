@@ -131,7 +131,7 @@ public class ReportRecordingEditor extends JPanel {
 
 		repository = repo;
 		recording = re;
-		// logger.info("myTableModel2 null? "+(newRecordingList==null));
+		// logger.debug("myTableModel2 null? "+(newRecordingList==null));
 		BorderLayout borderLayout = new BorderLayout();
 		this.setLayout(borderLayout);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -191,7 +191,7 @@ public class ReportRecordingEditor extends JPanel {
 										if (lines.length>=1){
 										for (int i=0; i<lines.length ; i++)
 										{
-											logger.info("line: "+lines[i]);
+											logger.debug("line: "+lines[i]);
 											
 											Matcher matcher = pattern.matcher(lines[i]);
 											if (matcher.find()) {
@@ -313,7 +313,7 @@ public class ReportRecordingEditor extends JPanel {
 								JButton btnCheck = new JButton("Check");
 								btnCheck.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent e) {
-										logger.info("check");
+										logger.debug("check");
 										reportRecordingEditorTablePanel.FixValues();
 
 									}
@@ -332,15 +332,15 @@ public class ReportRecordingEditor extends JPanel {
 											ArrayList rIs = reportRecordingEditorTablePanel.getRecordingItems();
 											if (newRecordingList.getClass()==RecordingList.class) {
 												if (recording == null){
-												logger.info("RecordingEditor - ok 1");
+												logger.debug("RecordingEditor - ok 1");
 												Recording r = new ReportRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 														.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												repository.addRecording(r);
-												logger.info("RecordingEditor - ok 1");
+												logger.debug("RecordingEditor - ok 1");
 												if (newRecordingList.getClass()==RecordingList.class){
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 												if (((RecordingList) newRecordingList).model != null) {
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 													((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 													((RecordingList) newRecordingList).model.fireTableDataChanged();
 												
@@ -350,7 +350,7 @@ public class ReportRecordingEditor extends JPanel {
 												((ReportRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												((RecordingList) newRecordingList).model.fireTableDataChanged();
-												logger.info("RecordingEditor - row Updated");
+												logger.debug("RecordingEditor - row Updated");
 												((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 											}}
 											else
@@ -359,7 +359,7 @@ public class ReportRecordingEditor extends JPanel {
 												if (recording == null){
 													int selectedRow = ((((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((ReportRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 												if (((ReportRecordingSelectorPanel) newRecordingList).model != null) {
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 													((ReportRecordingSelectorPanel) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 													((ReportRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 													((ReportRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -368,7 +368,7 @@ public class ReportRecordingEditor extends JPanel {
 												int selectedRow = ((((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((ReportRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
-												logger.info("RecordingEditor - NEVER HERE row Updated");
+												logger.debug("RecordingEditor - NEVER HERE row Updated");
 												((ReportRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 												((ReportRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 											}
@@ -461,10 +461,10 @@ public class ReportRecordingEditor extends JPanel {
 			{
 				if (re == null) {
 					reportRecordingEditorTablePanel = new ReportRecordingEditorTable(examplePane);
-					logger.info("RecordingEditor - re=null");
+					logger.debug("RecordingEditor - re=null");
 				} else {
 					reportRecordingEditorTablePanel = new ReportRecordingEditorTable(repo, re, examplePane);
-					logger.info("RecordingEditor - re!=null");
+					logger.debug("RecordingEditor - re!=null");
 				}
 				reportRecordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
 				reportRecordingEditorTablePanel.setOpaque(true);

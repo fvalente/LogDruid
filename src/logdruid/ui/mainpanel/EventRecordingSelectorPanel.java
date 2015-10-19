@@ -103,7 +103,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 			}
 		
 		model = new logdruid.ui.mainpanel.EventRecordingSelectorPanel.MyTableModel(data, header);
-		logger.info("source is " + ((source == null) ? "null" : src.getSourceName()));
+		logger.debug("source is " + ((source == null) ? "null" : src.getSourceName()));
 		JPanel panel_1 = new JPanel();
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
@@ -142,7 +142,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 
 			public void valueChanged(ListSelectionEvent e) {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				logger.info("ListSelectionListener - selectedRow: " + selectedRow);
+				logger.debug("ListSelectionListener - selectedRow: " + selectedRow);
 				if (selectedRow >= 0) {
 					if (jPanelDetail != null) {
 						logger.debug("ListSelectionListener - valueChanged");
@@ -252,7 +252,7 @@ public class EventRecordingSelectorPanel extends JPanel {
 				logger.debug("setValueAt calls setActiveRecording");
 				source.toggleActiveRecording(repository.getRecording(EventRecording.class, row,true));
 				fireTableCellUpdated(row, column);
-				// logger.info("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
+				// logger.debug("control of setValueAt: "+source.isActiveRecordingOnSource(repository.getRecording(MetadataRecording.class,
 				// row)));
 			} else {
 				((Object[]) data.get(row))[column] = value;

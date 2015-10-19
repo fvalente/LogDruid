@@ -126,7 +126,7 @@ public class EventRecordingEditor extends JPanel {
 
 		repository = repo;
 		recording = re;
-		// logger.info("myTableModel2 null? "+(newRecordingList==null));
+		// logger.debug("myTableModel2 null? "+(newRecordingList==null));
 		BorderLayout borderLayout = new BorderLayout();
 		this.setLayout(borderLayout);
 		
@@ -187,7 +187,7 @@ public class EventRecordingEditor extends JPanel {
 										if (lines.length>=1){
 										for (int i=0; i<lines.length ; i++)
 										{
-											logger.info("line: "+lines[i]);
+											logger.debug("line: "+lines[i]);
 											
 											Matcher matcher = pattern.matcher(lines[i]);
 											if (matcher.find()) {
@@ -304,7 +304,7 @@ public class EventRecordingEditor extends JPanel {
 								JButton btnCheck = new JButton("Check");
 								btnCheck.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent e) {
-										logger.info("check");
+										logger.debug("check");
 										eventRecordingEditorTablePanel.FixValues();
 
 									}
@@ -321,17 +321,17 @@ public class EventRecordingEditor extends JPanel {
 									okButton.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent arg0) {
 											ArrayList<RecordingItem> rIs = eventRecordingEditorTablePanel.getRecordingItems();
-											logger.info(rIs.size());
+											logger.debug(rIs.size());
 											if (newRecordingList.getClass()==RecordingList.class) {
 												if (recording == null){
-												logger.info("RecordingEditor - ok 1");
+												logger.debug("RecordingEditor - ok 1");
 												Recording r = new EventRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
 														.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 												repository.addRecording(r);
-												logger.info("RecordingEditor - ok 1");
-													logger.info("RecordingEditor - ok 1");
+												logger.debug("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 												if (((RecordingList) newRecordingList).model != null) {
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 													((RecordingList) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 													((RecordingList) newRecordingList).model.fireTableDataChanged();
 												
@@ -341,7 +341,7 @@ public class EventRecordingEditor extends JPanel {
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 														chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 												((RecordingList) newRecordingList).model.fireTableDataChanged();
-												logger.info("RecordingEditor - row Updated");
+												logger.debug("RecordingEditor - row Updated");
 												((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 											}}
 											else
@@ -349,18 +349,18 @@ public class EventRecordingEditor extends JPanel {
 												if (recording == null){
 													int selectedRow = ((((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? ((EventRecordingSelectorPanel) newRecordingList).table.convertRowIndexToModel(((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 												if (((EventRecordingSelectorPanel) newRecordingList).model != null) {
-													logger.info("RecordingEditor - ok 1");
+													logger.debug("RecordingEditor - ok 1");
 													((EventRecordingSelectorPanel) newRecordingList).model.addRow(new Object[] { txtName.getText(), txtRegularExp.getText(), chckbxActive.isSelected() });
 													((EventRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 													((EventRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 												}}
 											 else {
 												int selectedRow = ((((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((EventRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
-												logger.info("selectedRow: " + selectedRow);
-												logger.info(((EventRecordingSelectorPanel) newRecordingList).table.getRowCount());
+												logger.debug("selectedRow: " + selectedRow);
+												logger.debug(((EventRecordingSelectorPanel) newRecordingList).table.getRowCount());
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
 														chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
-												logger.info("RecordingEditor - NEVER HERE row Updated");
+												logger.debug("RecordingEditor - NEVER HERE row Updated");
 												((EventRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 												((EventRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
 											}
@@ -452,10 +452,10 @@ public class EventRecordingEditor extends JPanel {
 			{
 				if (re == null) {
 					eventRecordingEditorTablePanel = new EventRecordingEditorTable(examplePane);
-					logger.info("RecordingEditor - re=null");
+					logger.debug("RecordingEditor - re=null");
 				} else {
 					eventRecordingEditorTablePanel = new EventRecordingEditorTable(repo, re, examplePane);
-					logger.info("RecordingEditor - re!=null");
+					logger.debug("RecordingEditor - re!=null");
 				}
 				eventRecordingEditorTablePanel.setBackground(UIManager.getColor("Panel.background"));
 				eventRecordingEditorTablePanel.setOpaque(true);

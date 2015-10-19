@@ -1145,7 +1145,7 @@ else {return null;}
 		PatternCache patternCache = new PatternCache();
 		ChartData cd = new ChartData();
 		List<File> listOfFiles = null;
-		logger.info("Base file path: " + repo.getBaseSourcePath());
+		logger.debug("Base file path: " + repo.getBaseSourcePath());
 		if (repo.getBaseSourcePath() == null)
 			return null;
 		File folder = new File(repo.getBaseSourcePath());
@@ -1161,7 +1161,7 @@ else {return null;}
 			e.printStackTrace();
 		}
 		if (listOfFiles != null)
-			logger.info("number of files: " + listOfFiles.size());
+			logger.debug("number of files: " + listOfFiles.size());
 		cd.sourceArrayList = repo.getSources();
 		Iterator<Source> sourceIterator = cd.sourceArrayList.iterator();
 
@@ -1204,8 +1204,8 @@ else {return null;}
 						}
 					}
 				}
-				if (logger.isEnabledFor(Level.INFO))
-					logger.info("matched file: " + cd.selectedSourceFiles.size() + " to source  " + source.getSourceName());
+				if (logger.isEnabledFor(Level.DEBUG))
+					logger.debug("matched file: " + cd.selectedSourceFiles.size() + " to source  " + source.getSourceName());
 			}
 			cd.sourceFileArrayListMap.put(source, cd.selectedSourceFiles);
 		}
@@ -1217,7 +1217,7 @@ else {return null;}
 			final Source src = (Source) sourcePairs.getKey();
 			Map<Integer, FileRecord> sourceFiles = (Map<Integer, FileRecord>) sourcePairs.getValue();
 			sourceFileGroup = getSourceFileGroup(sourceFiles, src, repo);
-			if (logger.isEnabledFor(Level.INFO))
+		//	if (logger.isEnabledFor(Level.INFO))
 		//		logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + src.getSourceName());
 		//	logger.debug(sourceFileGroup.toString());
 			cd.setGroupFilesArrayListMap(src, sourceFileGroup);
@@ -1232,15 +1232,12 @@ else {return null;}
 		Map<Recording, String> recMatch = new HashMap<Recording, String>();
 		Matcher matcher;
 		Matcher matcher2;
-		logger.info("popu1");
 		if (repo.getBaseSourcePath() == null)
 			return;
-		logger.info("popu1");
 		File folder = new File(repo.getBaseSourcePath());
 		try {
 			if (repo.isRecursiveMode()) {
 				listOfFiles = FileListing.getFileListing(folder);
-				logger.info("popu1");
 			} else {
 				listOfFiles = Arrays.asList(folder.listFiles());
 			}
@@ -1249,8 +1246,6 @@ else {return null;}
 		}
 		if (repo != null && repo.getBaseSourcePath() != null) {
 			ChartData cd = DataMiner.gatherSourceData(repo);
-
-			logger.info("popu2");
 			ArrayList sources = repo.getSources();
 			Iterator sourceArrayListIte = sources.iterator();
 			while (sourceArrayListIte.hasNext()) {
@@ -1261,11 +1256,11 @@ else {return null;}
 
 				Source src = (Source) sourceArrayListIte.next();
 				Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
-				logger.info("popu3");
+				logger.info("population");
 				Iterator it = hm.entrySet().iterator();
 				while (it.hasNext()) {
 					final Map.Entry pairs = (Map.Entry) it.next();
-					logger.info("popu4: " + pairs.getKey());
+					logger.info("populating: " + pairs.getKey());
 					ArrayList<FileRecord> grouFile = (ArrayList<FileRecord>) pairs.getValue();
 					// return DataMiner.mine((String) pairs.getKey(),
 					// (ArrayList<String>) pairs.getValue(), repo, source,
