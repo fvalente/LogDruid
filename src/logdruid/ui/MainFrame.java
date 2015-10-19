@@ -490,6 +490,7 @@ public class MainFrame extends JFrame {
 		chckbxRelative.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (treeSelected.equals("<html><font color=\"blue\" size=3>Chart</font></html>")) {
+					graphPanel.loadGroupCheckbox(panel_2);
 					graphPanel.load(panel_2);
 				}
 			}
