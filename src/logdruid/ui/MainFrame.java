@@ -94,7 +94,6 @@ import java.awt.GridBagConstraints;
 import javax.swing.BoxLayout;
 
 import java.awt.Insets;
-import org.eclipse.wb.swing.FocusTraversalOnArray;
 import javax.swing.border.LineBorder;
 
 public class MainFrame extends JFrame {
@@ -410,7 +409,6 @@ public class MainFrame extends JFrame {
 		checkBoxReport.setSelected(Preferences.getBooleanPreference("gatherreports"));
 		checkBoxReport.setFont(new Font("Dialog", Font.PLAIN, 11));
 		panel_8.add(checkBoxReport);
-		panel_8.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{checkBoxStat, checkBoxReport, checkBoxEvent}));
 
 		JButton btnMain = new JButton("Gather");
 		btnMain.setForeground(Color.BLUE);
