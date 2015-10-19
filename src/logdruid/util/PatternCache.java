@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class PatternCache {
 //	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
-	private static Map<String, Pattern> pattern = new HashMap<String, Pattern>();
+	private Map<String, Pattern> pattern = new HashMap<String, Pattern>();
 
 	public Pattern getPattern(String regexp, boolean caseSensitive) {
 		if (!pattern.containsKey(regexp+Boolean.toString(caseSensitive))) {
@@ -31,11 +31,4 @@ public class PatternCache {
 		}
 		return pattern.get(regexp+Boolean.toString(caseSensitive));
 	}
-
- public static int getSize() {
-//		logger.info("pattern cache content" + pattern);
-		return pattern.size();
-
-	}
-
 }
