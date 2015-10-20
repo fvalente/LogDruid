@@ -1,10 +1,10 @@
-LogDruid: Chart statistics and events retrieved in log files through configurable regular expressions
+LogDruid: Generate Charts and Reports using data gathered in log files
 
 Download on https://sourceforge.net/projects/logdruid/
 
 ![Alt text](doc/LD-charts.png?raw=true "screenshot")
 
-An application to gather, aggregate and chart information originating from any log files in a given folder.
+An application to gather, aggregate, chart and report information originating from any log files in a given folder.
 Templates can be easily created to gather information for any type of log files.
 It uses regular expressions that are constructed graphically and can be verified in the application against data samples.
 
@@ -16,16 +16,25 @@ Once configured for a specific type of logs set, the gathering and display of th
 
 
 Glossary:
-- Source: identifies the type of log file. permit collecting list of files matching each source  
-- Recording: A sort of advanced regular expressions used to match a log line . Each Recording can be linked to any Source.	There are 3 types of recordings: 
-	- Identification: used to group files (eg. regex to locate the Process PID in the filename)
-	- Statistic: gathering any statistics available in the logs
-	- Event: gathering occurrence of specific log entry (such as errors) and computed result (top list of number of occurrence and duration)
-- Recording Item: one for each of the captured groups in a Recording. Existing fields: Name, before, after, type, active. Name is important as it is the name of the series in the charts.
+- <b>Source</b> : identifies the type of log file. permit collecting list of files matching each source  
+- <b>Recording</b> : A sort of advanced regular expressions used to match a log line . Each Recording can be linked to any Source.	There are 3 types of recordings: 
+	- <b>File Grouping</b> : used to group files (eg. regex to locate the Process PID in the filename)
+	- <b>Series</b> : gathering any Time Series information available in the logs
+	- <b>Event</b> : gathering occurrence of specific log entry (such as errors) 
+		- <b>occurrence</b> will appear as a bar in the chart of 100 or 101 value: 100 for 1 hit, 101, for one or more.
+		- <b>duration</b> will draw a bar of the length of the value
+	- <b>Report</b> : dynamic reports displayed in a table. 
+		- <b>histogram</b> : table with distinct combination of columns and count  (eg. number of request per user in Apache; count of logging categorized by loglevel and class)
+		- <b>sum</b> : sum of a value through the matches (eg. sum of request durations for each Apache users)
+		- <b>top100</b> : top 100 values for given field. Other items can get captured.
+
+
+- <b>Recording Item</b>: one for each of the captured groups in a Recording. Existing fields: Name, before, after, type, active. Name is important as it is the name of the series in the charts.
 
 
 Planned improvements:
 - <del>ability to see which file as the information selected in any charts</del>.DONE
+- <del>addition of progress bar</del> DONE
 - filter in chart view
 - make it easier to configure the software for a new logs set through
 	- templates selection
@@ -35,13 +44,11 @@ Planned improvements:
 	- way to quickly disable the capture of data(RecordingItem) which is not available in data source 
 	- mass fixing when feasible (eg. Date Formats)
 - add column sorting and filtering to tables
-- One key functionality of the application is that Recording Items are being aggregated through different Recordings if they have the same name. This is useful when there are several version of a recording as it allow charting them in one graph. It is however adding confusion as the information end up as being redundant in such case. One significant improvement will be to allow several sets of RecordingItems for a given Recording.
 - allow combination in charts of recording item from different sources
 - rework of multi-threaded data mining
-- addition of progress bar
 - ability to export the representation of all the charts as shown to one PNG 
 - graphical design (icon, some buttons text replaced wit pictures)
-
+- One key functionality of the application is that Recording Items are being aggregated through different Recordings if they have the same name. This is useful when there are several version of a recording as it allow charting them in one graph. It is however adding confusion as the information end up as being redundant in such case. One significant improvement will be to allow several sets of RecordingItems for a given Recording.
 
 
 Other ideas:
