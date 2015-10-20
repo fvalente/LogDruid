@@ -55,8 +55,8 @@ public class EventRecording extends Recording {
 		setIsActive(_isActive);
 		setCaseSensitive(_caseSensitive);
 		dateFormat = _dateFormat;
-		logger.info("RIArrayLit size: "+ recordingItem.size());
 		recordingItem = _recordingItem;
+		logger.debug("RIArrayLit size: "+ recordingItem.size());
 		if (this.id == null) {
 			super.id = generate();
 		}

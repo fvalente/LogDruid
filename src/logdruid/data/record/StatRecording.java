@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 
 public class StatRecording extends Recording {
 	private static Logger logger = Logger.getLogger(StatRecording.class.getName());
-	private ArrayList recordingItem;
+//	private ArrayList recordingItem;
 	private String dateFormat;
 
 	public String getType() {
@@ -62,6 +62,9 @@ public class StatRecording extends Recording {
 		setCaseSensitive(_caseSensitive);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
+		if (this.id == null) {
+			super.id = generate();
+		}
 	}
 
 	public Recording duplicate() {
