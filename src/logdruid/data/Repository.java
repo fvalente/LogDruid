@@ -13,14 +13,20 @@ package logdruid.data;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import logdruid.data.mine.MineResultSet;
 import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
+import logdruid.data.record.ReportRecording;
 import logdruid.util.DataMiner;
 
 import org.apache.log4j.Level;
@@ -142,6 +148,49 @@ public class Repository {
 		return (ArrayList<Recording>) statRecordingArrayList;
 	}
 
+
+	public ArrayList getReportRecordings(MineResultSet mineResultSet1, boolean b) {
+		ArrayList<Recording> temp = new ArrayList<Recording>();
+		ArrayList<Recording> returned= new ArrayList<Recording>();		
+		Iterator<Map<Recording, Map<List<Object>, Long>>> it1 = mineResultSet1.getOccurenceReport().values().iterator();
+		while (it1.hasNext()){
+			Iterator test = (Iterator) it1.next().keySet().iterator();
+			while (test.hasNext())
+			{
+			temp.add((Recording) test.next());
+			}
+		}
+		
+		Iterator<Map<Recording, Map<List<Object>, Double>>> it2 =mineResultSet1.getSumReport().values().iterator();
+		while (it2.hasNext()){
+			Iterator test = (Iterator) it2.next().keySet().iterator();
+			while (test.hasNext())
+			{
+			temp.add((Recording) test.next());
+			}
+		}
+		
+		Iterator<Map<Recording, SortedMap<Double, List<Object>>>> it3 =mineResultSet1.getTop100Report().values().iterator();
+		while (it3.hasNext()){
+			Iterator test = (Iterator) it3.next().keySet().iterator();
+			while (test.hasNext())
+			{
+			temp.add((Recording) test.next());
+			}
+		}
+		
+		ArrayList<Recording> aL = getRecordings(ReportRecording.class, b);
+		Iterator ite = aL.iterator();
+		while (ite.hasNext()){
+			Recording rec= (Recording) ite.next();
+			if (temp.contains(rec))	{
+			returned.add(rec);	
+			}
+		}
+		return returned;
+	}
+	
+	
 	public Recording getRecording(Class _class, int id, boolean onlyActive) {
 		return getRecordings(_class,onlyActive).get(id);
 	}
@@ -179,7 +228,7 @@ public class Repository {
 
 	public void addRecording(Recording r) {
 		recordings.add(r);
-		// logger.info(xstream.toXML(recordings));
+		// logger.info(xstream.toXML(recordings));<
 	}
 
 	public int getRecordingCount() {
@@ -354,4 +403,5 @@ public class Repository {
 	public void setTimings(boolean timings) {
 		setPreference("timings", Boolean.toString(timings));
 	}
+
 }
