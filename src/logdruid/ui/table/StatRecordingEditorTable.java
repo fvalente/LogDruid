@@ -151,25 +151,30 @@ public class StatRecordingEditorTable extends JPanel {
 		Object[] obj;
 
 		while (it.hasNext()) {
-			obj = it.next();
+			obj = (Object[])it.next();
 			String stBefore = (String) obj[1];
 			String stType = (String) obj[2];
-			String stAfter = (String) obj[3];
+			String stInside = (String) obj[3];
+			String stAfter = (String) obj[4];
 			logger.debug("stType: " + stType);
 			if (stType.equals("date") && rep.getDateFormat(recording.getDateFormatID()).getPattern() != null) {
 				patternString += stBefore + "(" + rep.getDateFormat(recording.getDateFormatID()).getPattern() + ")" + stAfter;
 				logger.debug("getTypeString(stType) getPattern -: " + rep.getDateFormat(recording.getDateFormatID()).getPattern());
 				logger.debug("getTypeString(stType) getDateFormat -: " + rep.getDateFormat(recording.getDateFormatID()).getDateFormat());
 			} else {
-				patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
-				logger.debug("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				if (stType.equals("manual")){
+					patternString += stBefore + "(" + stInside + ")" + stAfter;	
+					logger.debug("getTypeString(stType) -: " + stInside);					
+				}else{
+					patternString += stBefore + "(" + DataMiner.getTypeString(stType) + ")" + stAfter;
+					logger.debug("getTypeString(stType) -: " + DataMiner.getTypeString(stType));
+				}
 			}
 		}
 
 		try {
 			logger.debug("theLine: " + examplePane.getText());
 			logger.debug("patternString: " + patternString);
-
 			Highlighter h = examplePane.getHighlighter();
 			h.removeAllHighlights();
 			int currIndex = 0;
@@ -183,7 +188,7 @@ public class StatRecordingEditorTable extends JPanel {
 				// doc.insertString(doc.getLength(),line+"\n", null);
 
 				for (int i2 = 1; i2 <= matcher.groupCount(); i2++) {
-					model.setValueAt(matcher.group(i2), i2 - 1, 8);
+					model.setValueAt(matcher.group(i2), i2 - 1, 7);
 					h.addHighlight(currIndex+matcher.start(i2), +currIndex+matcher.end(i2), new DefaultHighlighter.DefaultHighlightPainter(Color.ORANGE));
 				}
 				}
@@ -203,12 +208,10 @@ public class StatRecordingEditorTable extends JPanel {
 		Component comp = null;
 		int headerWidth = 0;
 		int cellWidth = 0;
-		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
 		for (int i = 0; i < 8; i++) {
 			column = theTable.getColumnModel().getColumn(i);
-
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 			headerWidth = comp.getPreferredSize().width;
 			cellWidth = comp.getPreferredSize().width;
