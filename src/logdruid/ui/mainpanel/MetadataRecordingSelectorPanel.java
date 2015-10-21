@@ -136,6 +136,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 			 public void tableChanged(TableModelEvent e) {
 			        int row = e.getFirstRow();
 			        int column = e.getColumn();
+			        if (column!= -1){
 			        TableModel model = (TableModel)e.getSource();
 			        String columnName = model.getColumnName(column);
 			        Object data = model.getValueAt(row, column);
@@ -159,7 +160,7 @@ public class MetadataRecordingSelectorPanel extends JPanel {
 							jPanelDetail.revalidate();
 						}
 					}
-			    }
+			    }}
 			{
 		}
 		});
