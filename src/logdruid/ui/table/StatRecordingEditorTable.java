@@ -242,7 +242,7 @@ public class StatRecordingEditorTable extends JPanel {
 		typeColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		// Set up tool tips for the Type cells.
-		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer renderer = new NoProcessingRegexTableRenderer();
 		renderer.setToolTipText("Click for combo box");
 		typeColumn.setCellRenderer(renderer);
 	}
@@ -296,7 +296,7 @@ public class StatRecordingEditorTable extends JPanel {
 			// no matt&er where the cell appears onscreen.
 			if (col > 6) {
 				return false;
-			} else {if (col==4 && !data.get(row)[3].equals("manual")){
+			} else {if (col==3 && !data.get(row)[2].equals("manual")){
 				return false;
 			} else{
 				return true;
