@@ -67,6 +67,7 @@ import javax.swing.event.CaretEvent;
 
 import org.apache.log4j.Logger;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -219,6 +220,7 @@ public class StatRecordingEditor extends JPanel {
 				}
 			}
 			panel2 = new JPanel();
+			panel2.setPreferredSize(new Dimension(0,180));
 			topPanel.add(panel2, BorderLayout.CENTER);
 			panel2.setLayout(new BorderLayout(0, 0));
 			examplePane = new JTextPane();

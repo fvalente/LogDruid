@@ -11,6 +11,7 @@
 package logdruid.ui.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Label;
 
@@ -272,6 +273,7 @@ public class ReportRecordingEditor extends JPanel {
 						panelTop.add(panel_1, BorderLayout.CENTER);
 						panel_1.setLayout(new BorderLayout(5, 5));
 						panel2 = new JPanel();
+						panel2.setPreferredSize(new Dimension(0,180));
 						panel_1.add(panel2, BorderLayout.CENTER);
 						panel2.setLayout(new BorderLayout(0, 0));
 
