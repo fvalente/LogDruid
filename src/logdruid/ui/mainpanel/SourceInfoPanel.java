@@ -22,6 +22,7 @@ import javax.swing.BoxLayout;
 
 import java.awt.FlowLayout;
 import java.awt.Component;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Map;
@@ -40,6 +41,7 @@ import logdruid.data.Source;
 import logdruid.data.mine.ChartData;
 import logdruid.data.mine.FileRecord;
 import logdruid.ui.WrapLayout;
+import logdruid.util.AlphanumComparator;
 import logdruid.util.DataMiner;
 
 import java.awt.GridLayout;
@@ -98,10 +100,10 @@ public class SourceInfoPanel extends JPanel {
 														gbc_panel_2.gridy = 1;
 														panel_7.add(panel_2, gbc_panel_2);
 														GridBagLayout gbl_panel_2 = new GridBagLayout();
-														gbl_panel_2.columnWidths = new int[] { 142, 16, 0, 0 };
-														gbl_panel_2.rowHeights = new int[] { 0, -63, 0, 0, 0, 0 };
-														gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
-														gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+														gbl_panel_2.columnWidths = new int[] { 10, 142, 0, 0 };
+														gbl_panel_2.rowHeights = new int[] { 0, -63, 0, 0, 0, 0, 0, 0 };
+														gbl_panel_2.columnWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
+														gbl_panel_2.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 														panel_2.setLayout(gbl_panel_2);
 														
 																JPanel panel_3 = new JPanel();
@@ -110,7 +112,7 @@ public class SourceInfoPanel extends JPanel {
 																GridBagConstraints gbc_panel_3 = new GridBagConstraints();
 																gbc_panel_3.anchor = GridBagConstraints.NORTHWEST;
 																gbc_panel_3.insets = new Insets(0, 0, 5, 5);
-																gbc_panel_3.gridx = 0;
+																gbc_panel_3.gridx = 1;
 																gbc_panel_3.gridy = 1;
 																panel_2.add(panel_3, gbc_panel_3);
 																
@@ -119,6 +121,21 @@ public class SourceInfoPanel extends JPanel {
 																		
 																				JLabel nameValueLabel = new JLabel(src.getSourceName());
 																				panel_3.add(nameValueLabel);
+																						
+																						JPanel panel_1 = new JPanel();
+																						GridBagConstraints gbc_panel_1 = new GridBagConstraints();
+																						gbc_panel_1.anchor = GridBagConstraints.WEST;
+																						gbc_panel_1.insets = new Insets(0, 0, 5, 5);
+																						gbc_panel_1.fill = GridBagConstraints.VERTICAL;
+																						gbc_panel_1.gridx = 1;
+																						gbc_panel_1.gridy = 2;
+																						panel_2.add(panel_1, gbc_panel_1);
+																						
+																						JLabel lblNumberOfGroups = new JLabel("Number of groups :");
+																						panel_1.add(lblNumberOfGroups);
+																						
+																						JLabel nbGroupsValueLabel = new JLabel();
+																						panel_1.add(nbGroupsValueLabel);
 																				
 																						JPanel panel_5 = new JPanel();
 																						FlowLayout flowLayout_3 = (FlowLayout) panel_5.getLayout();
@@ -126,8 +143,8 @@ public class SourceInfoPanel extends JPanel {
 																						GridBagConstraints gbc_panel_5 = new GridBagConstraints();
 																						gbc_panel_5.insets = new Insets(0, 0, 5, 5);
 																						gbc_panel_5.anchor = GridBagConstraints.WEST;
-																						gbc_panel_5.gridx = 0;
-																						gbc_panel_5.gridy = 2;
+																						gbc_panel_5.gridx = 1;
+																						gbc_panel_5.gridy = 3;
 																						panel_2.add(panel_5, gbc_panel_5);
 																						
 																								JLabel nbFilesLabel = new JLabel("Number of files :");
@@ -143,8 +160,8 @@ public class SourceInfoPanel extends JPanel {
 																										gbc_panel_8.anchor = GridBagConstraints.NORTH;
 																										gbc_panel_8.insets = new Insets(0, 0, 5, 5);
 																										gbc_panel_8.fill = GridBagConstraints.HORIZONTAL;
-																										gbc_panel_8.gridx = 0;
-																										gbc_panel_8.gridy = 3;
+																										gbc_panel_8.gridx = 1;
+																										gbc_panel_8.gridy = 4;
 																										panel_2.add(panel_8, gbc_panel_8);
 																										
 																										JLabel lblSizeOfFiles = new JLabel("Size of files :");
@@ -158,9 +175,9 @@ public class SourceInfoPanel extends JPanel {
 																												flowLayout_1.setAlignment(FlowLayout.LEFT);
 																												GridBagConstraints gbc_panel_4 = new GridBagConstraints();
 																												gbc_panel_4.anchor = GridBagConstraints.NORTH;
-																												gbc_panel_4.insets = new Insets(0, 0, 0, 5);
-																												gbc_panel_4.gridx = 0;
-																												gbc_panel_4.gridy = 4;
+																												gbc_panel_4.insets = new Insets(0, 0, 5, 5);
+																												gbc_panel_4.gridx = 1;
+																												gbc_panel_4.gridy = 5;
 																												panel_2.add(panel_4, gbc_panel_4);
 										
 												JPanel panel_6 = new JPanel();
@@ -202,24 +219,29 @@ public class SourceInfoPanel extends JPanel {
 			if (hm!=null){
 			logger.debug("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
 			filesDoc = textPane.getDocument();
-			Iterator it = hm.entrySet().iterator();
+			//Iterator it = hm.entrySet().iterator();
+			ArrayList<String> groupArrayList = new ArrayList<String>(hm.keySet());
+			Collections.sort(groupArrayList, new AlphanumComparator());
+			Iterator it = groupArrayList.iterator();
 			int nbFiles = 0;
 			long size=0;
 			while (it.hasNext()) {
 				try {
 					int currGroupIndex = groupDoc.getLength();
 					int currFilesIndex = filesDoc.getLength();
-					final Map.Entry sourcePairs = (Map.Entry) it.next();
-					final String groupString = (String) sourcePairs.getKey();
-					logger.debug("groupString: "+groupString);
-					ArrayList files = (ArrayList) sourcePairs.getValue();
+					String sourcePairs = (String) it.next();
+					final String groupString = (String) sourcePairs;
+				//	logger.debug("groupString: "+groupString);
+					ArrayList<String> filesString = new ArrayList<String>();
+					ArrayList files = (ArrayList) hm.get(groupString);
 					nbFiles += files.size();
 					Iterator<FileRecord> iterator =files.iterator();
 					while (iterator.hasNext())
 						{
 						FileRecord fr = iterator.next();
 						size=size+((File)fr.getFile()).length();
-						logger.debug(fr.getFile().getName()+" "+((File)fr.getFile()).length());
+						filesString.add("- "+ new File(repo.getBaseSourcePath()).toURI().relativize(new File((fr).getCompletePath()).toURI()).getPath()+ "\n");
+				//		logger.debug(fr.getFile().getName()+" "+((File)fr.getFile()).length());
 						}
 					groupDoc.insertString(groupDoc.getLength(), groupString + "(" + files.size() + " file"+(nbFiles>1?"s":"")+")\n", null);
 					filesDoc.insertString(filesDoc.getLength(), groupString + "\n", null);
@@ -230,9 +252,15 @@ public class SourceInfoPanel extends JPanel {
 					textPane_1.getStyledDocument().setCharacterAttributes(currGroupIndex , groupString.length()-1, sas, false);
 					
 					//h.addHighlight(currIndex , currIndex + groupString.length()-1,  DefaultHighlighter.DefaultPainter);
-					Iterator vecIt = files.iterator();
+				/*	Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
 						filesDoc.insertString(filesDoc.getLength(),"- "+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath()+ "\n", null);
+						
+					}*/
+					Collections.sort(filesString, new AlphanumComparator());
+					Iterator vecIt = filesString.iterator();
+					while (vecIt.hasNext()) {
+						filesDoc.insertString(filesDoc.getLength(),(String)vecIt.next(), null);
 						
 					}
 				} catch (BadLocationException e) {
@@ -242,6 +270,7 @@ public class SourceInfoPanel extends JPanel {
 			}
 			textPane.setCaretPosition(0);
 			textPane_1.setCaretPosition(0);
+			nbGroupsValueLabel.setText(""+hm.keySet().size());
 			nbFilesValueLabel.setText("" + nbFiles);
 			filesSize.setText(""+size/1024000+"MB");
 		}}
