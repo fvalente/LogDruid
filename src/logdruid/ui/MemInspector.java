@@ -28,15 +28,14 @@ public class MemInspector extends JPanel {
 		super(new BorderLayout());
 		initGUI();
 
-		timer = new Timer(1000, new ActionListener() {
+		timer = new Timer(200, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				long total = Runtime.getRuntime().totalMemory();
 				long free = Runtime.getRuntime().freeMemory();
 				long used = total - free;
-
 				progress.setMaximum(asMegabytes(total));
 				progress.setValue(asMegabytes(used));
-				progress.setString("" + asMegabytes(used) + "/" + asMegabytes(total));
+				progress.setString("" + asMegabytes(used) + " / " + asMegabytes(total));
 			}
 		});
 		start();
@@ -57,11 +56,13 @@ public class MemInspector extends JPanel {
 
 	private void initGUI() {
 		progress = new JProgressBar();
+	progress.setFont(new Font("Sans-serif", Font.BOLD, 11));
 		progress.setStringPainted(true);
 		add(progress, BorderLayout.CENTER);
 		JButton btGC = new JButton();
-		btGC.setMargin(new Insets(0, 1, 0, 1));
+		btGC.setMargin(new Insets(0, 0, 0, 0));
 		btGC.setText("GC");
+		btGC.setFont(new Font("Sans-serif", Font.BOLD, 11));
 		btGC.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btGC_actionPerformed();

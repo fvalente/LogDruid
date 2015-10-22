@@ -525,12 +525,19 @@ public class MainFrame extends JFrame {
 		JPanel panel_3 = new JPanel();
 		panel_3.setLayout(new BorderLayout(0, 0));
 		contentPane.add(panel_3, BorderLayout.SOUTH);
+		panel_3.setPreferredSize(new Dimension(200,18));
+		
 
 		JPanel panel_4 = new JPanel();
+		JPanel panel_4a = new JPanel();
+		panel_4a.setMaximumSize(new Dimension(1,0));
+		panel_4a.setPreferredSize(new Dimension(0,4));
 		FlowLayout flowLayout_1 = (FlowLayout) panel_4.getLayout();
 		flowLayout_1.setVgap(0);
 		panel_3.add(panel_4, BorderLayout.EAST);
+		panel_3.add(panel_4a, BorderLayout.NORTH);
 		MemInspector mi = new MemInspector();
+		mi.setPreferredSize(new Dimension(200,14));
 		panel_4.add(mi);
 
 		JPanel panel_5 = new JPanel();
@@ -541,7 +548,7 @@ public class MainFrame extends JFrame {
 		panel_5.add(panel_6);
 		GridBagLayout gbl_panel_6 = new GridBagLayout();
 		gbl_panel_6.columnWidths = new int[] { 100, 100,300,0  };
-		gbl_panel_6.rowHeights = new int[] { 20, 0 };
+		gbl_panel_6.rowHeights = new int[] { 0, 0 };
 		gbl_panel_6.columnWeights = new double[] { 1.0,1.0,1.0,Double.MIN_VALUE };
 		gbl_panel_6.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		panel_6.setLayout(gbl_panel_6);
