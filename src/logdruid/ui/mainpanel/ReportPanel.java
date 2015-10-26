@@ -381,10 +381,10 @@ if (reportDetails.getColumnCount()>1){
 		panel_1.add(scrollPane, BorderLayout.CENTER);
 
 		// scrollPane_1.setViewportView(reportDetails);
-		if (repository.getRecordings(ReportRecording.class,true).size() > 0) {
+		if (repository.getRecordings(ReportRecording.class,true).size() > 0 && model.getRowCount()>0) {
 			// recEditor = getEditor(repository.getRecording(0));
 			// jPanelDetail.add(recEditor, BorderLayout.CENTER);
-			reportList.setRowSelectionInterval(0, 0);
+				reportList.setRowSelectionInterval(0, 0);
 		}
 		jPanelDetail.revalidate();
 	}

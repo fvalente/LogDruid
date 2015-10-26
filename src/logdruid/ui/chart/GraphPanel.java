@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -80,6 +81,12 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.xy.XYDataset;
 
+
+
+
+import com.sun.java.swing.plaf.gtk.GTKConstants.Orientation;
+
+
 //import logdruid.data.DataVault;
 import logdruid.data.ExtendedTimeSeries;
 import logdruid.data.Preferences;
@@ -108,6 +115,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.Toolkit;
@@ -125,6 +133,8 @@ public class GraphPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private JScrollPane scrollPane;
 	private JPanel panel;
+	private JPanel panelTop;
+	private JPanel panelTopOptions;
 	private JPanel panel_1;
 	private Repository repo;
 	String htmlStr = "<html>";
@@ -177,8 +187,59 @@ public class GraphPanel extends JPanel {
 	public void init(){
 		setLayout(new BorderLayout(0, 0));
 		startTime = System.currentTimeMillis();		
+		panelTop= new JPanel(new BorderLayout());
 		panel_1 = new JPanel(new WrapLayout());
-		add(panel_1, BorderLayout.NORTH);
+		panelTopOptions = new JPanel(new WrapLayout());
+		panelTop.add(panelTopOptions,BorderLayout.EAST);
+		JCheckBox chckbxShowChecks = new JCheckBox("Controls");
+		chckbxShowChecks.setFont(new Font("Dialog", Font.PLAIN, 11));
+		chckbxShowChecks.setSelected(true);	
+		JCheckBox chckbxActiveOnly = new JCheckBox("Active only");
+		chckbxActiveOnly.setFont(new Font("Dialog", Font.PLAIN, 11));
+		chckbxActiveOnly.setSelected(false);				
+		JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+		separator.setToolTipText("");
+		panelTopOptions.add(separator);
+		panelTopOptions.add(chckbxShowChecks);
+		panelTopOptions.add(chckbxActiveOnly);
+		chckbxShowChecks.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Component[] comp=panel.getComponents();
+				int i=0;
+				while (i<comp.length-1){
+					if (comp[i].getClass().equals(JPanel.class)){
+						if (((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1).getClass().equals(JPanel.class)){			
+						((JPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1)).setVisible(! ((JPanel) ((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1)).isVisible());
+					}}
+					i++;
+				}
+				
+			}
+		});
+		chckbxActiveOnly.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Component[] comp=panel.getComponents();
+				int i=0;
+				while (i<comp.length-1){
+					if (comp[i].getClass().equals(JPanel.class)){
+						if (((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1).getClass().equals(JPanel.class)){	
+						Component[] comp2=((JPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1)).getComponents();
+						int i3=0;
+						while (i3<comp2.length){;
+							if ( !((JCheckBox)comp2[i3]).isSelected()){
+								((JCheckBox)comp2[i3]).setVisible(!((JCheckBox)comp2[i3]).isVisible());
+							}
+							i3++;
+							}
+					}}
+					i++;
+				}
+				
+			}
+		});
+		
+		panelTop.add(panel_1,BorderLayout.CENTER);
+		add(panelTop, BorderLayout.NORTH);
 		
 		//DataVault.mineResultSet = mineResultSet;
 		panel = new JPanel();
@@ -194,7 +255,6 @@ public class GraphPanel extends JPanel {
 				startDateJSpinner.setValue(minimumDate);
 			if (maximumDate != null)
 				endDateJSPinner.setValue(maximumDate);
-			// removeAll();
 			scrollPane = new JScrollPane(panel);
 			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 			loadGroupCheckbox(panel_2);
@@ -228,11 +288,10 @@ public class GraphPanel extends JPanel {
 			int totalGroupCount=0;
 			Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
 			Map mrArrayList = (Map<String, MineResult>) pairs.getValue();
-			ArrayList<String> mineResultGroup = new ArrayList<String>();
-			Set<String> mrss = mrArrayList.keySet();
-			mineResultGroup.addAll(mrss);
+			
+			ArrayList<String> mineResultGroup = new ArrayList<String>(mrArrayList.keySet());
 			Collections.sort(mineResultGroup, new AlphanumComparator());
-
+			
 			Iterator mrArrayListIterator = mineResultGroup.iterator();
 			while (mrArrayListIterator.hasNext()) {
 				String key = (String) mrArrayListIterator.next();
@@ -552,7 +611,7 @@ public class GraphPanel extends JPanel {
 								count++;
 							}
 
-							JPanel pan = new JPanel();
+							final JPanel pan = new JPanel();
 							
 							pan.setLayout(new BorderLayout());
 							pan.setMaximumSize(new Dimension(20000,Integer.parseInt((String)Preferences.getPreference("chartSize"))));
@@ -572,9 +631,11 @@ public class GraphPanel extends JPanel {
 							// cpanel.restoreAutoBounds(); fix the tooltip
 							// missing problem but then relative display is
 							// broken
-							panel.add(new JSeparator(SwingConstants.HORIZONTAL));
 							
 							JPanel panTitle = new JPanel();
+							JButton removeButton = new JButton("x");
+							removeButton.setMargin(new Insets(0,0,0,0));
+							removeButton.setPreferredSize(new Dimension(17, 15));
 							panTitle.setLayout(new BorderLayout(0, 0));
 							panTitle.setPreferredSize(new Dimension(600, 20));
 							JPanel chartTitlePanel1 = new JPanel();
@@ -593,10 +654,14 @@ public class GraphPanel extends JPanel {
 							panTitle.add(chartTitlePanel2, BorderLayout.CENTER);
 							JLabel chartTitleSourceLbl = new JLabel("         "+mr.getSourceID() + " " + mr.getGroup());
 							chartTitleSourceLbl.setFont(new Font("Verdana", Font.BOLD, 12));
-							chartTitlePanel2.add(chartTitleSourceLbl);							
-							pan.add(panTitle, BorderLayout.NORTH);
-							
-							pan.add(cpanel, BorderLayout.CENTER);
+							chartTitlePanel2.add(chartTitleSourceLbl);	
+							panTitle.add(removeButton, BorderLayout.EAST);
+							removeButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									pan.setVisible(false);
+								}
+							});
+
 							// checkboxPanel.setPreferredSize(new Dimension(600,
 							// 0));
 							cpanel.addChartMouseListener(new ChartMouseListener() {
@@ -661,8 +726,13 @@ public class GraphPanel extends JPanel {
 								}
 
 							});
+							JPanel graphAndChecks = new JPanel(new BorderLayout(0,0));
+							graphAndChecks.add(cpanel, BorderLayout.CENTER);
+							graphAndChecks.add(checkboxPanel, BorderLayout.SOUTH);
+							pan.add(panTitle, BorderLayout.NORTH);
+							pan.add(graphAndChecks, BorderLayout.CENTER);
+							pan.add(new JSeparator(SwingConstants.HORIZONTAL),BorderLayout.SOUTH);	
 
-							pan.add(checkboxPanel, BorderLayout.SOUTH);
 						}
 					}
 				} else {
@@ -725,31 +795,28 @@ public class GraphPanel extends JPanel {
 			int i=0;
 			while (i<comp.length-1){
 				if (comp[i].getClass().equals(JPanel.class)){
-				//	logger.info(i+" / "+comp.length+ " is Jpanel " + ((JPanel)comp[i]).getName() + " and " + ((JPanel)comp[i]).getComponent(1));
-					if (((JPanel)comp[i]).getComponent(1).getClass().equals(ChartPanel.class)){
-				//		logger.debug("is ChartPanel");
-					int nbAxis=((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxisCount();
+				logger.info(i+" / "+comp.length+ " is Jpanel " + ((JPanel)comp[i]).getComponentCount() + " and " + ((JPanel)comp[i]).getComponent(1));
+					if (((JPanel)comp[i]).getComponent(1).getClass().equals(JPanel.class)){
+						logger.info( ((JPanel) ((JPanel)comp[i]).getComponent(1)).getComponent(0).getClass());
+					if (((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0).getClass().equals(ChartPanel.class)){
+						logger.info("is ChartPanel");
+					int nbAxis=((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRangeAxisCount();
 					if (logger.isDebugEnabled()){
 						logger.debug(nbAxis);
-						logger.debug(((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getTitle().getText());
+						logger.debug(((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getTitle().getText());
 					}					
 					int i2=0;
 					while (i2<nbAxis){
-						if (logger.isDebugEnabled()){
-							logger.debug(localAxis.getLabel());
-							logger.debug(localAxis.getLabel());
-						}
-
-						if (((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
-							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
-							((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)comp[i]).getComponent(1)).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
+						if (((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).getLabel()!=null && ((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).getLabel().toString().equals(localAxis.getLabel().toString())){
+							((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).setVisible(!((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRangeAxis(i2).isVisible());;
+							((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRenderer(i2).setSeriesVisible(0, !((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRenderer(i2).isSeriesVisible(0));	
 						}
 						i2++;
 						}
-					Component[] comp2=((JPanel)((JPanel)comp[i]).getComponent(2)).getComponents();
+					Component[] comp2=((JPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1)).getComponents();
 					int i3=0;
-					while (i3<comp2.length){;
-						if ( ((JCheckBox)comp2[i3]).getText().substring(0, ((((JCheckBox)comp2[i3]).getText()).indexOf("("))).equals(name)&& !((JPanel)((JPanel)comp[i]).getComponent(2)).equals(checkBoxPanel)){
+					while (i3<comp2.length){
+						if ( ((JCheckBox)comp2[i3]).getText().substring(0, ((((JCheckBox)comp2[i3]).getText()).indexOf("("))).equals(name)&& !((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(1).equals(checkBoxPanel)){
 							((JCheckBox)comp2[i3]).setSelected(!((JCheckBox)comp2[i3]).isSelected());
 						}
 						i3++;
@@ -760,4 +827,5 @@ public class GraphPanel extends JPanel {
 		}
 
 	}
+}
 }
