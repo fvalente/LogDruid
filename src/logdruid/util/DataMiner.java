@@ -876,32 +876,6 @@ public class DataMiner {
 			}
 		}
 
-		/*
-		 * if (logger.isInfoEnabled()) { Iterator Ite =
-		 * matchTimings.entrySet().iterator(); long successTotalTime=0; long
-		 * failedTotalTime=0; // 0-> sum of time for success matching of given
-		 * // recording ; 1-> sum of time for failed // matching ; 2-> count of
-		 * match attempts, // 3->count of success attempts // long[] array;
-		 * while (Ite.hasNext()) { Map.Entry pairs = (Map.Entry) Ite.next();
-		 * long[] array = (long[]) pairs.getValue(); logger.info(file.getName()
-		 * + " - "+ pairs.getKey() + " / success all time: " + array[0] +
-		 * " failed all time: " + array[1] + " attempt count: " + array[2] +
-		 * " success count: " + array[3] + " failed count:"
-		 * +(array[2]-array[3])); successTotalTime=successTotalTime+array[0];
-		 * failedTotalTime=failedTotalTime+array[1]; } logger.info("success: "
-		 * +successTotalTime + " failed: " + failedTotalTime); Ite =
-		 * matchTimings.entrySet().iterator(); while (Ite.hasNext()) { Map.Entry
-		 * pairs = (Map.Entry) Ite.next(); long[] array = (long[])
-		 * pairs.getValue(); logger.info(file.getName() + " percents - "+
-		 * pairs.getKey() + " / % success time: " + (( successTotalTime!=0) ?
-		 * ((double)((double)array[0] / successTotalTime)*100) : 0 ) +
-		 * " % failed time: " + (( failedTotalTime!=0) ?((double)array[1]/
-		 * failedTotalTime)*100 :0) + " attempt cost: " + ((array[2]!=0) ?
-		 * ((double)successTotalTime + failedTotalTime ) /array[2]:0 )+
-		 * " success cost: " + ((array[3]!=0) ? ((double)successTotalTime )
-		 * /array[3] : 0) + " failed cost:" + ((array[2]-array[3]!=0) ?
-		 * ((double)failedTotalTime/(array[2]-array[3])) : 0) ); } }
-		 */
 		mainFrame.progress();
 		return new FileMineResult(fileRecord, statMap, eventMap, matchTimings, RIFileLineDateMap, startDate, endDate);
 	}
@@ -1257,58 +1231,61 @@ else {return null;}
 				Source src = (Source) sourceArrayListIte.next();
 				Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
 				logger.info("population");
-				Iterator it = hm.entrySet().iterator();
-				while (it.hasNext()) {
-					final Map.Entry pairs = (Map.Entry) it.next();
-					logger.info("populating: " + pairs.getKey());
-					ArrayList<FileRecord> grouFile = (ArrayList<FileRecord>) pairs.getValue();
-					// return DataMiner.mine((String) pairs.getKey(),
-					// (ArrayList<String>) pairs.getValue(), repo, source,
-					// repo.isStats(), repo.isTimings());
-					Iterator<FileRecord> fileArrayListIterator = grouFile.iterator();
-					while (fileArrayListIterator.hasNext()) {
-						final FileRecord fileName = fileArrayListIterator.next();
-						try {
-							flstr = new FileReader(new File(fileName.getCompletePath()));
-						} catch (FileNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						buf1st = new BufferedReader(flstr);
-						String line;
-						logger.info("matched file:" + fileName);
-						recMatch = getAllRegexSingleMap(repo, src);
-						int lineCount = 0;
-						try {
-							while ((line = buf1st.readLine()) != null) {
-								// check against one Recording pattern at a tim
-								// if (logger.isDebugEnabled()) {
-								// logger.debug("line " + line);
-								// }
-								Iterator recMatchIte = recMatch.entrySet().iterator();
-								while (recMatchIte.hasNext()) {
-									Map.Entry me = (Map.Entry) recMatchIte.next();
-									Recording rec = (Recording) me.getKey();
-									matcher = patternCache.getPattern((String) (rec.getRegexp()),rec.isCaseSensitive()).matcher(line);
-									if (matcher.find()) {
-										// logger.info("1**** matched: " +
-										// line);
-										ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
-										int cnt = 0;
-										matcher2 = patternCache.getPattern((String) me.getValue(),rec.isCaseSensitive()).matcher(line);
-										if (matcher2.find()) {
-
-											DataVault.addMatchedLines(rec, line);
-										} else {
-											DataVault.addUnmatchedLines(rec, line);
-										}
-									}
-
-								}
+				if (hm != null && hm.entrySet() != null) {
+					Iterator it = hm.entrySet().iterator();
+					while (it.hasNext()) {
+						final Map.Entry pairs = (Map.Entry) it.next();
+						logger.info("populating: " + pairs.getKey());
+						ArrayList<FileRecord> grouFile = (ArrayList<FileRecord>) pairs.getValue();
+						// return DataMiner.mine((String) pairs.getKey(),
+						// (ArrayList<String>) pairs.getValue(), repo, source,
+						// repo.isStats(), repo.isTimings());
+						Iterator<FileRecord> fileArrayListIterator = grouFile.iterator();
+						while (fileArrayListIterator.hasNext()) {
+							final FileRecord fileName = fileArrayListIterator.next();
+							try {
+								flstr = new FileReader(new File(fileName.getCompletePath()));
+							} catch (FileNotFoundException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
 							}
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							buf1st = new BufferedReader(flstr);
+							String line;
+							logger.info("matched file:" + fileName);
+							recMatch = getAllRegexSingleMap(repo, src);
+							int lineCount = 0;
+							try {
+								while ((line = buf1st.readLine()) != null) {
+									// check against one Recording pattern at a
+									// tim
+									// if (logger.isDebugEnabled()) {
+									// logger.debug("line " + line);
+									// }
+									Iterator recMatchIte = recMatch.entrySet().iterator();
+									while (recMatchIte.hasNext()) {
+										Map.Entry me = (Map.Entry) recMatchIte.next();
+										Recording rec = (Recording) me.getKey();
+										matcher = patternCache.getPattern((String) (rec.getRegexp()), rec.isCaseSensitive()).matcher(line);
+										if (matcher.find()) {
+											// logger.info("1**** matched: " +
+											// line);
+											ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
+											int cnt = 0;
+											matcher2 = patternCache.getPattern((String) me.getValue(), rec.isCaseSensitive()).matcher(line);
+											if (matcher2.find()) {
+
+												DataVault.addMatchedLines(rec, line);
+											} else {
+												DataVault.addUnmatchedLines(rec, line);
+											}
+										}
+
+									}
+								}
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 					}
 				}
