@@ -574,6 +574,7 @@ public class GraphPanel extends JPanel {
 								axis4.setTickLabelPaint(colors[count]);
 								}
 								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
+								logger.debug(ts.getRecordingItem() + " is " + ((RecordingItem)ts.getRecordingItem()).isShow());
 								// domainAxis.setLowerMargin(0.001);
 								// domainAxis.setUpperMargin(0.0);
 								//plot1.setRangeCrosshairLockedOnData(true);
@@ -590,8 +591,9 @@ public class GraphPanel extends JPanel {
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								// renderer.setItemLabelsVisible(true);
 								if (count<colors.length){
-								renderer.setSeriesPaint(0, colors[count]);}
-								renderer.setSeriesVisible(0, true);
+								renderer.setSeriesPaint(0, colors[count]);
+								}
+								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow());
 								plot1.setRenderer(count, renderer);
 								int hits = 0;
 								int matchs=0;
@@ -795,11 +797,11 @@ public class GraphPanel extends JPanel {
 			int i=0;
 			while (i<comp.length-1){
 				if (comp[i].getClass().equals(JPanel.class)){
-				logger.info(i+" / "+comp.length+ " is Jpanel " + ((JPanel)comp[i]).getComponentCount() + " and " + ((JPanel)comp[i]).getComponent(1));
+				//logger.info(i+" / "+comp.length+ " is Jpanel " + ((JPanel)comp[i]).getComponentCount() + " and " + ((JPanel)comp[i]).getComponent(1));
 					if (((JPanel)comp[i]).getComponent(1).getClass().equals(JPanel.class)){
-						logger.info( ((JPanel) ((JPanel)comp[i]).getComponent(1)).getComponent(0).getClass());
+				//		logger.info( ((JPanel) ((JPanel)comp[i]).getComponent(1)).getComponent(0).getClass());
 					if (((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0).getClass().equals(ChartPanel.class)){
-						logger.info("is ChartPanel");
+					//	logger.info("is ChartPanel");
 					int nbAxis=((ChartPanel)((JPanel)((JPanel)comp[i]).getComponent(1)).getComponent(0)).getChart().getXYPlot().getRangeAxisCount();
 					if (logger.isDebugEnabled()){
 						logger.debug(nbAxis);
