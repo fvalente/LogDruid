@@ -116,12 +116,12 @@ public class DataMiner {
 			if (source.getActive() && source.getActiveMetadata()!=null) {
 				Iterator<Entry<String, ArrayList<FileRecord>>> it = cd.getGroupFilesMap(source).entrySet().iterator();
 				while (it.hasNext()) {
-					final Map.Entry<String, ArrayList<FileRecord>> pairs = (Map.Entry<String, ArrayList<FileRecord>>) it.next();
+					final Map.Entry<String, ArrayList<FileRecord>> pairs = it.next();
 					progressCount = progressCount + pairs.getValue().size();
 					logger.debug("Source:" + source.getSourceName() + ", group: " + pairs.getKey() + " = " + pairs.getValue().toString());
 					tasks.add(new Callable<MineResult>() {
 						public MineResult call() throws Exception {
-							return DataMiner.mine((String) pairs.getKey(), (ArrayList<FileRecord>) pairs.getValue(), repo, source, Preferences.isStats(),
+							return DataMiner.mine(pairs.getKey(), pairs.getValue(), repo, source, Preferences.isStats(),
 									Preferences.isTimings(), Preferences.isMatches(), mainFrame);
 						}
 
@@ -408,7 +408,9 @@ public class DataMiner {
 		Map<String, ExtendedTimeSeries> eventMap = new HashMap<String, ExtendedTimeSeries>();
 		Map<String, Map<Date, FileLine>> RIFileLineDateMap = new HashMap<String, Map<Date, FileLine>>();
 		Map<String, long[]> matchTimings = new HashMap<String, long[]>();
-
+		boolean gatherStats = Preferences.getBooleanPreference("gatherstats");
+		boolean gatherReports = Preferences.getBooleanPreference("gatherreports");
+		boolean gatherEvents = Preferences.getBooleanPreference("gatherevents");
 		long recordingMatchStart = 0;
 		long recordingMatchEnd = 0;
 		try {
@@ -443,12 +445,12 @@ public class DataMiner {
 				// if (logger.isDebugEnabled()) {
 				// logger.debug("line " + line);
 				// }
-				Iterator recMatchIte = recMatch.entrySet().iterator();
+				Iterator<Entry<Recording, String>> recMatchIte = recMatch.entrySet().iterator();
 				while (recMatchIte.hasNext()) {
 					if (timings) {
 						recordingMatchStart = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
 					}
-					Map.Entry me = (Map.Entry) recMatchIte.next();
+					Entry<Recording, String> me = recMatchIte.next();
 					Recording rec = (Recording) me.getKey();
 					matcher = patternCache.getMatcher((String) (rec.getRegexp()),rec.isCaseSensitive(),line);
 					if (matcher.find()) {
@@ -510,7 +512,6 @@ public class DataMiner {
 											Map<Date, FileLine> dateFileLineMap = null;
 											//change this to recItem2 to differentiate recording items with same name ?? TBD
 											//if (RIFileLineDateMap.containsKey(recItem2.getName())) {
-												
 												dateFileLineMap = RIFileLineDateMap.get(recItem2.getName());
 												if (dateFileLineMap==null){
 													dateFileLineMap = new HashMap<Date, FileLine>();
@@ -538,7 +539,7 @@ public class DataMiner {
 												startDate = date1;
 											}
 
-											if (isStatRecording && (Preferences.getBooleanPreference("gatherstats"))) {
+											if (isStatRecording && (gatherStats)) {
 													ts = statMap.get(recItem2.getName());
 												 if (ts==null) {
 													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
@@ -572,7 +573,6 @@ public class DataMiner {
 													if (logger.isDebugEnabled())
 														logger.debug("stats " + array[0] + " " + array[1]);
 												}
-
 												statMap.put(recItem2.getName(), ts);
 												// performance: add the
 												// TmeSeriesDataItem to the
@@ -580,7 +580,7 @@ public class DataMiner {
 												// updating
 												// the TimeSeries in the Map
 
-											} else if (classCache.getClass(rec).equals(EventRecording.class) &&  (Preferences.getBooleanPreference("gatherevents"))) {
+											} else if (classCache.getClass(rec).equals(EventRecording.class) &&  (gatherEvents )) {
 												ts = eventMap.get(recItem2.getName());
 												if (ts==null) {
 													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
@@ -676,7 +676,7 @@ public class DataMiner {
 									// " and "
 									// +statHit);
 								}
-							} else { if (Preferences.getBooleanPreference("gatherreports")){
+							} else { if (gatherReports){
 								int count = 0;
 								if (((ReportRecording) rec).getSubType().equals("histogram") && rec.getIsActive()) {
 									List<Object> temp = new ArrayList<Object>();
@@ -1041,7 +1041,6 @@ else {return null;}
 						logger.debug("Record: " + rec.getName());
 					}
 					sb.setLength(0);
-					int cnt = 0;
 					while (recItemIte.hasNext()) {
 						RecordingItem recItem = recItemIte.next();
 						String stBefore = (String) recItem.getBefore();
