@@ -437,7 +437,7 @@ public class MainFrame extends JFrame {
 						tree.setSelectionRow(tree.getRowCount() - 2);
 						treeSelected();
 		            }
-		        }};
+		        }};	        
 		        t.start();
 /*				if (working==false){
 				Thread t =new Thread()
@@ -680,7 +680,6 @@ public class MainFrame extends JFrame {
 						if (working==false){
 		            	working=true;
 		            	try {
-						panel_1.removeAll();
 						logger.info("Reports panel loading ");				
 						if (DataVault.getMineResultSet() == null) {
 						thiis.setValueNow(0);
@@ -694,7 +693,7 @@ public class MainFrame extends JFrame {
 							logger.info(" new graph Panel");
 							reportPanel = new ReportPanel(repository, DataVault.getMineResultSet());
 						}
-
+						panel_1.removeAll();
 						panel_1.add(reportPanel);
 						panel_1.validate();
 						panel_1.repaint();
@@ -721,9 +720,9 @@ public class MainFrame extends JFrame {
 					Thread t =new Thread()
 			        {
 			            public void run() {
+							if (working==false){
 			            	working=true;
 			            	try{
-							panel_1.removeAll();
 							logger.info("Chart panel loading ");				
 							if (DataVault.getMineResultSet() == null) {
 							thiis.setValueNow(0);
@@ -737,6 +736,7 @@ public class MainFrame extends JFrame {
 								logger.info(" new graph Panel");
 								graphPanel = new GraphPanel(repository, panel_2, DataVault.getMineResultSet(), cd, thiis);
 							}
+							panel_1.removeAll();
 							panel_1.add(graphPanel);
 							panel_1.validate();
 							panel_1.repaint();
@@ -745,7 +745,7 @@ public class MainFrame extends JFrame {
 							logger.error("exception: ", e);
 						}
 							working=false;
-			            }
+			            }}
 			        };
 			        t.start();
 				}
