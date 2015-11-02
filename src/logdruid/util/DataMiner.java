@@ -450,7 +450,7 @@ public class DataMiner {
 					}
 					Map.Entry me = (Map.Entry) recMatchIte.next();
 					Recording rec = (Recording) me.getKey();
-					matcher = patternCache.getPattern((String) (rec.getRegexp()),rec.isCaseSensitive()).matcher(line);
+					matcher = patternCache.getMatcher((String) (rec.getRegexp()),rec.isCaseSensitive(),line);
 					if (matcher.find()) {
 						Boolean isStatRecording = classCache.getClass(rec).equals(StatRecording.class);
 						if (stats) {
@@ -462,8 +462,7 @@ public class DataMiner {
 						}
 						// logger.info("1**** matched: " + line);
 						ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
-						int cnt = 0;
-						matcher2 = patternCache.getPattern((String) me.getValue(),rec.isCaseSensitive()).matcher(line);
+						matcher2 = patternCache.getMatcher((String) me.getValue(),rec.isCaseSensitive(),line);
 						if (matcher2.find()) {
 							if (stats) {
 								if (isStatRecording) {
@@ -509,12 +508,14 @@ public class DataMiner {
 											// the FileLine object use an int to
 											// identify the files to save memory
 											Map<Date, FileLine> dateFileLineMap = null;
-											if (RIFileLineDateMap.containsKey(recItem2.getName())) {
+											//change this to recItem2 to differentiate recording items with same name ?? TBD
+											//if (RIFileLineDateMap.containsKey(recItem2.getName())) {
+												
 												dateFileLineMap = RIFileLineDateMap.get(recItem2.getName());
-											} else {
-												dateFileLineMap = new HashMap<Date, FileLine>();
-											}
-											dateFileLineMap.put(date1, new FileLine(fileRecord.getId(), lineCount));
+												if (dateFileLineMap==null){
+													dateFileLineMap = new HashMap<Date, FileLine>();
+												}
+													dateFileLineMap.put(date1, new FileLine(fileRecord.getId(), lineCount));
 											if (logger.isDebugEnabled()) {
 												logger.debug(fileRecord.getFile().getName() + " dateFileLineMap put: " + date1 + "fileLine: "
 														+ new FileLine(fileRecord.getId(), lineCount));
@@ -538,9 +539,8 @@ public class DataMiner {
 											}
 
 											if (isStatRecording && (Preferences.getBooleanPreference("gatherstats"))) {
-												if (statMap.containsKey(recItem2.getName())) {
 													ts = statMap.get(recItem2.getName());
-												} else {
+												 if (ts==null) {
 													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
 													if (logger.isDebugEnabled())
 														logger.debug("5**** Adding record to Map: " + recItem2.getName());
@@ -565,8 +565,6 @@ public class DataMiner {
 												}
 
 												if (stats) {
-													// int[] array = {
-													// statMatch, statHit };
 													int[] array = ts.getStat();
 													array[1] = array[1] + 1;
 													array[0] = array[0] + 1;
@@ -583,9 +581,8 @@ public class DataMiner {
 												// the TimeSeries in the Map
 
 											} else if (classCache.getClass(rec).equals(EventRecording.class) &&  (Preferences.getBooleanPreference("gatherevents"))) {
-												if (eventMap.containsKey(recItem2.getName())) {
-													ts = eventMap.get(recItem2.getName());
-												} else {
+												ts = eventMap.get(recItem2.getName());
+												if (ts==null) {
 													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
 													if (logger.isDebugEnabled())
 														logger.debug("5**** Adding record to Map: " + recItem2.getName());
@@ -637,6 +634,7 @@ public class DataMiner {
 														}
 													} else {
 														try {
+															// to improve - should use the right type here
 															ts.getTimeSeries().add(
 																	(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2
 																			.group(count)))))));
@@ -930,7 +928,7 @@ public class DataMiner {
 								logger.debug("patternString: " + patternString);
 								logger.debug("filename: " + fileName);
 							}
-							matcher = patternCache.getPattern(patternString + ".*",rec.isCaseSensitive()).matcher(
+							matcher = patternCache.getMatcher(patternString + ".*",rec.isCaseSensitive(),
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(fileName.getFile().getCanonicalPath()).toURI()).getPath());
 							if (matcher.find()) {
 								if (logger.isDebugEnabled())
@@ -1148,7 +1146,7 @@ else {return null;}
 					if (listOfFiles.get(i).isFile()) {
 						String s1 = source.getSourcePattern();
 						try {
-							Matcher matcher = patternCache.getPattern(s1,true).matcher(
+							Matcher matcher = patternCache.getMatcher(s1,true,
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
 
 							if (logger.isDebugEnabled()) {
@@ -1265,13 +1263,13 @@ else {return null;}
 									while (recMatchIte.hasNext()) {
 										Map.Entry me = (Map.Entry) recMatchIte.next();
 										Recording rec = (Recording) me.getKey();
-										matcher = patternCache.getPattern((String) (rec.getRegexp()), rec.isCaseSensitive()).matcher(line);
+										matcher = patternCache.getMatcher((String) (rec.getRegexp()), rec.isCaseSensitive(),line);
 										if (matcher.find()) {
 											// logger.info("1**** matched: " +
 											// line);
 											ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 											int cnt = 0;
-											matcher2 = patternCache.getPattern((String) me.getValue(), rec.isCaseSensitive()).matcher(line);
+											matcher2 = patternCache.getMatcher((String) me.getValue(), rec.isCaseSensitive(),line);
 											if (matcher2.find()) {
 
 												DataVault.addMatchedLines(rec, line);

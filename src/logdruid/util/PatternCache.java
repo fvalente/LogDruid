@@ -13,6 +13,7 @@ package logdruid.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //import org.apache.log4j.Logger;
@@ -20,15 +21,33 @@ import java.util.regex.Pattern;
 public class PatternCache {
 //	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
 	private Map<String, Pattern> pattern = new HashMap<String, Pattern>();
+	private Map<String, Matcher> matcher = new HashMap<String, Matcher>();
 
 	public Pattern getPattern(String regexp, boolean caseSensitive) {
-		if (!pattern.containsKey(regexp+Boolean.toString(caseSensitive))) {
+		Pattern temp = pattern.get(regexp+Boolean.toString(caseSensitive));
+		if (temp!=null){
+			return temp;
+		} else{
 			if (caseSensitive){
 				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp));
 			}else{
 				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));	
-			}
+			}			
 		}
 		return pattern.get(regexp+Boolean.toString(caseSensitive));
+	}
+	
+	public Matcher getMatcher(String regexp, boolean caseSensitive,String str) {
+		Matcher tempMatcher=matcher.get(regexp+Boolean.toString(caseSensitive));
+		if (tempMatcher!=null){
+			return tempMatcher.reset(str);
+		} else{
+			if (caseSensitive){
+				matcher.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp).matcher(str));
+			}else{
+				matcher.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(str));	
+			}
+		}
+		return matcher.get(regexp+Boolean.toString(caseSensitive));
 	}
 }
