@@ -24,7 +24,7 @@ public class PreferenceData {
 			preferences.put("chartSize", "350");
 			preferences.put("ThreadPool_Group", "4");
 			preferences.put("ThreadPool_File", "8");
-			preferences.put("editorCommand", "gvim -R +$line $file");
+			preferences.put("editorCommand", "gvim -R +$line \"$file\"");
 		
 		// TODO Auto-generated constructor stub
 	}
