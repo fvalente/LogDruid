@@ -66,7 +66,7 @@ public class Preferences {
 			prefData.preferences.put("ThreadPool_File", "8");
 		}
 		if (!prefData.preferences.containsKey("editorCommand")) {
-			prefData.preferences.put("editorCommand", "gvim -R +$line $file");
+			prefData.preferences.put("editorCommand", "gvim -R +$line \"$file\"");
 		}
 		if (!prefData.preferences.containsKey("gatherstats")) {
 			prefData.preferences.put("gatherstats", "true");
@@ -76,6 +76,9 @@ public class Preferences {
 		}
 		if (!prefData.preferences.containsKey("gatherreports")) {
 			prefData.preferences.put("gatherreports", "true");
+		}
+		if (!prefData.preferences.containsKey("eventsAsDots")) {
+			prefData.preferences.put("eventsAsDots", "true");
 		}
 		
 		return prefData.preferences;

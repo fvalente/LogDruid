@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
 import logdruid.ui.MainFrame;
 
+import org.jfree.data.time.SimpleTimePeriod;
 import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.time.FixedMillisecond;
 import org.apache.log4j.Level;
@@ -587,17 +589,18 @@ public class DataMiner {
 													if (logger.isDebugEnabled())
 														logger.debug("5**** Adding record to Map: " + recItem2.getName());
 												}
+										//		SimpleTimePeriod stp = new SimpleTimePeriod(date1,DateUtils.addMilliseconds(date1,1));
 												fMS = new FixedMillisecond(date1);
 
 												if (((RecordingItem) recItem2).getProcessingType().equals("occurrences")) {
 													TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
 													if (t != null) {
-														ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, 101))); // +
+														ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, (double)t.getValue()+1))); // +
 														// (double)t.getValue()
 														// need some way to show
 														// several occurrences
 													} else {
-														ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 100)));
+														ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 1)));
 													}
 
 												} else if (((RecordingItem) recItem2).getProcessingType().equals("duration")) {

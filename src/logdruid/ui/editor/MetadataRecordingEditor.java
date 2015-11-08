@@ -298,7 +298,7 @@ public class MetadataRecordingEditor extends JPanel {
 														if (newRecordingList.getClass()==RecordingList.class) {
 															if (recording == null){
 															logger.debug("RecordingEditor - ok 1");
-															Recording r = new MetadataRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
+															Recording r = new MetadataRecording(txtName.getText(), txtRegularExp.getText(),"", txtDate.getText(), chckbxActive
 																	.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 															repository.addRecording(r);
 															logger.debug("RecordingEditor - ok 1");
@@ -311,7 +311,7 @@ public class MetadataRecordingEditor extends JPanel {
 															
 														}}} else {
 															int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
-															((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
+															((MetadataRecording) recording).update(txtName.getText(), txtRegularExp.getText(),"", txtDate.getText(),
 																	chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 															((RecordingList) newRecordingList).model.fireTableDataChanged();
 															logger.debug("RecordingEditor - row Updated");

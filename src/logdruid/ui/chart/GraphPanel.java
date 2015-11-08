@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Collections;
@@ -55,10 +56,13 @@ import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
 import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.MarkerAxisBand;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
@@ -67,6 +71,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer2;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
@@ -84,7 +89,17 @@ import org.jfree.data.xy.XYDataset;
 
 
 
+
+
+
+
+
 import com.sun.java.swing.plaf.gtk.GTKConstants.Orientation;
+
+
+
+
+
 
 
 //import logdruid.data.DataVault;
@@ -142,6 +157,34 @@ public class GraphPanel extends JPanel {
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
 			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 ),new Color(70, 62, 200), new Color(255,171, 130 ), new Color( 40, 255,40),
 			new Color(65,171,93),new Color(239,59,44), new Color(65,182,196),new Color(254,178,76),new Color(180,180,180),new Color(93,65,171) };
+	private Color[] colors2 = { 
+			new Color(93,65,171),
+			new Color(239,59,44), 
+			new Color(93,65,171),
+//			Color.magenta, 
+			new Color( 40, 210,40),
+			Color.ORANGE, 
+			Color.blue,
+			new Color(65,171,93),
+			new Color(70, 62, 200),
+			new Color(179,60 , 113),
+			new Color(179,113, 60 ),
+			new Color(65,182,196),
+			new Color(255,171, 130 ),
+			Color.pink, 
+			new Color(254,178,76),
+			new Color(65, 90, 220), 
+			new Color(70, 200, 62), 
+			new Color(171, 130, 255), 
+			new Color(255, 40, 40),
+			new Color(0, 205, 205),
+			new Color(65, 90, 220), 
+			new Color(107, 255, 102), 
+			new Color(0, 178, 238),
+			new Color(60, 179, 113),
+			new Color(180,180,180),};
+	//private Color[] colors2= colors.clone();
+
 	// private Color[] colors = { new Color(65,171,93),new Color(254,196,79),new
 	// Color(65,171,93), new Color(239,59,44), new Color(65,182,196),new
 	// Color(5,112,176), new Color(254,178,76),Color.blue, new Color(255, 40,
@@ -174,7 +217,7 @@ public class GraphPanel extends JPanel {
 	 */
 
 	public GraphPanel(final Repository repo, final JPanel panel_2, final MineResultSet mineResultSet1, final ChartData cd1, final MainFrame _mainFrame) {
-
+	//	ArrayUtils.reverse(colors2);
 
 		this.repo=repo;
 		this.panel_2=panel_2;
@@ -401,6 +444,8 @@ public class GraphPanel extends JPanel {
 							checkboxPanel.setBackground(Color.white);
 
 							int count = 1;
+							int countEvent = 1;
+							int countStat= 1;
 							chart = ChartFactory.createXYAreaChart(// Title
 									"",// +
 									null, // X-Axis
@@ -471,6 +516,191 @@ public class GraphPanel extends JPanel {
 							plot1.setDomainCrosshairVisible(true);
 							plot1.setRangeCrosshairVisible(true);
 							plot1.mapDatasetToDomainAxis(0, 1);
+
+							Iterator eventMapIterator = eventMap.entrySet().iterator();
+							while (eventMapIterator.hasNext()) {
+
+								TimeSeriesCollection dataset = new TimeSeriesCollection();
+								Map.Entry me = (Map.Entry) eventMapIterator.next();
+								ExtendedTimeSeries ts = (ExtendedTimeSeries) me.getValue();
+								if (((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences")){
+								// if (dataset.getEndXValue(series, item))
+								if (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY() > 0)
+									dataset.addSeries(((ExtendedTimeSeries) me.getValue()).getTimeSeries());
+
+								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
+										+ ((ExtendedTimeSeries) me.getValue()).getTimeSeries().getItemCount());
+								logger.debug("mineResultSet hash content: " + mr.getEventTimeseriesMap());
+								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
+								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
+
+
+								// axis4.setRange(new Range(((TimeSeries)
+								// axis4.setRange(new Range(((TimeSeries)
+								// me.getValue()).getMinY(), ((TimeSeries)
+								// me.getValue()).getMaxY()));
+
+								logger.debug(ts.getRecordingItem() + " is " + ((RecordingItem)ts.getRecordingItem()).isShow());
+								// domainAxis.setLowerMargin(0.001);
+								// domainAxis.setUpperMargin(0.0);
+								//plot1.setRangeCrosshairLockedOnData(true);
+								NumberAxis axis4=null;
+								XYItemRenderer renderer=null;
+								if (Preferences.getBooleanPreference("eventsAsDots")){
+									
+									axis4 = new LogarithmicAxis2(me.getKey().toString());
+									axis4.setAutoRange(true);
+										axis4.setDefaultAutoRange(new Range(-5000, 10* Math.exp(countEvent)+dataset.getRangeBounds(true).getUpperBound()));
+										logger.info(countEvent+ " " + 10*Math.exp(countEvent)+ "  "+dataset.getRangeBounds(true).getUpperBound());
+		//axis4.setAutoRangeMinimumSize(.001);
+		//axis4.adjustedLog10(.001);
+									//	axis4.setRange(-500000000, 1000);
+								// axis4.setInverted(true);
+								//		range.setVisible(((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences"));
+										axis4.setAxisLineVisible(true);
+										logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
+										axis4.setAutoRangeIncludesZero(true);
+									XYErrorRenderer rend = new XYErrorRenderer(); 
+									rend.setCapLength(0);
+									rend.setDrawYError(false);
+									renderer = rend;
+								}else {
+									axis4 = new NumberAxis(me.getKey().toString());
+									XYBarRenderer rend = new XYBarRenderer(0); // XYErrorRenderer
+									 //rend.setMargin(100);
+									axis4.setAutoRange(true);
+									rend.setShadowVisible(false);
+									rend.setDrawBarOutline(false);
+									renderer = rend;
+								}
+								plot1.setRangeAxis(count, axis4);
+		///////						plot1.setRangeAxisLocation(AxisLocation.TOP_OR_LEFT);
+								//plot1.setForegroundAlpha(1);
+								plot1.setDataset(count, dataset);
+								plot1.mapDatasetToRangeAxis(count, count);
+					//			Stroke stroke = new BasicStroke(1f);
+					//			rend.setBaseStroke(stroke);
+								axis4.setLabelFont(new Font("Dialog", Font.PLAIN, 12));
+								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
+								if (countEvent<colors2.length){
+									axis4.setLabelPaint(colors2[countEvent]);
+									axis4.setTickLabelPaint(colors2[countEvent]);
+									}
+								if (((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences")) {
+									axis4.setTickLabelsVisible(false);
+									axis4.setTickMarksVisible(false);
+									axis4.setVerticalTickLabels(true);
+									//belFont(new Font("Dialog", Font.BOLD, 6));
+								}								
+								renderer.setSeriesToolTipGenerator(0, tt1);
+								// renderer.setItemLabelsVisible(true);
+								if (countEvent<colors2.length){
+								renderer.setSeriesPaint(0, colors2[countEvent]);
+								}
+								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow());
+								plot1.setRenderer(count, renderer);
+								int hits = 0;
+								int matchs=0;
+								
+								if (((ExtendedTimeSeries) me.getValue()).getStat() != null) {
+									hits = ((ExtendedTimeSeries) me.getValue()).getStat()[1];
+								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
+								}
+								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
+								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
+								jcb.setBackground(Color.white);
+								jcb.setBorderPainted(true);
+								if (countEvent<colors2.length){
+								jcb.setBorder(BorderFactory.createLineBorder(colors2[countEvent], 1, true));}
+								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
+								checkboxPanel.add(jcb);
+								count++;
+								countEvent++;
+							}}
+							
+							Iterator eventMapIterator2 = eventMap.entrySet().iterator();
+							while (eventMapIterator2.hasNext()) {
+								TimeSeriesCollection dataset = new TimeSeriesCollection();
+								Map.Entry me = (Map.Entry) eventMapIterator2.next();
+								ExtendedTimeSeries ts = (ExtendedTimeSeries) me.getValue();
+								// if (dataset.getEndXValue(series, item))
+								if (!((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences")){
+								if (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY() > 0)
+									dataset.addSeries(((ExtendedTimeSeries) me.getValue()).getTimeSeries());
+
+								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
+										+ ((ExtendedTimeSeries) me.getValue()).getTimeSeries().getItemCount());
+								logger.debug("mineResultSet hash content: " + mr.getEventTimeseriesMap());
+								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
+								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
+
+							//	LogarithmicAxis axis4 = new LogarithmicAxis(me.toString());
+								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
+								axis4.setAutoRange(true);
+
+								// axis4.setInverted(true);
+						//		range.setVisible(((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences"));
+								axis4.setAxisLineVisible(!((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences"));
+								logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
+								axis4.setAutoRangeIncludesZero(true);
+								// axis4.setRange(new Range(((TimeSeries)
+								// axis4.setRange(new Range(((TimeSeries)
+								// me.getValue()).getMinY(), ((TimeSeries)
+								// me.getValue()).getMaxY()));
+								axis4.setLabelFont(new Font("Dialog", Font.PLAIN, 12));
+								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
+								if (countEvent<colors2.length){
+									axis4.setLabelPaint(colors2[countEvent]);
+									axis4.setTickLabelPaint(colors2[countEvent]);
+									}
+								if (((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences")) {
+									axis4.setTickLabelsVisible(false);
+									axis4.setTickMarksVisible(false);
+									axis4.setVerticalTickLabels(true);
+									//belFont(new Font("Dialog", Font.BOLD, 6));
+								}
+								logger.debug(ts.getRecordingItem() + " is " + ((RecordingItem)ts.getRecordingItem()).isShow());
+								// domainAxis.setLowerMargin(0.001);
+								// domainAxis.setUpperMargin(0.0);
+								//plot1.setRangeCrosshairLockedOnData(true);
+								plot1.setRangeAxis(count, axis4);
+		///////						plot1.setRangeAxisLocation(AxisLocation.TOP_OR_LEFT);
+							//	plot1.setForegroundAlpha(0.5f);
+								plot1.setDataset(count, dataset);
+								plot1.mapDatasetToRangeAxis(count, count);
+								XYBarRenderer rend = new XYBarRenderer(); // XYErrorRenderer
+								rend.setShadowVisible(false);
+								rend.setDrawBarOutline(false);
+								Stroke stroke = new BasicStroke(2);
+								rend.setBaseStroke(stroke);
+								final XYItemRenderer renderer = rend;
+								renderer.setSeriesToolTipGenerator(0, tt1);
+								// renderer.setItemLabelsVisible(true);
+								if (countEvent<colors2.length){
+								renderer.setSeriesPaint(0, colors2[countEvent]);
+								}
+								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow());
+								plot1.setRenderer(count, renderer);
+								int hits = 0;
+								int matchs=0;
+								
+								if (((ExtendedTimeSeries) me.getValue()).getStat() != null) {
+									hits = ((ExtendedTimeSeries) me.getValue()).getStat()[1];
+								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
+								}
+								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
+								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
+								jcb.setBackground(Color.white);
+								jcb.setBorderPainted(true);
+								if (countEvent<colors2.length){
+								jcb.setBorder(BorderFactory.createLineBorder(colors2[countEvent], 1, true));}
+								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
+								checkboxPanel.add(jcb);
+								count++;
+								countEvent++;
+							}}
+							
+							
 							while (statMapIterator.hasNext()) {
 
 								TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -491,13 +721,14 @@ public class GraphPanel extends JPanel {
 								axis4.setAutoRangeIncludesZero(false);
 								axis4.setRange(new Range(ts.getTimeSeries().getMinY(), ts
 										.getTimeSeries().getMaxY()));
-								if (count<colors.length){
-								axis4.setLabelPaint(colors[count]);
-								axis4.setTickLabelPaint(colors[count]);
+								if (countStat<colors.length){
+								axis4.setLabelPaint(colors[countStat]);
+								axis4.setTickLabelPaint(colors[countStat]);
 								}
 								plot1.setRangeAxis(count, axis4);
 								axis4.setVisible(((RecordingItem)ts.getRecordingItem()).isShow());
-								plot1.setForegroundAlpha(0.3f);
+								axis4.setLabelFont(new Font("Dialog", Font.PLAIN, 12));
+								plot1.setForegroundAlpha(0.42f);
 								if (ts.getTimeSeries().getMaxY()!=ts.getTimeSeries().getMinY()){
 								plot1.setDataset(count, dataset);
 								}
@@ -505,8 +736,8 @@ public class GraphPanel extends JPanel {
 								final XYAreaRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
 																						// also
 																						// nice
-								if (count<colors.length){
-								renderer.setSeriesPaint(0, colors[count]);
+								if (countStat<colors.length){
+								renderer.setSeriesPaint(0, colors[countStat]);
 								}
 								logger.debug(((RecordingItem)ts.getRecordingItem()).getName());
 								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow()); //!cd.disabledSeries.contains(me.toString()
@@ -522,8 +753,8 @@ public class GraphPanel extends JPanel {
 								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
-								if (count<colors.length){
-								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));
+								if (countStat<colors.length){
+								jcb.setBorder(BorderFactory.createLineBorder(colors[countStat], 1, true));
 								}
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
 								logger.debug(me.toString()+", "+((RecordingItem)ts.getRecordingItem()).isShow());
@@ -532,6 +763,7 @@ public class GraphPanel extends JPanel {
 					//			}
 								checkboxPanel.add(jcb);
 								count++;
+								countStat++;
 							}
 		//					XYPlot plot1 = chart.getXYPlot();				
 		//					final ValueAxis domainAxis = domainAxis1;
@@ -541,77 +773,7 @@ public class GraphPanel extends JPanel {
 		//					plot1.setDomainAxis(0,domainAxis);
 		//					plot1.setDomainAxis(1,domainAxisa);
 							
-							Iterator eventMapIterator = eventMap.entrySet().iterator();
-							while (eventMapIterator.hasNext()) {
-								
-							//	HistogramDataset histoDataSet=new HistogramDataset();
 
-								TimeSeriesCollection dataset = new TimeSeriesCollection();
-								Map.Entry me = (Map.Entry) eventMapIterator.next();
-								ExtendedTimeSeries ts = (ExtendedTimeSeries) me.getValue();
-								// if (dataset.getEndXValue(series, item))
-								if (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY() > 0)
-									dataset.addSeries(((ExtendedTimeSeries) me.getValue()).getTimeSeries());
-
-								logger.debug("mineResultSet group: " + mr.getGroup() + ", key: " + me.getKey() + " nb records: "
-										+ ((ExtendedTimeSeries) me.getValue()).getTimeSeries().getItemCount());
-								logger.debug("mineResultSet hash content: " + mr.getEventTimeseriesMap());
-								logger.debug("(((TimeSeries) me.getValue()).getMaxY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMaxY()));
-								logger.debug("(((TimeSeries) me.getValue()).getMinY(): " + (((ExtendedTimeSeries) me.getValue()).getTimeSeries().getMinY()));
-
-							//	LogarithmicAxis axis4 = new LogarithmicAxis(me.toString());
-								NumberAxis axis4 = new NumberAxis(me.getKey().toString());
-								axis4.setAutoRange(true);
-								// axis4.setInverted(true);
-								axis4.setAxisLineVisible(true);
-								axis4.setAutoRangeIncludesZero(true);
-								// axis4.setRange(new Range(((TimeSeries)
-								// axis4.setRange(new Range(((TimeSeries)
-								// me.getValue()).getMinY(), ((TimeSeries)
-								// me.getValue()).getMaxY()));
-								if (count<colors.length){
-								axis4.setLabelPaint(colors[count]);
-								axis4.setTickLabelPaint(colors[count]);
-								}
-								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
-								logger.debug(ts.getRecordingItem() + " is " + ((RecordingItem)ts.getRecordingItem()).isShow());
-								// domainAxis.setLowerMargin(0.001);
-								// domainAxis.setUpperMargin(0.0);
-								//plot1.setRangeCrosshairLockedOnData(true);
-								plot1.setRangeAxis(count, axis4);
-								plot1.setForegroundAlpha(0.5f);
-								plot1.setDataset(count, dataset);
-								plot1.mapDatasetToRangeAxis(count, count);
-								XYBarRenderer rend = new XYBarRenderer(); // XYErrorRenderer
-								rend.setShadowVisible(false);
-								rend.setDrawBarOutline(true);
-								Stroke stroke = new BasicStroke(5);
-								rend.setBaseStroke(stroke);
-								final XYItemRenderer renderer = rend;
-								renderer.setSeriesToolTipGenerator(0, tt1);
-								// renderer.setItemLabelsVisible(true);
-								if (count<colors.length){
-								renderer.setSeriesPaint(0, colors[count]);
-								}
-								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow());
-								plot1.setRenderer(count, renderer);
-								int hits = 0;
-								int matchs=0;
-								
-								if (((ExtendedTimeSeries) me.getValue()).getStat() != null) {
-									hits = ((ExtendedTimeSeries) me.getValue()).getStat()[1];
-								//	matchs= ((ExtendedTimeSeries) me.getValue()).getStat()[0];
-								}
-								JCheckBox jcb = new JCheckBox(new VisibleAction(cd,panel,checkboxPanel,axis4, me.getKey().toString() + "(" + hits + ")", 0));
-								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
-								jcb.setBackground(Color.white);
-								jcb.setBorderPainted(true);
-								if (count<colors.length){
-								jcb.setBorder(BorderFactory.createLineBorder(colors[count], 1, true));}
-								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
-								checkboxPanel.add(jcb);
-								count++;
-							}
 
 							final JPanel pan = new JPanel();
 							
