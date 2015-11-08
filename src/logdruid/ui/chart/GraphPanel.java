@@ -160,9 +160,9 @@ public class GraphPanel extends JPanel {
 	private Color[] colors2 = { 
 			new Color(93,65,171),
 			new Color(239,59,44), 
-			new Color(93,65,171),
+			new Color(83,65,171),
 //			Color.magenta, 
-			new Color( 40, 210,40),
+			new Color( 40, 170,40),
 			Color.ORANGE, 
 			Color.blue,
 			new Color(65,171,93),
@@ -561,7 +561,7 @@ public class GraphPanel extends JPanel {
 										logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
 										axis4.setAutoRangeIncludesZero(true);
 									XYErrorRenderer rend = new XYErrorRenderer(); 
-									rend.setCapLength(0);
+									rend.setCapLength(1);
 									rend.setDrawYError(false);
 									renderer = rend;
 								}else {
