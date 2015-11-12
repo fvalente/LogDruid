@@ -10,12 +10,9 @@
  *******************************************************************************/
 package logdruid.ui.chart;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Collections;
@@ -23,15 +20,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.ArrayList;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -48,77 +39,40 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
-import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.DateTickUnit;
-import org.jfree.chart.axis.DateTickUnitType;
-import org.jfree.chart.axis.LogarithmicAxis;
-import org.jfree.chart.axis.MarkerAxisBand;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.event.AxisChangeEvent;
-import org.jfree.chart.event.AxisChangeListener;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
-import org.jfree.chart.renderer.xy.XYAreaRenderer2;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
-import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.time.Millisecond;
-import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-
-//import sun.awt.X11.ColorData;
 
 import org.jfree.data.time.TimeSeriesDataItem;
 import org.jfree.data.xy.XYDataset;
 
-
-
-
-
-
-
-
-
-import com.sun.java.swing.plaf.gtk.GTKConstants.Orientation;
-
-
-
-
-
-
-
-//import logdruid.data.DataVault;
 import logdruid.data.ExtendedTimeSeries;
 import logdruid.data.Preferences;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.mine.ChartData;
-import logdruid.data.mine.DataVault;
-import logdruid.data.mine.FileLine;
 import logdruid.data.mine.MineResult;
 import logdruid.data.mine.MineResultSet;
-import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.ui.MainFrame;
 import logdruid.ui.WrapLayout;
 import logdruid.util.AlphanumComparator;
+import logdruid.util.ColorCache;
 import logdruid.util.DataMiner;
-import logdruid.util.Persister;
 
 import javax.swing.JScrollPane;
 
@@ -131,14 +85,12 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 
 import javax.swing.BoxLayout;
 
@@ -153,15 +105,14 @@ public class GraphPanel extends JPanel {
 	private JPanel panel_1;
 	private Repository repo;
 	String htmlStr = "<html>";
-	private Color[] colors = { Color.blue, new Color(65, 90, 220), new Color(70, 200, 62), new Color(171, 130, 255), new Color(255, 40, 40),
+	private Color[] colors = { new Color(65, 90, 220), new Color(70, 200, 62), new Color(243, 214, 23), new Color(255, 40, 40),
 			new Color(0, 205, 205), Color.magenta, Color.orange, Color.pink, new Color(65, 90, 220), new Color(107, 255, 102), new Color(0, 178, 238),
 			new Color(60, 179, 113),new Color(179,60 , 113),new Color(179,113, 60 ),new Color(70, 62, 200), new Color(255,171, 130 ), new Color( 40, 255,40),
-			new Color(65,171,93),new Color(239,59,44), new Color(65,182,196),new Color(254,178,76),new Color(180,180,180),new Color(93,65,171) };
+			new Color(65,171,93),new Color(239,59,44), new Color(65,182,196),new Color(254,178,76),new Color(180,180,180),new Color(93,65,171),Color.blue};
 	private Color[] colors2 = { 
-			new Color(93,65,171),
 			new Color(239,59,44), 
 			new Color(83,65,171),
-//			Color.magenta, 
+			new Color(44, 117, 255),
 			new Color( 40, 170,40),
 			Color.ORANGE, 
 			Color.blue,
@@ -218,7 +169,6 @@ public class GraphPanel extends JPanel {
 
 	public GraphPanel(final Repository repo, final JPanel panel_2, final MineResultSet mineResultSet1, final ChartData cd1, final MainFrame _mainFrame) {
 	//	ArrayUtils.reverse(colors2);
-
 		this.repo=repo;
 		this.panel_2=panel_2;
 		mineResultSet=mineResultSet1;
@@ -401,7 +351,10 @@ public class GraphPanel extends JPanel {
 		Iterator mineResultSetIterator = treeMap.entrySet().iterator();
 		int ite=0;
 		logger.debug("mineResultSet size: " + mineResultSet.mineResults.size());
+
 		while (mineResultSetIterator.hasNext()) {
+			ColorCache eventColorCache = new ColorCache(colors2);
+			ColorCache statColorCache = new ColorCache(colors);
 			final Map.Entry pairs = (Map.Entry) mineResultSetIterator.next();
 			logger.debug("mineResultSet key/source: " + ((Source)pairs.getKey()).getSourceName());
 			JCheckBox checkBox=(JCheckBox)panel_1.getComponent(ite++);
@@ -551,14 +504,14 @@ public class GraphPanel extends JPanel {
 									axis4 = new LogarithmicAxis2(me.getKey().toString());
 									axis4.setAutoRange(true);
 										axis4.setDefaultAutoRange(new Range(-5000, 10* Math.exp(countEvent)+dataset.getRangeBounds(true).getUpperBound()));
-										logger.info(countEvent+ " " + 10*Math.exp(countEvent)+ "  "+dataset.getRangeBounds(true).getUpperBound());
+									//	logger.info(countEvent+ " " + 10*Math.exp(countEvent)+ "  "+dataset.getRangeBounds(true).getUpperBound());
 		//axis4.setAutoRangeMinimumSize(.001);
 		//axis4.adjustedLog10(.001);
 									//	axis4.setRange(-500000000, 1000);
 								// axis4.setInverted(true);
 								//		range.setVisible(((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences"));
 										axis4.setAxisLineVisible(true);
-										logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
+									//	logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
 										axis4.setAutoRangeIncludesZero(true);
 									XYErrorRenderer rend = new XYErrorRenderer(); 
 									rend.setCapLength(1);
@@ -582,10 +535,8 @@ public class GraphPanel extends JPanel {
 					//			rend.setBaseStroke(stroke);
 								axis4.setLabelFont(new Font("Dialog", Font.PLAIN, 12));
 								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
-								if (countEvent<colors2.length){
-									axis4.setLabelPaint(colors2[countEvent]);
-									axis4.setTickLabelPaint(colors2[countEvent]);
-									}
+									axis4.setLabelPaint(eventColorCache.getColor(me.getKey().toString()));
+									axis4.setTickLabelPaint(eventColorCache.getColor(me.getKey().toString()));
 								if (((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences")) {
 									axis4.setTickLabelsVisible(false);
 									axis4.setTickMarksVisible(false);
@@ -594,9 +545,7 @@ public class GraphPanel extends JPanel {
 								}								
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								// renderer.setItemLabelsVisible(true);
-								if (countEvent<colors2.length){
-								renderer.setSeriesPaint(0, colors2[countEvent]);
-								}
+								renderer.setSeriesPaint(0, eventColorCache.getColor(me.getKey().toString()));
 								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow());
 								plot1.setRenderer(count, renderer);
 								int hits = 0;
@@ -610,8 +559,7 @@ public class GraphPanel extends JPanel {
 								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
-								if (countEvent<colors2.length){
-								jcb.setBorder(BorderFactory.createLineBorder(colors2[countEvent], 1, true));}
+								jcb.setBorder(BorderFactory.createLineBorder(eventColorCache.getColor(me.getKey().toString()), 1, true));
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
 								checkboxPanel.add(jcb);
 								count++;
@@ -641,7 +589,7 @@ public class GraphPanel extends JPanel {
 								// axis4.setInverted(true);
 						//		range.setVisible(((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences"));
 								axis4.setAxisLineVisible(!((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences"));
-								logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
+						//		logger.info(((RecordingItem)ts.getRecordingItem()).getProcessingType());
 								axis4.setAutoRangeIncludesZero(true);
 								// axis4.setRange(new Range(((TimeSeries)
 								// axis4.setRange(new Range(((TimeSeries)
@@ -649,10 +597,8 @@ public class GraphPanel extends JPanel {
 								// me.getValue()).getMaxY()));
 								axis4.setLabelFont(new Font("Dialog", Font.PLAIN, 12));
 								axis4.setVisible( ((RecordingItem)ts.getRecordingItem()).isShow());
-								if (countEvent<colors2.length){
-									axis4.setLabelPaint(colors2[countEvent]);
-									axis4.setTickLabelPaint(colors2[countEvent]);
-									}
+									axis4.setLabelPaint(eventColorCache.getColor(me.getKey().toString()));
+									axis4.setTickLabelPaint(eventColorCache.getColor(me.getKey().toString()));
 								if (((RecordingItem)ts.getRecordingItem()).getProcessingType().toString().equals("occurrences")) {
 									axis4.setTickLabelsVisible(false);
 									axis4.setTickMarksVisible(false);
@@ -676,9 +622,7 @@ public class GraphPanel extends JPanel {
 								final XYItemRenderer renderer = rend;
 								renderer.setSeriesToolTipGenerator(0, tt1);
 								// renderer.setItemLabelsVisible(true);
-								if (countEvent<colors2.length){
-								renderer.setSeriesPaint(0, colors2[countEvent]);
-								}
+								renderer.setSeriesPaint(0, eventColorCache.getColor(me.getKey().toString()));
 								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow());
 								plot1.setRenderer(count, renderer);
 								int hits = 0;
@@ -692,8 +636,7 @@ public class GraphPanel extends JPanel {
 								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
-								if (countEvent<colors2.length){
-								jcb.setBorder(BorderFactory.createLineBorder(colors2[countEvent], 1, true));}
+								jcb.setBorder(BorderFactory.createLineBorder(eventColorCache.getColor(me.getKey().toString()), 1, true));
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
 								checkboxPanel.add(jcb);
 								count++;
@@ -721,10 +664,8 @@ public class GraphPanel extends JPanel {
 								axis4.setAutoRangeIncludesZero(false);
 								axis4.setRange(new Range(ts.getTimeSeries().getMinY(), ts
 										.getTimeSeries().getMaxY()));
-								if (countStat<colors.length){
-								axis4.setLabelPaint(colors[countStat]);
-								axis4.setTickLabelPaint(colors[countStat]);
-								}
+								axis4.setLabelPaint(statColorCache.getColor(me.toString()));
+								axis4.setTickLabelPaint(statColorCache.getColor(me.toString()));
 								plot1.setRangeAxis(count, axis4);
 								axis4.setVisible(((RecordingItem)ts.getRecordingItem()).isShow());
 								axis4.setLabelFont(new Font("Dialog", Font.PLAIN, 12));
@@ -736,9 +677,7 @@ public class GraphPanel extends JPanel {
 								final XYAreaRenderer renderer = new XYAreaRenderer(); // XYAreaRenderer2
 																						// also
 																						// nice
-								if (countStat<colors.length){
-								renderer.setSeriesPaint(0, colors[countStat]);
-								}
+								renderer.setSeriesPaint(0, statColorCache.getColor(me.toString()));
 								logger.debug(((RecordingItem)ts.getRecordingItem()).getName());
 								renderer.setSeriesVisible(0, ((RecordingItem)ts.getRecordingItem()).isShow()); //!cd.disabledSeries.contains(me.toString()
 								renderer.setSeriesToolTipGenerator(0, tt1);
@@ -753,9 +692,7 @@ public class GraphPanel extends JPanel {
 								jcb.setSelected(((RecordingItem)ts.getRecordingItem()).isShow());
 								jcb.setBackground(Color.white);
 								jcb.setBorderPainted(true);
-								if (countStat<colors.length){
-								jcb.setBorder(BorderFactory.createLineBorder(colors[countStat], 1, true));
-								}
+								jcb.setBorder(BorderFactory.createLineBorder(statColorCache.getColor(me.toString()), 1, true));
 								jcb.setFont(new Font("Sans-serif", oldSmallFont.getStyle(), oldSmallFont.getSize()));
 								logger.debug(me.toString()+", "+((RecordingItem)ts.getRecordingItem()).isShow());
 					//			if (MainFrame.cd.disabledSeries.contains(me.toString())){
