@@ -15,14 +15,22 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultRowSorter;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JButton;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,10 +46,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import logdruid.data.DateFormat;
 import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.SourceItem;
 import logdruid.ui.MainFrame;
+import logdruid.ui.dialog.DateSelector;
 import logdruid.ui.dialog.FileChooserDialog;
 import logdruid.util.DataMiner;
 import logdruid.util.FileListing;
@@ -50,12 +60,14 @@ import logdruid.util.PatternCache;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
 import javax.swing.text.Highlighter;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -72,6 +84,7 @@ import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Point;
 
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
@@ -90,7 +103,7 @@ public class SourcePanel extends JPanel {
 	private JTextField basePathTextField;
 	boolean DEBUG = false;
 	private JTable table;
-	private String[] header = { "name", "regexp", "active", "nb files", "size(MB)" };
+	private String[] header = { "name", "regexp", "Date Format", "active", "nb files", "size(MB)" };
 	private Repository repository;
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	public MyTableModel2 model;
@@ -238,8 +251,8 @@ public class SourcePanel extends JPanel {
 		panel_1.add(scrollPane);
 
 		JPanel panel_6 = new JPanel();
-		panel_6.setMinimumSize(new Dimension(0, 150));
-		panel_6.setPreferredSize(new Dimension(0, 150));
+		panel_6.setMinimumSize(new Dimension(0, 200));
+		panel_6.setPreferredSize(new Dimension(0, 200));
 		splitPane.setLeftComponent(panel_6);
 		panel_6.setLayout(new BorderLayout(0, 0));
 
@@ -255,11 +268,13 @@ public class SourcePanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 				repository.deleteSource(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
-				reloadTable();
+			//	reloadTable();
 				if (selectedRow == table.getRowCount()) {
 					table.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
 				} else if (selectedRow > 0) {
 					table.setRowSelectionInterval(selectedRow, selectedRow);
+				} else {
+					table.setRowSelectionInterval(0, 0);
 				}
 				mainFrame.updateTreeSources(repository.getSources());
 				refreshList();
@@ -276,13 +291,14 @@ public class SourcePanel extends JPanel {
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				updateSources();
-				reloadTable();
+			//	updateSources();
+			//	reloadTable();
 				if (selectedRow > 0) {
 					table.setRowSelectionInterval(selectedRow, selectedRow);
 				}
 				mainFrame.updateTreeSources(repository.getSources());
 				refreshList();
+			//	model.fireTableDataChanged();
 
 			}
 		});
@@ -325,25 +341,33 @@ public class SourcePanel extends JPanel {
 
 		btnNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				Source s = new Source("default", ".*", Boolean.TRUE, (ArrayList<SourceItem>) null);
-				logger.info(repository);
-				logger.info(s);
-				repository.addSource(s);
-				data.add(new Object[] { "", 0, Boolean.TRUE, 0, 0 });
-				// table.repaint();
-				reloadTable();
-				if (selectedRow >= 0) {
+				int rowCount = table.getRowCount();
+				if (rowCount==-1){rowCount=0;}
+				//int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+				logger.info(repository);	
+				logger.info(rowCount);
+				model.addRow(new Object[] { "default", ".*", "none", Boolean.TRUE, 0, 0 });
+				model.fireTableDataChanged();//(rowCount, rowCount);
+				table.setRowSelectionInterval(rowCount, rowCount);
+
+			//	 table.repaint();
+			//	reloadTable();
+/*				if (selectedRow >= 0) {
 					table.setRowSelectionInterval(selectedRow, selectedRow);
 				} else {
 					table.setRowSelectionInterval(0, 0);
-				}
-				table.repaint();
+				}*/
+			//	table.repaint();
+				refreshList();
 				mainFrame.updateTreeSources(repository.getSources());
 			}
 		});
 		table = new JTable(model);
 		initColumnSizes(table);
+	//	setUpProcessingColumn(table,table.getColumnModel().getColumn(2));
+		//table.setAutoCreateRowSorter(true);
+
+	
 		JScrollPane scrollPane_1 = new JScrollPane(table);
 		panel_6.add(scrollPane_1);
 
@@ -354,10 +378,10 @@ public class SourcePanel extends JPanel {
 				// if (!e.getValueIsAdjusting()){
 				// model.fireTableDataChanged();
 				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-				updateSources();
+			//	updateSources();
 				mainFrame.updateTreeSources(repository.getSources());
-				reloadTable();
-				table.setRowSelectionInterval(selectedRow, selectedRow);
+			//	reloadTable();
+			//	table.setRowSelectionInterval(selectedRow, selectedRow);
 				refreshList();
 				// }
 			}
@@ -369,20 +393,50 @@ public class SourcePanel extends JPanel {
 				if (!e.getValueIsAdjusting()) {
 					// model.fireTableDataChanged();
 					int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
-					updateSources();
+		//			updateSources();
 					mainFrame.updateTreeSources(repository.getSources());
-					reloadTable();
-					table.setRowSelectionInterval(selectedRow, selectedRow);
+			//		reloadTable();
+			//		table.setRowSelectionInterval(selectedRow, selectedRow);
 					refreshList();
 				}
 			}
 		});
+		
+		table.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent me) {
+				   if (table.getSelectedRow()!=-1){
+					   int x = me.getX();
+			            int y = me.getY();
+			            int row = table.rowAtPoint(new Point(x,y));
+			            int col = table.columnAtPoint(new Point(x,y));
+			            if (col == 2)
+			            {
+					   DateSelector ds = new DateSelector(repository);
+					   ds.setVisible(true);
+					   if (ds.isValidate() && (ds.getDateFormat()!=null)){
+						model.setValueAt(ds.getDateFormat(), table.getSelectedRow(), 2);
+						model.fireTableCellUpdated(table.getSelectedRow(), 2);
+						repository.getSource(row).setDateFormat((DateFormat)ds.getDateFormat());
+						logger.debug("updated with " + ds.getDateFormat().getName() );   
+						}
+						
+			            }}
+			}
+			});
+			
+
+	
 
 		reloadTable();
 		if (table.getRowCount() > 0) {
 			table.setRowSelectionInterval(0, 0);
 		}
 		refreshList();
+		
+	/* if (model.getRowCount()>0){
+			table.getRowSorter().toggleSortOrder(2);
+			table.getRowSorter().toggleSortOrder(0);
+			}*/
 	}
 
 	public void refreshList() {
@@ -421,7 +475,7 @@ public class SourcePanel extends JPanel {
 
 					listOfFiles = FileListing.getFileListing(folder);
 					estimatedTime = System.currentTimeMillis() - startTime;
-					logger.info("gathering time: " + estimatedTime);
+					logger.debug("gathering time: " + estimatedTime);
 				} else {
 					listOfFiles = Arrays.asList(folder.listFiles());
 
@@ -562,7 +616,7 @@ public class SourcePanel extends JPanel {
 				Source record = (Source) it.next();
 				logger.debug("reloadTable - record reloaded : " + count + ", " + record + ", " + record.getSourcePattern() + ", " + record.getActive()
 						+ " srcFileSummary.get(record): " + srcFileSummary.get(record));
-				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getActive(),
+				data.add(new Object[] { record.getSourceName(), record.getSourcePattern(), record.getDateFormat(),record.getActive(),
 						srcFileSummary.get(record) != null ? srcFileSummary.get(record)[0] : 0,
 						srcFileSummary.get(record) != null ? ((float) srcFileSummary.get(record)[1]) / 1024000 : 0 });
 			}
@@ -572,7 +626,7 @@ public class SourcePanel extends JPanel {
 
 	}
 
-	public void updateSources() {
+/*	public void updateSources() {
 		// "name", "regexp", "active"
 		Iterator it = data.iterator();
 		Object[] obj;
@@ -592,10 +646,10 @@ public class SourcePanel extends JPanel {
 			source.setSourcePattern(stregexp);
 			source.setActive(stActive);
 			// repository.updateSource(count,stName,stregexp, stActive);
-			logger.debug("updateSources - Source updated : " + stName + ",regexp: " + stregexp);
+			logger.info("updateSources - Source updated : " + stName + ",regexp: " + stregexp);
 			count++;
 		}
-	}
+	}*/
 
 	public void reloadTable() {
 		// int selectedRow = ((table.getSelectedRow() != -1) ?
@@ -622,26 +676,81 @@ public class SourcePanel extends JPanel {
 		Component comp = null;
 		int headerWidth = 0;
 		int cellWidth = 0;
-		// Object[] longValues = model.longValues;
 		TableCellRenderer headerRenderer = theTable.getTableHeader().getDefaultRenderer();
 
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 6; i++) {
 			column = theTable.getColumnModel().getColumn(i);
 			comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
-			if (i < 2) {
+			if (i < 3) {
 				headerWidth = comp.getPreferredSize().width;
 				cellWidth = comp.getPreferredSize().width;
-				column.setPreferredWidth(Math.max(headerWidth, cellWidth));
+				column.setPreferredWidth(400);
 			} else {
 				cellWidth = 140;
 				column.setMaxWidth(cellWidth * 4);
 				column.setPreferredWidth(cellWidth);
 			}
 
-		}
-
+		}	
 	}
 
+	class DateFormatRenderer extends JLabel implements TableCellRenderer {
+		Border unselectedBorder = null;
+		Border selectedBorder = null;
+		boolean isBordered = true;
+
+		public DateFormatRenderer(boolean isBordered) {
+			this.isBordered = isBordered;
+			setOpaque(true); // MUST do this for background to show up.
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus, int row, int column) {
+			Color newColor = (Color) color;
+			setBackground(newColor);
+			if (isBordered) {
+				if (isSelected) {
+					if (selectedBorder == null) {
+						selectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getSelectionBackground());
+					}
+					setBorder(selectedBorder);
+				} else {
+					if (unselectedBorder == null) {
+						unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getBackground());
+					}
+					setBorder(unselectedBorder);
+				}
+			}
+
+			setToolTipText("RGB value: " + newColor.getRed() + ", " + newColor.getGreen() + ", " + newColor.getBlue());
+			return this;
+		}
+	}
+
+/*	public void setUpProcessingColumn(JTable theTable, TableColumn typeColumn) {
+		JTextField textField= new JTextField();
+		typeColumn.setCellEditor(new DefaultCellEditor(textField));
+		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+		renderer.setToolTipText("Click");
+		typeColumn.setCellRenderer(renderer);
+		  
+
+		textField.addMouseListener(new java.awt.event.MouseAdapter(){
+
+			public void mouseClicked(java.awt.event.MouseEvent e){
+				//		JTextField combo = (JTextField) e.getSource();
+			//	   Object selected = combo.get();
+				   if (table.getSelectedRow()!=-1){
+					   DateSelector ds = new DateSelector(repository);
+					   if (ds.getDateFormat()!=null)
+						model.setValueAt(ds.getDateFormat(), table.getSelectedRow(), 4);
+						model.fireTableCellUpdated(table.getSelectedRow(), 4);
+					}
+				   }
+				}
+				);
+	}
+*/
+	
 	class MyTableModel2 extends AbstractTableModel {
 		private String[] header;
 		private ArrayList<Object[]> data;
@@ -670,6 +779,8 @@ public class SourcePanel extends JPanel {
 		}
 
 		public void addRow(Object[] obj) {
+			Source s = new Source("default", ".*", null, Boolean.TRUE, (ArrayList<SourceItem>) null);
+			repository.addSource(s);
 			data.add(obj);
 		}
 
@@ -679,13 +790,44 @@ public class SourcePanel extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			return data.get(row)[column];
+			//return data.get(row)[column];
+			if (column == 0 ) {
+				return repository.getSource(row).getSourceName();
+			} else if (column == 1 ) {
+				return repository.getSource(row).getSourcePattern();
+			} else if (column == 2 ) {
+				if ( repository.getSource(row).getDateFormat()!=null)
+				return ((String) repository.getSource(row).getDateFormat().getName() + " | "+ repository.getSource(row).getDateFormat().getDateFormat() );
+				else {
+					return "none";
+				}
+			} else if (column == 3 ) {
+				return repository.getSource(row).getActive();
+			} else if (column >= 4 ) {
+				return data.get(row)[column];
+			} 
+			else return 0;
 		}
 
 		@Override
 		public void setValueAt(Object value, int row, int column) {
-			data.get(row)[column] = value;
-			fireTableCellUpdated(row, column);
+			if (column == 0 ) {
+				 repository.getSource(row).setSourceName((String) value);
+					fireTableCellUpdated(row, column);
+			} else if (column == 1 ) {
+				repository.getSource(row).setSourcePattern((String) value);
+				fireTableCellUpdated(row, column);
+			} else if (column == 2 ) {
+				repository.getSource(row).setDateFormat((DateFormat)value);
+				logger.info("set "+((DateFormat)value).getPattern());
+				fireTableCellUpdated(row, column);
+			} else if (column == 3 ) {
+				repository.getSource(row).setActive((Boolean)value);
+				fireTableCellUpdated(row, column);
+			} else {
+				((Object[]) data.get(row))[column] = value;
+					fireTableCellUpdated(row, column);
+			}
 		}
 
 		/*
@@ -694,7 +836,11 @@ public class SourcePanel extends JPanel {
 		 * would contain text ("true"/"false"), rather than a check box.
 		 */
 		public Class getColumnClass(int c) {
+			if (c==2){
+				return String.class;
+			} else {
 			return getValueAt(0, c).getClass();
+			}
 		}
 
 		/*
@@ -703,7 +849,9 @@ public class SourcePanel extends JPanel {
 		public boolean isCellEditable(int row, int col) {
 			// Note that the data/cell address is constant,
 			// no matt&er where the cell appears onscreen.
-			return true;
+			if (col<4){
+				return true;	
+			} else return false;
 		}
 	}
 

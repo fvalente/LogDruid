@@ -26,14 +26,16 @@ public class Source implements Comparable{
 	private static Logger logger = Logger.getLogger(Source.class.getName());
 	private String sourceName;
 	private String sourcePattern;
+	private DateFormat dateFormat;
 	private Boolean active;
 	private MetadataRecording activeMetadataRecording;
 	private ArrayList<SourceItem> sourceItemArrayList;
 	private ArrayList<String> selectedRecordingIds;
 
-	public Source(String name, String pattern, Boolean _active, ArrayList<SourceItem> _sourceItemArrayList) {
+	public Source(String name, String pattern, DateFormat _dateFormat, Boolean _active, ArrayList<SourceItem> _sourceItemArrayList) {
 		sourceName = name;
 		sourcePattern = pattern;
+		dateFormat = _dateFormat;
 		sourceItemArrayList = _sourceItemArrayList;
 		setActive(_active);
 		selectedRecordingIds = new ArrayList<String>();
@@ -150,4 +152,11 @@ public class Source implements Comparable{
 
 	}
 
+	public DateFormat getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(DateFormat dateFormat) {
+		this.dateFormat = dateFormat;
+	}
 }
