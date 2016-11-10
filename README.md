@@ -31,6 +31,8 @@ Glossary:
 
 - <b>Recording Item</b>: one for each of the captured groups in a Recording. Existing fields: Name, before, after, type, active. Name is important as it is the name of the series in the charts.
 
+Installation:
+Download and unzip the latest release. Launch the application using start.sh or start.bat depending on the OS. A Java JRE must be present in the system path for this to work otherwise it can be hardcoded in the files.
 
 Planned improvements:
 - <del>ability to see which file as the information selected in any charts</del>.DONE
@@ -45,7 +47,7 @@ Planned improvements:
 	- mass fixing when feasible (eg. Date Formats)
 - add column sorting and filtering to tables
 - allow combination in charts of recording item from different sources
-- rework of multi-threaded data mining
+- <del>rework of multi-threaded data mining</del>
 - ability to export the representation of all the charts as shown to one PNG 
 - graphical design (icon, some buttons text replaced wit pictures)
 - One key functionality of the application is that Recording Items are being aggregated through different Recordings if they have the same name. This is useful when there are several version of a recording as it allow charting them in one graph. It is however adding confusion as the information end up as being redundant in such case. One significant improvement will be to allow several sets of RecordingItems for a given Recording.
