@@ -37,7 +37,7 @@ Once configured for a specific type of logs set, the gathering and display of th
 Download and unzip the latest release. Launch the application using start.sh or start.bat depending on the OS. A Java JRE must be present in the system path for this to work otherwise it can be hardcoded in the files.
 
 
-<h2>Planned improvements<h2>
+<h2>Planned improvements</h2>
 - <del>ability to see which file as the information selected in any charts</del>.DONE
 - <del>addition of progress bar</del> DONE
 - filter in chart view
