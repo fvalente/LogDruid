@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -21,13 +21,14 @@ public class ReportRecording extends Recording {
 	private String subType;
 	private int top100Index = -1;
 
-	public ReportRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, ArrayList<RecordingItem> _recordingItem,
+	public ReportRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive,Boolean _useSourceDateFormat, ArrayList<RecordingItem> _recordingItem,
 			String subType1, boolean _caseSensitive) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
 		setIsActive(_isActive);
 		setCaseSensitive(_caseSensitive);
+		setUseSourceDateFormat(_useSourceDateFormat);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
 		subType = subType1;
@@ -87,12 +88,13 @@ public class ReportRecording extends Recording {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive,
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Boolean _useSourceDateFormat,
 			ArrayList<RecordingItem> _recordingItem, String subType1, boolean _caseSensitive) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
 		setIsActive(_isActive);
+		setUseSourceDateFormat(_useSourceDateFormat);
 		setCaseSensitive(_caseSensitive);
 		dateFormat = _dateFormat;
 		subType = subType1;
@@ -116,11 +118,11 @@ public class ReportRecording extends Recording {
 
 		Boolean _isActive = getIsActive().booleanValue();
 		Boolean _caseSensitive = isCaseSensitive();
-
+		Boolean _useSourceDateFormat=getUseSourceDateFormat();
 		if (recordingItem != null) {
 			_recordingItem = (ArrayList<RecordingItem>) recordingItem.clone();
 		}
-		ReportRecording eR = new ReportRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _recordingItem, _subType, _caseSensitive);
+		ReportRecording eR = new ReportRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive,_useSourceDateFormat, _recordingItem, _subType, _caseSensitive);
 		eR.setDateFormatID(this.getDateFormatID());
 		return eR;
 	}

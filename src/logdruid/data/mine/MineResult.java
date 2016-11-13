@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -37,7 +37,7 @@ public class MineResult implements Comparable {
 	ArrayList<FileRecord> logFiles;
 	
 	String group;
-	Map<String, Map<Date,FileLine>> fileLine = new HashMap<String, Map<Date,FileLine>>();
+	Map<String, Map<Date,FileLine>> groupFileLineMap = new HashMap<String, Map<Date,FileLine>>();
 	Map<String, ExtendedTimeSeries> statTimeSeriesMap;
 	Map<String, ExtendedTimeSeries> eventTimeSeriesMap;
 	Map<String, long[]> matchingStats; // 0-> sum of time for success matching
@@ -54,7 +54,7 @@ public class MineResult implements Comparable {
 		statTimeSeriesMap = hm.statGroupTimeSeries;
 		eventTimeSeriesMap = hm.eventGroupTimeSeries;
 		matchingStats = hm.matchingStats;
-		fileLine=hm.fileLineDateMap;
+		groupFileLineMap=hm.fileLineDateMap;
 		startDate = hm.getStartDate();
 		endDate = hm.getEndDate();
 		fileDates = hm.getFileDates();
@@ -112,10 +112,10 @@ public class MineResult implements Comparable {
 	public FileLine getFileLineForDate(Date date,String _group) {
 	//	logger.info(group+","+date);
 		if (date!=null && _group !=null){
-			if(fileLine.containsKey(_group)){
-			Map<Date,FileLine> map= fileLine.get(_group);	
+			if(groupFileLineMap.containsKey(_group)){
+			Map<Date,FileLine> map= groupFileLineMap.get(_group);	
 			if(map.containsKey(date)){
-			return fileLine.get(_group).get(date);		
+			return groupFileLineMap.get(_group).get(date);		
 			}
 			}else 
 		//		logger.info("null");

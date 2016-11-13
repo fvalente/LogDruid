@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -31,7 +31,7 @@ public class PatternCache {
 			if (caseSensitive){
 				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp));
 			}else{
-				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));	
+				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
 			}			
 		}
 		return pattern.get(regexp+Boolean.toString(caseSensitive));

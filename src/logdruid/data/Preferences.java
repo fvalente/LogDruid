@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -80,6 +80,14 @@ public class Preferences {
 		if (!prefData.preferences.containsKey("eventsAsDots")) {
 			prefData.preferences.put("eventsAsDots", "true");
 		}
+		if (!prefData.preferences.containsKey("MiningFileChunk")) {
+			prefData.preferences.put("MiningFileChunk", "10000");
+		}		
+		if (!prefData.preferences.containsKey("ForceSourceDateFormat")) {
+			prefData.preferences.put("ForceSourceDateFormat", "false");
+		}				
+		
+		
 		
 		return prefData.preferences;
 	}
@@ -117,7 +125,7 @@ public class Preferences {
 		setPreference("matches", Boolean.toString(matches));
 	}
 	
-	public static boolean getBooleanPreference( String key){
+	public static boolean getBooleanPreference(String key){
 		// TBD : implement a cache 
 		return Boolean.parseBoolean(getPreferences().get(key));
 	}

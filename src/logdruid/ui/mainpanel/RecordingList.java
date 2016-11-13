@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -223,7 +223,7 @@ public class RecordingList extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int rowCount = table.getRowCount();
 				jPanelDetail.removeAll();
-				Recording re = new StatRecording("name", "regex", "example line", "", true, true, null);
+				Recording re = new StatRecording("name", "regex", "example line", "", true,true, true, null);
 				recEditor = new StatRecordingEditor(thiis, repository, "the line", "regex", (StatRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
@@ -241,7 +241,7 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				logger.debug("table.getRowCount()" + table.getRowCount());
 				jPanelDetail.removeAll();
-				Recording re = new EventRecording("name", "regex", "example line", "", true, true, null);
+				Recording re = new EventRecording("name", "regex", "example line", "", true, true, true, null);
 				recEditor = new EventRecordingEditor(thiis, repository, "the line", "regex", (EventRecording) re);
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);
@@ -258,7 +258,7 @@ public class RecordingList extends JPanel {
 				int rowCount = table.getRowCount();
 				logger.debug("table.getRowCount()" + table.getRowCount());
 				jPanelDetail.removeAll();
-				Recording re = new ReportRecording("name", "regex", "example line", "", true, null,"histogram",true);
+				Recording re = new ReportRecording("name", "regex", "example line", "", true, true, null,"histogram",true);
 				recEditor = new ReportRecordingEditor(thiis, repository, "the line", "regex", (ReportRecording) re, "histogram");
 				jPanelDetail.add(recEditor, BorderLayout.CENTER);
 				repository.addRecording(re);

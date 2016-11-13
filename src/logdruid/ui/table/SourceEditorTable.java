@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -42,7 +42,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import logdruid.data.Source;
-import logdruid.data.SourceItem;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.util.DataMiner;
@@ -106,17 +105,7 @@ public class SourceEditorTable extends JPanel {
 		setUpTypeColumn(table, table.getColumnModel().getColumn(2));
 		// Add the scroll pane to this panel.
 		add(scrollPane);
-		records = re.getSourceItem();
-		// Collections.sort(records);
-		if (records != null) {
-			Iterator it = records.iterator();
-
-			while (it.hasNext()) {
-				RecordingItem rI = (RecordingItem) it.next();
-				data.add(new Object[] { rI.getName(), rI.getBefore(), rI.getType(), rI.getAfter(), rI.isSelected(), "" });
-			}
 			FixValues();
-		}
 	}
 
 	public void FixValues() {

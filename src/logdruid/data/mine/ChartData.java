@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -21,16 +21,11 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 public class ChartData {
-	// String name = "test";
 	public ArrayList<Source> sourceArrayList;
 	public Map<Source, Map<Integer,FileRecord>> sourceFileArrayListMap = new HashMap<Source, Map<Integer,FileRecord>>();
 	public Map<Integer,FileRecord> selectedSourceFiles;
-
-	// ArrayList<Map<String, TimeSeries>> MapArrayList = new
-	// ArrayList<Map<String, TimeSeries>>();
 	public TimeSeriesCollection dataset = new TimeSeriesCollection();
 	public ArrayList<String> disabledSeries= new ArrayList<String>();
-	
 	Map<Source, Map<String, ArrayList<FileRecord>>> MapSourceGroupFilesArrayList = new HashMap<Source, Map<String, ArrayList<FileRecord>>>();
 
 	public void setGroupFilesArrayListMap(Source src, Map<String, ArrayList<FileRecord>> sourceFileGroup) {

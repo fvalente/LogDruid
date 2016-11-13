@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -41,15 +41,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 import logdruid.data.DateFormat;
 import logdruid.data.Repository;
 import logdruid.data.Source;
-import logdruid.data.SourceItem;
 import logdruid.ui.MainFrame;
 import logdruid.ui.dialog.DateSelector;
 import logdruid.ui.dialog.FileChooserDialog;
@@ -111,7 +110,6 @@ public class SourcePanel extends JPanel {
 	private JTextPane txtpnTest = null;
 	private Document doc;
 	private MainFrame mainFrame;
-	private boolean recursiveMode = false;
 	JCheckBox chckbxSubfolders = null;
 	JCheckBox chckbxOnlyMatches = null;
 	Map<Source, long[]> srcFileSummary = new HashMap<Source, long[]>();
@@ -252,13 +250,12 @@ public class SourcePanel extends JPanel {
 
 		JPanel panel_6 = new JPanel();
 		panel_6.setMinimumSize(new Dimension(0, 200));
-		panel_6.setPreferredSize(new Dimension(0, 200));
+		panel_6.setPreferredSize(new Dimension(0, 300));
 		splitPane.setLeftComponent(panel_6);
 		panel_6.setLayout(new BorderLayout(0, 0));
 
 		JPanel buttonsPanel = new JPanel();
 		panel_6.add(buttonsPanel, BorderLayout.SOUTH);
-		FlowLayout fl_buttonsPanel = (FlowLayout) buttonsPanel.getLayout();
 
 		JButton btnNew = new JButton("New");
 		buttonsPanel.add(btnNew);
@@ -377,7 +374,7 @@ public class SourcePanel extends JPanel {
 			public void tableChanged(TableModelEvent e) {
 				// if (!e.getValueIsAdjusting()){
 				// model.fireTableDataChanged();
-				int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+			//	int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 			//	updateSources();
 				mainFrame.updateTreeSources(repository.getSources());
 			//	reloadTable();
@@ -392,7 +389,7 @@ public class SourcePanel extends JPanel {
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
 					// model.fireTableDataChanged();
-					int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
+		//			int selectedRow = ((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1);
 		//			updateSources();
 					mainFrame.updateTreeSources(repository.getSources());
 			//		reloadTable();
@@ -779,7 +776,7 @@ public class SourcePanel extends JPanel {
 		}
 
 		public void addRow(Object[] obj) {
-			Source s = new Source("default", ".*", null, Boolean.TRUE, (ArrayList<SourceItem>) null);
+			Source s = new Source("default", ".*", null, Boolean.TRUE);
 			repository.addSource(s);
 			data.add(obj);
 		}

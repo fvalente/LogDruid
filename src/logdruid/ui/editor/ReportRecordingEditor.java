@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -40,8 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -102,6 +102,8 @@ public class ReportRecordingEditor extends JPanel {
 	private JLabel dateFormatLabel;
 	JTextPane textPane ;
 	JComboBox comboBox ;
+	JCheckBox chckbxDefaultDateFormat;
+	JButton dateFormatButton;
 	// private JList recordingList;
 
 	/*
@@ -233,8 +235,8 @@ public class ReportRecordingEditor extends JPanel {
 								txtDate.setColumns(10);
 							}
 							{
-								JButton button = new JButton("...");
-								button.addActionListener(new ActionListener() {
+								dateFormatButton = new JButton("...");
+								dateFormatButton.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent e) {
 										DateSelector dateDialog = new DateSelector(repository, txtDate, re);
 										dateDialog.validate();
@@ -243,14 +245,28 @@ public class ReportRecordingEditor extends JPanel {
 										dateDialog.setVisible(true);
 									}
 								});
-								button.setFont(new Font("Dialog", Font.BOLD, 6));
-								panel_2.add(button, BorderLayout.EAST);
+								dateFormatButton.setFont(new Font("Dialog", Font.BOLD, 6));
+								panel_2.add(dateFormatButton, BorderLayout.EAST);
 							}
 						}
 						{
-							chckbxActive = new JCheckBox("active");
-							chckbxActive.setSelected(true);
-							panel_1a.add(chckbxActive);
+							chckbxDefaultDateFormat = new JCheckBox("default date format");
+							chckbxDefaultDateFormat.setSelected(re.getUseSourceDateFormat());
+							dateFormatButton.setEnabled(!re.getUseSourceDateFormat());
+							txtDate.setEnabled(!re.getUseSourceDateFormat());
+							chckbxDefaultDateFormat.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									if (chckbxDefaultDateFormat.isSelected()){
+										dateFormatButton.setEnabled(false);
+										txtDate.setEnabled(false);
+									} else {
+										dateFormatButton.setEnabled(true);
+										txtDate.setEnabled(true);
+									}
+									
+								}
+							});
+							panel_1a.add(chckbxDefaultDateFormat);
 						}
 						{
 							comboBox = new JComboBox();
@@ -261,6 +277,11 @@ public class ReportRecordingEditor extends JPanel {
 							chckbxCaseSensitive = new JCheckBox("case sensitive");
 							chckbxCaseSensitive.setSelected(re.isCaseSensitive());
 							panel_1a.add(chckbxCaseSensitive);
+						}
+						{
+							chckbxActive = new JCheckBox("active");
+							chckbxActive.setSelected(true);
+							panel_1a.add(chckbxActive);
 						}
 						{
 							JCheckBox chckbxMultiLine = new JCheckBox("multi line");
@@ -336,7 +357,7 @@ public class ReportRecordingEditor extends JPanel {
 												if (recording == null){
 												logger.debug("RecordingEditor - ok 1");
 												Recording r = new ReportRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
-														.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
+														.isSelected(),chckbxDefaultDateFormat.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												repository.addRecording(r);
 												logger.debug("RecordingEditor - ok 1");
 												if (newRecordingList.getClass()==RecordingList.class){
@@ -350,7 +371,7 @@ public class ReportRecordingEditor extends JPanel {
 												int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 												//int selectedRow = ((((ReportPanel) newRecordingList).table.getSelectedRow() != -1) ? ((ReportPanel) newRecordingList).table.convertRowIndexToModel(((ReportPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((ReportRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
+														chckbxActive.isSelected(),chckbxDefaultDateFormat.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												((RecordingList) newRecordingList).model.fireTableDataChanged();
 												logger.debug("RecordingEditor - row Updated");
 												((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -369,7 +390,7 @@ public class ReportRecordingEditor extends JPanel {
 											 else {
 												int selectedRow = ((((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow() != -1) ? (((ReportRecordingSelectorPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((ReportRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-														chckbxActive.isSelected(), rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
+														chckbxActive.isSelected(), chckbxDefaultDateFormat.isSelected(),rIs,comboBox.getSelectedItem().toString(),chckbxCaseSensitive.isSelected());
 												logger.debug("RecordingEditor - NEVER HERE row Updated");
 												((ReportRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 												((ReportRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);

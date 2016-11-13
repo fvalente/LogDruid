@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -97,7 +97,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 		// Add the scroll pane to this panel.
 		add(scrollPane);
 		//Add();
-		FixValues();
+	//	FixValues();
 
 	}
 
@@ -147,7 +147,6 @@ public class MetadataRecordingEditorTable extends JPanel {
 		PatternCache patternCache=new PatternCache();
 		Iterator<Object[]> it = data.iterator();
 		Object[] obj;
-
 		while (it.hasNext()) {
 			obj = (Object[]) it.next();
 			String stBefore = (String) obj[1];
@@ -169,12 +168,13 @@ public class MetadataRecordingEditorTable extends JPanel {
 				}
 			}
 		}
+		logger.info( patternCache.getPattern(patternString,recording.isCaseSensitive()));
 		examplePane.setText("");
 		Highlighter h = examplePane.getHighlighter();
 		h.removeAllHighlights();
 		//Pattern pattern = patternCache.getPattern(txtRegularExp.getText(),re.isCaseSensitive());
 		if (rep != null && rep.getBaseSourcePath() != null && src!=null && src.getActiveMetadata()!=null) {
-			ChartData cd = DataMiner.gatherSourceData(rep);
+			ChartData cd = DataMiner.gatherSourceData(rep,false);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
 			logger.debug("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
 			filesDoc = examplePane.getDocument();
