@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -40,8 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;

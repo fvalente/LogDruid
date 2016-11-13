@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -29,6 +29,7 @@ public abstract class Recording {
 	private Boolean isActive;
 	protected String id;
 	private Boolean caseSensitive;
+	private Boolean useSourceDateFormat;
 	private String dateFormatID;
 
 	public String getId() {
@@ -101,6 +102,17 @@ public abstract class Recording {
 
 	public void setDateFormatID(String dateFormatID) {
 		this.dateFormatID = dateFormatID;
+	}
+
+	public Boolean getUseSourceDateFormat() {
+		if (useSourceDateFormat==null){
+			return false;
+		} else{
+		return useSourceDateFormat;}
+	}
+
+	public void setUseSourceDateFormat(Boolean useSourceDateFormat) {
+		this.useSourceDateFormat = useSourceDateFormat;
 	}
 
 }

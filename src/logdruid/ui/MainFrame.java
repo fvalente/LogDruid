@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -56,7 +56,9 @@ import logdruid.data.Source;
 import logdruid.data.mine.ChartData;
 import logdruid.data.mine.DataVault;
 import logdruid.data.mine.MineResultSet;
+import logdruid.engine.Miner;
 import logdruid.ui.chart.GraphPanel;
+import logdruid.ui.dialog.FileChooserDialog;
 import logdruid.ui.dialog.FileSaverDialog;
 import logdruid.ui.editor.DateEditor;
 import logdruid.ui.mainpanel.EventRecordingSelectorPanel;
@@ -70,6 +72,7 @@ import logdruid.ui.mainpanel.SourcePanel;
 import logdruid.ui.mainpanel.StatRecordingSelectorPanel;
 import logdruid.util.DataMiner;
 import logdruid.util.Persister;
+import logdruid.util.Tools;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -94,6 +97,7 @@ import java.awt.GridBagConstraints;
 import javax.swing.BoxLayout;
 
 import java.awt.Insets;
+
 import javax.swing.border.LineBorder;
 
 public class MainFrame extends JFrame {
@@ -113,7 +117,6 @@ public class MainFrame extends JFrame {
 	private JSpinner endTimeSpinner;
 	private JSpinner.DateEditor timeEditor2;
 	public String currentRepositoryFile = "New";
-//	MineResultSet mineResultSet;
 	public static ChartData cd;
 	private MainFrame thiis;
 	JProgressBar progressBar;
@@ -175,10 +178,8 @@ public class MainFrame extends JFrame {
 					File file = fileChooserDialog.getSelectedFile();
 					configFile = fileChooserDialog.getSelectedFile();
 					repository = (Repository) Persister.open(fileChooserDialog.getSelectedFile());
-					thiis.setTitle("LogDruid - " + file.getName() + " - " + repository.getBaseSourcePath());
+					thiis.setTitle("LogDruid - " + file.getName() + " - " + ((repository.getBaseSourcePath()!=null) ? repository.getBaseSourcePath():""));
 					updateTreeSources(repository.getSources());
-	//				tree.setSelectionPath(tp);
-
 						Thread t =new Thread()  {
 							public void run() {
 								if (working==false){
@@ -191,8 +192,8 @@ public class MainFrame extends JFrame {
 									progressBarValue=0;
 									File test=new File (repository.getBaseSourcePath());
 									if (test.exists()){
-				            	DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
-								cd = DataMiner.gatherSourceData(repository);
+										cd = DataMiner.gatherSourceData(repository,false);
+										DataVault.setMineResultSet(Miner.gatherMineResultSet(cd,repository,thiis));
 								}
 								thiis.setValueNow(progressBarValue);
 								} else if (treeSelected.equals("<html>Reports</html>")) {
@@ -202,8 +203,8 @@ public class MainFrame extends JFrame {
 									progressBarValue=0;
 									File test=new File (repository.getBaseSourcePath());
 									if (test.exists()){
-										DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
-								cd = DataMiner.gatherSourceData(repository);}
+										cd = DataMiner.gatherSourceData(repository,false);
+										DataVault.setMineResultSet(Miner.gatherMineResultSet(cd,repository,thiis));}
 								thiis.setValueNow(progressBarValue);
 								}
 				            	} catch (Exception e){
@@ -223,8 +224,6 @@ public class MainFrame extends JFrame {
 		mntmSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Persister.save(configFile, (Repository) repository);
-				// repository.open(fileChooserDialog.getSelectedFile());
-				// repository=(Repository)persister.open(fileChooserDialog.getSelectedFile());
 			}
 		});
 		mnFile.add(mntmSave);
@@ -237,14 +236,26 @@ public class MainFrame extends JFrame {
 					Persister.save(fileChooserDialog.getSelectedFile(), (Repository) repository);
 					thiis.setTitle("LogDruid - " + fileChooserDialog.getSelectedFile().getName() + " - " + repository.getBaseSourcePath());
 					configFile = fileChooserDialog.getSelectedFile();
-					// repository.open(fileChooserDialog.getSelectedFile());
-					// repository=(Repository)persister.open(fileChooserDialog.getSelectedFile());
 				}
 			}
 		});
 
 		mnFile.add(mntmSaveAs);
+		JMenuItem mntmGenerateFlatFiles = new JMenuItem("Export to one file per source group");
+		mntmGenerateFlatFiles.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File folder = new File(repository.getBaseSourcePath());
+					if (!folder.exists()) {
+							logger.info("base path did, not exist defaulting to current: " + System.getProperty("user.dir"));
+						folder = new File(System.getProperty("user.dir"));}
+				FileChooserDialog fileChooserDialog = new FileChooserDialog(folder);
+				if ((fileChooserDialog != null) && (fileChooserDialog.isValidate())) {
+					Tools.generateFlatFiles(repository, fileChooserDialog.getSelectedFile());
+				}
+			}
+		});
 
+		mnFile.add(mntmGenerateFlatFiles);
 		/*
 		 * JMenuItem mntmExportData = new JMenuItem("Export Data");
 		 * mntmExportData.addActionListener(new ActionListener() { public void
@@ -318,7 +329,6 @@ public class MainFrame extends JFrame {
 		FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
 		flowLayout.setAlignment(FlowLayout.LEFT);
 		contentPane.add(panel_2, BorderLayout.NORTH);
-		DefaultTreeModel defaultTreeModel;
 		DMTnode_sources = new DefaultMutableTreeNode("<html><font size=3>Sources</font></html>");
 		panel_7.setLayout(new BorderLayout(0, 0));
 		panel_7.setSize(150, 10000);
@@ -342,7 +352,7 @@ public class MainFrame extends JFrame {
 		tree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				String comp = e.getComponent().toString();
+				//String comp = e.getComponent().toString();
 				// logger.info(comp);
 
 			}
@@ -354,9 +364,6 @@ public class MainFrame extends JFrame {
 		new DefaultTreeModel(new DefaultMutableTreeNode("All") {
 			{
 				DefaultMutableTreeNode DMTnode_1;
-				DefaultMutableTreeNode DMTnode_2;
-
-				DefaultMutableTreeNode DMTconfiguration;
 				DMTnode_1 = new DefaultMutableTreeNode("<html><font size=3>Configuration</font></html>");
 				DMTnode_1.add(new DefaultMutableTreeNode("DateFormat"));
 				DMTnode_1.add(new DefaultMutableTreeNode("Preferences"));
@@ -426,8 +433,10 @@ public class MainFrame extends JFrame {
 							progressBarValue=0;
 							File test=new File (repository.getBaseSourcePath());
 							if (test.exists()){
-								DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
-						cd = DataMiner.gatherSourceData(repository);}
+								cd = DataMiner.gatherSourceData(repository,false);
+								DataVault.setMineResultSet(Miner.gatherMineResultSet(cd,repository,thiis));
+						
+						}
 						thiis.setValueNow(progressBarValue);
 		            	} catch (Exception e){
 							logger.error("exception: ", e);
@@ -450,7 +459,7 @@ public class MainFrame extends JFrame {
 						reportPanel = null;
 						thiis.setValueNow(0);
 						progressBarValue=0;
-						DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
+						DataVault.setMineResultSet(Miner.gatherMineResultSet(repository,thiis));
 						cd = DataMiner.gatherSourceData(repository);
 						thiis.setValueNow(progressBarValue);
 	            	} catch (Exception e){
@@ -623,7 +632,7 @@ public class MainFrame extends JFrame {
 				String name = ((Source) sources.get(i)).getSourceName();
 				DMTNsources_child = new DefaultMutableTreeNode(name);
 				DMTNsources_child.add(new DefaultMutableTreeNode("<html>File Grouping</html>"));
-				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Series</html>"));
+				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Stats</html>"));
 				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Events</html>"));
 				DMTNsources_child.add(new DefaultMutableTreeNode("<html>Reports</html>"));
 				DMTnode_sources.add(DMTNsources_child);
@@ -660,7 +669,7 @@ public class MainFrame extends JFrame {
 				panel_1.removeAll();
 				panel_1.add(new PreferencePanel(repository));
 				panel_1.revalidate();
-			} else if (treeSelected.equals("<html>Series</html>")) {
+			} else if (treeSelected.equals("<html>Stats</html>")) {
 				panel_1.removeAll();
 				panel_1.add(new StatRecordingSelectorPanel(repository, (Source) repository.getSource(node.getParent().toString())));
 				panel_1.revalidate();
@@ -681,16 +690,17 @@ public class MainFrame extends JFrame {
 		            	working=true;
 		            	try {
 						logger.info("Reports panel loading ");				
-						if (DataVault.getMineResultSet() == null) {
+						if (DataVault.getMineResultSet() == null) {							
 						thiis.setValueNow(0);
 						progressBarValue=0;	
-						DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
-						cd = DataMiner.gatherSourceData(repository);
+						cd = DataMiner.gatherSourceData(repository,false);
+						DataVault.setMineResultSet(Miner.gatherMineResultSet(cd,repository,thiis));
 						logger.info("gathering source data");
 		            	thiis.setValueNow(progressBarValue);
 						}
 						if (reportPanel == null) {
 							logger.info(" new graph Panel");
+							//cd = DataMiner.gatherSourceData(repository);
 							reportPanel = new ReportPanel(repository, DataVault.getMineResultSet());
 						}
 						panel_1.removeAll();
@@ -727,8 +737,8 @@ public class MainFrame extends JFrame {
 							if (DataVault.getMineResultSet() == null) {
 							thiis.setValueNow(0);
 							progressBarValue=0;	
-							DataVault.setMineResultSet(DataMiner.gatherMineResultSet(repository,thiis));
-							cd = DataMiner.gatherSourceData(repository);
+							cd = DataMiner.gatherSourceData(repository,false);
+							DataVault.setMineResultSet(Miner.gatherMineResultSet(cd,repository,thiis));
 							logger.info("gathering source data");
 			            	thiis.setValueNow(progressBarValue);
 							}

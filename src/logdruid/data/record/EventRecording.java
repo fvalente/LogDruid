@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -18,11 +18,12 @@ public class EventRecording extends Recording {
 	private static Logger logger = Logger.getLogger(EventRecording.class.getName());
 	private String dateFormat;
 
-	public EventRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, boolean _caseSensitive, ArrayList<RecordingItem> _recordingItem) {
+	public EventRecording(String _name, String _regexp, String _exampleLine, String _dateFormat, Boolean _isActive, Boolean _useSourceDateFormat, boolean _caseSensitive, ArrayList<RecordingItem> _recordingItem) {
 		setName(_name);
 		setRegexp(_regexp);
 		setExampleLine(_exampleLine);
 		setIsActive(_isActive);
+		setUseSourceDateFormat(_useSourceDateFormat);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
 		setCaseSensitive(_caseSensitive);
@@ -48,12 +49,13 @@ public class EventRecording extends Recording {
 		this.recordingItem = recordingItem;
 	}
 
-	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Boolean _caseSensitive, ArrayList<RecordingItem> _recordingItem) {
+	public void update(String txtName, String txtRegularExp, String exampleLine, String _dateFormat, Boolean _isActive, Boolean _useSourceDateFormat, Boolean _caseSensitive, ArrayList<RecordingItem> _recordingItem) {
 		setName(txtName);
 		setRegexp(txtRegularExp);
 		setExampleLine(exampleLine);
 		setIsActive(_isActive);
 		setCaseSensitive(_caseSensitive);
+		setUseSourceDateFormat(_useSourceDateFormat);
 		dateFormat = _dateFormat;
 		recordingItem = _recordingItem;
 		logger.debug("RIArrayLit size: "+ recordingItem.size());
@@ -73,10 +75,11 @@ public class EventRecording extends Recording {
 
 		Boolean _isActive = getIsActive().booleanValue();
 		Boolean _caseSensitive = isCaseSensitive();
+		Boolean _useSourceDateFormat=getUseSourceDateFormat();
 		if (recordingItem != null) {
 			_recordingItem = (ArrayList<RecordingItem>) recordingItem.clone();
 		}
-		EventRecording eR=new EventRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _caseSensitive, _recordingItem);
+		EventRecording eR=new EventRecording(_name, _regexp, _exampleLine, _dateFormat, _isActive, _useSourceDateFormat, _caseSensitive, _recordingItem);
 		eR.setDateFormatID(this.getDateFormatID());
 		return eR;
 	}

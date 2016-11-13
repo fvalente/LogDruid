@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -40,8 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -78,6 +78,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 import javax.swing.JSplitPane;
+import java.awt.CardLayout;
 
 public class EventRecordingEditor extends JPanel {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -99,6 +100,8 @@ public class EventRecordingEditor extends JPanel {
 	private JLabel regularExpressionLabel;
 	private JLabel dateFormatLabel;
 	JTextPane textPane ;
+	JButton dateFormatButton;
+	final JCheckBox chckbxDefault;
 	// private JList recordingList;
 
 	/*
@@ -144,13 +147,105 @@ public class EventRecordingEditor extends JPanel {
 				splitPane.setLeftComponent(panelTop);
 				{
 					panelTop.setLayout(new BorderLayout(0, 0));
+					JPanel panel_2 = new JPanel();
+					panelTop.add(panel_2, BorderLayout.WEST);
+					panel_2.setBorder(null);
+					GridBagLayout gbl_panel_2 = new GridBagLayout();
+					gbl_panel_2.columnWidths = new int[] {93, 110, 200, 200};
+					gbl_panel_2.rowHeights = new int[] {23};
+					gbl_panel_2.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0};
+					gbl_panel_2.rowWeights = new double[]{1.0};
+					panel_2.setLayout(gbl_panel_2);
+					{
+						dateFormatLabel = new JLabel("Date Format:");
+						dateFormatLabel.setHorizontalAlignment(SwingConstants.CENTER);
+						GridBagConstraints gbc_dateFormatLabel = new GridBagConstraints();
+						gbc_dateFormatLabel.anchor = GridBagConstraints.WEST;
+						gbc_dateFormatLabel.fill = GridBagConstraints.VERTICAL;
+						gbc_dateFormatLabel.insets = new Insets(0, 0, 0, 5);
+						gbc_dateFormatLabel.gridx = 0;
+						gbc_dateFormatLabel.gridy = 0;
+						panel_2.add(dateFormatLabel, gbc_dateFormatLabel);
+					}
+					{
+						dateFormatLabel.setLabelFor(txtDate);
+					}
+					{
+						JPanel panel = new JPanel();
+						panel.setBorder(null);
+						GridBagConstraints gbc_panel = new GridBagConstraints();
+						gbc_panel.gridwidth = 2;
+						gbc_panel.fill = GridBagConstraints.BOTH;
+						gbc_panel.insets = new Insets(0, 0, 0, 5);
+						gbc_panel.gridx = 1;
+						gbc_panel.gridy = 0;
+						panel_2.add(panel, gbc_panel);
+						panel.setLayout(new BorderLayout(0, 0));
+						{
+							txtDate = new JTextField();
+							panel.add(txtDate, BorderLayout.CENTER);
+							txtDate.setEditable(false);
+							txtDate.setText("date format");
+							txtDate.setColumns(15);
+						}
+						{
+							dateFormatButton = new JButton("...");
+							dateFormatButton.setHorizontalAlignment(SwingConstants.RIGHT);
+							panel.add(dateFormatButton, BorderLayout.EAST);
+							dateFormatButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									DateSelector dateDialog = new DateSelector(repository, txtDate, re);
+									dateDialog.validate();
+									dateDialog.setResizable(true);
+									dateDialog.setModal(false);
+									dateDialog.setVisible(true);
+								}
+							});
+							dateFormatButton.setFont(new Font("Dialog", Font.BOLD, 6));
+						}
+					}
+					{
+						chckbxDefault = new JCheckBox("Default date");
+						chckbxDefault.setSelected(re.getUseSourceDateFormat());
+						dateFormatButton.setEnabled(!re.getUseSourceDateFormat());
+						txtDate.setEnabled(!re.getUseSourceDateFormat());
+						chckbxDefault.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								if (chckbxDefault.isSelected())
+								{
+									dateFormatButton.setEnabled(false);
+									txtDate.setEnabled(false);
+									
+								}
+								else{
+									dateFormatButton.setEnabled(true);
+									txtDate.setEnabled(true);
+								}
+							}
+						});
+						GridBagConstraints gbc_chckbxDefault = new GridBagConstraints();
+						gbc_chckbxDefault.anchor = GridBagConstraints.WEST;
+						gbc_chckbxDefault.gridx = 3;
+						gbc_chckbxDefault.gridy = 0;
+						panel_2.add(chckbxDefault, gbc_chckbxDefault);
+					}
 					{
 						JPanel panel_1a = new JPanel();
 						panelTop.add(panel_1a, BorderLayout.NORTH);
-						panel_1a.setLayout(new GridLayout(0, 4, 5, 2));
+						GridBagLayout gbl_panel_1a = new GridBagLayout();
+						gbl_panel_1a.columnWidths = new int[]{222, 208, 141, 0};
+						gbl_panel_1a.rowHeights = new int[]{24, 0};
+						gbl_panel_1a.columnWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+						gbl_panel_1a.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+						panel_1a.setLayout(gbl_panel_1a);
 						{
 							JPanel namePanel = new JPanel();
-							panel_1a.add(namePanel);
+							GridBagConstraints gbc_namePanel = new GridBagConstraints();
+							gbc_namePanel.fill = GridBagConstraints.BOTH;
+							gbc_namePanel.insets = new Insets(0, 0, 0, 5);
+							gbc_namePanel.gridx = 0;
+							gbc_namePanel.gridy = 0;
+							panel_1a.add(namePanel, gbc_namePanel);
 							namePanel.setLayout(new BorderLayout(0, 0));
 							{
 								nameLabel = new JLabel("name:");
@@ -166,7 +261,12 @@ public class EventRecordingEditor extends JPanel {
 						}
 						{
 							JPanel regularExpressionPanel = new JPanel();
-							panel_1a.add(regularExpressionPanel);
+							GridBagConstraints gbc_regularExpressionPanel = new GridBagConstraints();
+							gbc_regularExpressionPanel.fill = GridBagConstraints.BOTH;
+							gbc_regularExpressionPanel.insets = new Insets(0, 0, 0, 5);
+							gbc_regularExpressionPanel.gridx = 1;
+							gbc_regularExpressionPanel.gridy = 0;
+							panel_1a.add(regularExpressionPanel, gbc_regularExpressionPanel);
 							regularExpressionPanel.setLayout(new BorderLayout(0, 0));
 							{
 								regularExpressionLabel = new JLabel("reg. exp.:");
@@ -213,55 +313,32 @@ public class EventRecordingEditor extends JPanel {
 							}
 						}
 						{
-							JPanel panel_2 = new JPanel();
-							panel_1a.add(panel_2);
-							panel_2.setLayout(new BorderLayout(0, 0));
+							JPanel panel = new JPanel();
+							GridBagConstraints gbc_panel = new GridBagConstraints();
+							gbc_panel.gridx = 2;
+							gbc_panel.gridy = 0;
+							panel_1a.add(panel, gbc_panel);
+							panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 							{
-								dateFormatLabel = new JLabel("Date Format:\n");
-								panel_2.add(dateFormatLabel, BorderLayout.WEST);
+								chckbxCaseSensitive = new JCheckBox("case sens.");
+								panel.add(chckbxCaseSensitive);
+								chckbxCaseSensitive.setSelected(re.isCaseSensitive());
 							}
 							{
-								txtDate = new JTextField();
-								dateFormatLabel.setLabelFor(txtDate);
-								txtDate.setEditable(false);
-								panel_2.add(txtDate, BorderLayout.CENTER);
-								txtDate.setText("date format");
-								txtDate.setColumns(10);
+								chckbxActive = new JCheckBox("active");
+								panel.add(chckbxActive);
+								chckbxActive.setSelected(true);
 							}
 							{
-								JButton button = new JButton("...");
-								button.addActionListener(new ActionListener() {
-									public void actionPerformed(ActionEvent e) {
-										DateSelector dateDialog = new DateSelector(repository, txtDate, re);
-										dateDialog.validate();
-										dateDialog.setResizable(true);
-										dateDialog.setModal(false);
-										dateDialog.setVisible(true);
-									}
-								});
-								button.setFont(new Font("Dialog", Font.BOLD, 6));
-								panel_2.add(button, BorderLayout.EAST);
+								JCheckBox chckbxMultiLine = new JCheckBox("multi line");
+								panel.add(chckbxMultiLine);
+								chckbxMultiLine.setEnabled(false);
 							}
-						}
-						{
-							chckbxActive = new JCheckBox("active");
-							chckbxActive.setSelected(true);
-							panel_1a.add(chckbxActive);
-						}
-						{
-							chckbxCaseSensitive = new JCheckBox("case sensitive");
-							chckbxCaseSensitive.setSelected(re.isCaseSensitive());
-							panel_1a.add(chckbxCaseSensitive);
-						}
-						{
-							JCheckBox chckbxMultiLine = new JCheckBox("multi line");
-							chckbxMultiLine.setEnabled(false);
-							panel_1a.add(chckbxMultiLine);
 						}
 					}
 					{
 						JPanel panel_1 = new JPanel();
-						panelTop.add(panel_1, BorderLayout.CENTER);
+						panelTop.add(panel_1, BorderLayout.SOUTH);
 						panel_1.setLayout(new BorderLayout(5, 5));
 						panel2 = new JPanel();
 						panel2.setPreferredSize(new Dimension(0,180));
@@ -269,9 +346,9 @@ public class EventRecordingEditor extends JPanel {
 						panel2.setLayout(new BorderLayout(0, 0));
 
 						{
-							JPanel panel_2 = new JPanel();
-							panel_1.add(panel_2, BorderLayout.SOUTH);
-							FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
+							JPanel panel_2a = new JPanel();
+							panel_1.add(panel_2a, BorderLayout.SOUTH);
+							FlowLayout flowLayout = (FlowLayout) panel_2a.getLayout();
 							flowLayout.setAlignment(FlowLayout.LEFT);
 							{
 								JButton btnAddButton = new JButton("Add");
@@ -281,7 +358,7 @@ public class EventRecordingEditor extends JPanel {
 									}
 								});
 								btnAddButton.setHorizontalAlignment(SwingConstants.LEFT);
-								panel_2.add(btnAddButton);
+								panel_2a.add(btnAddButton);
 							}
 							{
 								JButton btnRemoveButton = new JButton("Remove");
@@ -297,10 +374,10 @@ public class EventRecordingEditor extends JPanel {
 											eventRecordingEditorTablePanel.Insert();
 										}
 									});
-									panel_2.add(btnInsert);
+									panel_2a.add(btnInsert);
 								}
 								btnRemoveButton.setHorizontalAlignment(SwingConstants.LEFT);
-								panel_2.add(btnRemoveButton);
+								panel_2a.add(btnRemoveButton);
 							}
 							{
 								JButton btnCheck = new JButton("Check");
@@ -311,11 +388,11 @@ public class EventRecordingEditor extends JPanel {
 
 									}
 								});
-								panel_2.add(btnCheck);
+								panel_2a.add(btnCheck);
 							}
 							{
 								JPanel buttonPane = new JPanel();
-								panel_2.add(buttonPane);
+								panel_2a.add(buttonPane);
 								buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 								{
 									JButton okButton = new JButton("Save");
@@ -328,7 +405,7 @@ public class EventRecordingEditor extends JPanel {
 												if (recording == null){
 												logger.debug("RecordingEditor - ok 1");
 												Recording r = new EventRecording(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(), chckbxActive
-														.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
+														.isSelected(),chckbxDefault.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 												repository.addRecording(r);
 												logger.debug("RecordingEditor - ok 1");
 													logger.debug("RecordingEditor - ok 1");
@@ -341,7 +418,7 @@ public class EventRecordingEditor extends JPanel {
 												int selectedRow = ((((RecordingList) newRecordingList).table.getSelectedRow() != -1) ? ((((RecordingList) newRecordingList).table.getSelectedRow())) : -1);
 												//int selectedRow = ((((ReportPanel) newRecordingList).table.getSelectedRow() != -1) ? ((ReportPanel) newRecordingList).table.convertRowIndexToModel(((ReportPanel) newRecordingList).table.getSelectedRow()) : -1);
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-														chckbxActive.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
+														chckbxActive.isSelected(),chckbxDefault.isSelected(), chckbxCaseSensitive.isSelected(), rIs);
 												((RecordingList) newRecordingList).model.fireTableDataChanged();
 												logger.debug("RecordingEditor - row Updated");
 												((RecordingList) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);
@@ -361,7 +438,7 @@ public class EventRecordingEditor extends JPanel {
 												logger.debug("selectedRow: " + selectedRow);
 												logger.debug(((EventRecordingSelectorPanel) newRecordingList).table.getRowCount());
 												((EventRecording) recording).update(txtName.getText(), txtRegularExp.getText(), examplePane.getText(), txtDate.getText(),
-														chckbxActive.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
+														chckbxActive.isSelected(),chckbxDefault.isSelected(),chckbxCaseSensitive.isSelected(), rIs);
 												logger.debug("RecordingEditor - NEVER HERE row Updated");
 												((EventRecordingSelectorPanel) newRecordingList).model.fireTableDataChanged();
 												((EventRecordingSelectorPanel) newRecordingList).table.setRowSelectionInterval(selectedRow, selectedRow);

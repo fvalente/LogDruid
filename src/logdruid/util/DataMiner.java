@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -68,6 +68,7 @@ import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
+import logdruid.engine.Miner;
 import logdruid.ui.MainFrame;
 
 import org.jfree.data.time.SimpleTimePeriod;
@@ -88,12 +89,12 @@ public class DataMiner {
 	static final Map<Source, Map<Recording, Map<List<Object>, Double>>> sumReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Double>>>();
 	static final Map<Source, Map<Recording, SortedMap<Double,List<Object>>>> top100Report = new ConcurrentHashMap<Source, Map<Recording, SortedMap<Double,List<Object>>>>();;
 	
-	public static MineResultSet gatherMineResultSet(final Repository repo, final MainFrame mainFrame) {
+	public static MineResultSet gatherMsineResultSet(ChartData cd, final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
 		int ini = Integer.parseInt(test);
 		logger.info("gatherMineResultSet parallelism: " + ini);
 		ThreadPool_GroupWorkers = Executors.newFixedThreadPool(ini);
-		ChartData cd = new ChartData();
+	//	ChartData cd = new ChartData();
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
 		occurenceReport.clear();
@@ -102,11 +103,11 @@ public class DataMiner {
 		// tOP100Report = new ConcurrentHashMap<Recording,Map<String, Long>>();
 
 		startTime = System.currentTimeMillis();
-		try {
+	/*	try {
 			cd = gatherSourceData(repo);
 		} catch (Exception e) {
 			return null;
-		}
+		}*/
 		
 		// if (logger.isEnabledFor(Level.INFO))
 		// logger.info("ArrayList sourceFileGroup" + sourceFileGroup);
@@ -140,7 +141,7 @@ public class DataMiner {
 		 */
 		List<Future<MineResult>> results = null;
 		try {
-			results = ThreadPool_GroupWorkers.invokeAll(tasks, 1000, TimeUnit.SECONDS);
+			results = ThreadPool_GroupWorkers.invokeAll(tasks, 100000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -177,22 +178,15 @@ public class DataMiner {
 		mineResultSet.setOccurenceReport(occurenceReport);
 		mineResultSet.setTop100Report(top100Report);
 		mineResultSet.setSumReport(sumReport);	
-		// logger.info(occurenceReport);
+
 		return mineResultSet;
 
 	}
-
-	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, Repository repo, Source source, boolean stats, boolean timings,
-			boolean matches, MainFrame mainFrame) {
+	
+	// handle gathering for ArrayList of file for one source-group
+	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, final Repository repo, final Source source, final boolean stats, final boolean timings,
+			final boolean matches, final MainFrame mainFrame) {
 		logger.debug("call to mine for source " + source.getSourceName() + " on group " + group);
-		FileMineResultSet fMRS = fastMine(arrayList, repo, source, stats, timings, matches, mainFrame);
-		return new MineResult(group, fMRS, arrayList, repo, source);
-	}
-
-	// handle gathering for ArrayList of file for one source
-	public static FileMineResultSet fastMine(ArrayList<FileRecord> arrayList, final Repository repo, final Source source, final boolean stats,
-			final boolean timings, final boolean matches, final MainFrame mainFrame) {
-
 		ThreadPool_FileWorkers = Executors.newFixedThreadPool(Integer.parseInt(Preferences.getPreference("ThreadPool_File")));
 		Date startDate = null;
 		Date endDate = null;
@@ -224,7 +218,7 @@ public class DataMiner {
 		}
 		List<Future<FileMineResult>> results = null;
 		try {
-			results = ThreadPool_FileWorkers.invokeAll(tasks, 1000, TimeUnit.SECONDS);
+			results = ThreadPool_FileWorkers.invokeAll(tasks, 100000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -335,7 +329,7 @@ public class DataMiner {
 				if (!fileLine.containsKey(pairs.getKey())) {
 					fileLine.put(pairs.getKey(), pairs.getValue());
 					if (logger.isDebugEnabled()) {
-						logger.debug("fileLine.put " + pairs.getKey() + " -> " + pairs.getValue());
+						logger.debug("groupFileLineMap.put " + pairs.getKey() + " -> " + pairs.getValue());
 					}
 				} else {
 					Map<Date, FileLine> ts = fileLine.get(pairs.getKey());
@@ -345,16 +339,18 @@ public class DataMiner {
 						Map.Entry<Date, FileLine> pairs2 = (Map.Entry<Date, FileLine>) it2.next();
 						fileLine.get(pairs.getKey()).put(pairs2.getKey(), pairs2.getValue());
 						if (logger.isDebugEnabled()) {
-							logger.debug("fileLine.put " + pairs2.getKey() + " -> " + pairs2.getValue().getFileId() + ":" + pairs2.getValue().getLineNumber());
+							logger.debug("groupFileLineMap.put " + pairs2.getKey() + " -> " + pairs2.getValue().getFileId() + ":" + pairs2.getValue().getLineNumber());
 						}
 					}
-					// logger.info("cont2: "+fileLine.get(pairs.getKey()));
+					// logger.info("cont2: "+groupFileLineMap.get(pairs.getKey()));
 				}
 
 			}
 
 		}
-		return new FileMineResultSet(fileDates, statMap, eventMap, timingStatsMap, fileLine, startDate, endDate);
+		
+		FileMineResultSet fMRS = new FileMineResultSet(fileDates, statMap, eventMap, timingStatsMap, fileLine, startDate, endDate);
+		return new MineResult(group, fMRS, arrayList, repo, source);
 	}
 
 	public static String readFileLine(Source src, FileLine fileLine, ChartData cd) {
@@ -520,7 +516,7 @@ public class DataMiner {
 												}
 													dateFileLineMap.put(date1, new FileLine(fileRecord.getId(), lineCount));
 											if (logger.isDebugEnabled()) {
-												logger.debug(fileRecord.getFile().getName() + " dateFileLineMap put: " + date1 + "fileLine: "
+												logger.debug(fileRecord.getFile().getName() + " dateFileLineMap put: " + date1 + "groupFileLineMap: "
 														+ new FileLine(fileRecord.getId(), lineCount));
 												logger.debug(fileRecord.getFile().getName() + " FileRecord: " + fileRecord.getFile().getName()
 														+ ", RIFileLineDateMap.put: " + recItem2.getName() + ", line: " + lineCount
@@ -884,8 +880,7 @@ public class DataMiner {
 	/*
 	 * public Map<String,ArrayList> getSourceFileGroup(ArrayList<String>
 	 * sourceFiles,Source src) { String patternString = "";
-	 * ArrayList<SourceItem> sourceItemArrayList=src.getSourceItem(); Iterator
-	 * it= sourceItemArrayList.iterator(); Map<String,ArrayList> Map=new
+	 * Map<String,ArrayList> Map=new
 	 * Map<String,ArrayList>(); while (it.hasNext()){ it.next(); }}
 	 * 
 	 * returns Map with group id in key and a ArrayList of matching files in
@@ -893,7 +888,7 @@ public class DataMiner {
 	 * 
 	 * @param repo
 	 */
-	public static Map<String, ArrayList<FileRecord>> getSourceFileGroup(Map<Integer, FileRecord> sourceFiles, Source src, Repository repo) {
+	public static Map<String, ArrayList<FileRecord>> getSourceFileGroup(Map<Integer, FileRecord> sourceFiles, Source src, Repository repo, boolean order) {
 		PatternCache patternCache = new PatternCache();
 		String patternString = "";
 		Map<String, ArrayList<FileRecord>> sourceFileGroup = new HashMap<String, ArrayList<FileRecord>>();
@@ -922,7 +917,6 @@ public class DataMiner {
 					// tempV = new ArrayList<String>();
 					while (sourceFileIterator.hasNext()) {
 						groupedFiles.clear();
-
 						FileRecord fileName = sourceFileIterator.next();
 						// logger.info("file: "+fileName);
 						try {
@@ -981,17 +975,20 @@ public class DataMiner {
 						// logger.info("found group " + key + "with " +
 						// groupedFiles.size() + " files in source " +
 						// src.getSourceName());
-
+						
+						//option for ordering files by date of lines - useless at this point
+						if (order)
+							{sourceFileGroup.put(key,Tools.orderFiles(sourceFileGroup.get(key),src));
+							} else{
+								sourceFileGroup.put(key,sourceFileGroup.get(key));								
+							}
 					}
-		
-			
-		
-		// TODO Auto-generated method stub
+
 		return sourceFileGroup;
 		}
 else {return null;}
 	}
-
+	
 	private static Map<Class,Map<Recording, String>> getAllRegexp(Repository repo, Source source) {
 		Map<Class,Map<Recording, String>> recMatch = new HashMap<Class,Map<Recording, String>>();
 		recMatch.put(StatRecording.class,getRegexp(repo,source,StatRecording.class));
@@ -1000,7 +997,8 @@ else {return null;}
 		return recMatch;
 	}
 
-	private static Map<Recording, String> getAllRegexSingleMap(Repository repo, Source source) {
+	public static Map<Recording, String> getAllRegexSingleMap(Repository repo, Source source) {
+		long startTime = System.currentTimeMillis();
 		Map<Recording, String> recMatch = new HashMap<Recording, String>();
 		if (Preferences.getBooleanPreference("gatherstats")){
 			Map<Recording, String> g1= getRegexp(repo,source,StatRecording.class);
@@ -1020,6 +1018,8 @@ else {return null;}
 			recMatch.putAll(g3);
 			}
 		}
+		estimatedTime = System.currentTimeMillis() - startTime;
+		logger.debug("getAllRegexSingleMap time: " + estimatedTime);
 		return recMatch;
 	}
 	
@@ -1031,6 +1031,8 @@ else {return null;}
 		StringBuffer sb = new StringBuffer(200);
 		recordings = repo.getRecordings(recordingClass,true);
 		Iterator<Recording> recordingIterator = recordings.iterator();
+		boolean forceSourceDateFormat = Preferences.getBooleanPreference("ForceSourceDateFormat");
+		
 		while (recordingIterator.hasNext()) {
 			Recording rec = recordingIterator.next();
 			if (!activeRecordingOnSourceCache.containsKey(rec)) {
@@ -1044,6 +1046,7 @@ else {return null;}
 						logger.debug("Record: " + rec.getName());
 					}
 					sb.setLength(0);
+					// processing each line of the table
 					while (recItemIte.hasNext()) {
 						RecordingItem recItem = recItemIte.next();
 						String stBefore = (String) recItem.getBefore();
@@ -1052,7 +1055,11 @@ else {return null;}
 						String stInside = recItem.getInside();
 						sb.append(stBefore);
 						sb.append("(");
-						sb.append(getMainRegex(stType,stInside,repo.getDateFormat(rec.getDateFormatID())));
+						if (forceSourceDateFormat){
+							sb.append(getMainRegex(stType,stInside,source.getDateFormat()));
+						}else{
+							sb.append(getMainRegex(stType,stInside,repo.getDateFormat(rec.getDateFormatID())));
+						}
 						sb.append(")");
 						sb.append(stAfter);				
 					}
@@ -1114,7 +1121,7 @@ else {return null;}
 		return typeString;
 	}
 	
-	public static ChartData gatherSourceData(final Repository repo) {
+	public static ChartData gatherSourceData(final Repository repo, boolean order) {
 
 		PatternCache patternCache = new PatternCache();
 		ChartData cd = new ChartData();
@@ -1160,7 +1167,7 @@ else {return null;}
 
 							if (matcher.find()) {
 
-								FileRecord tempFileRecord = new FileRecord(i, new File((String) listOfFiles.get(i).getCanonicalPath()));
+								FileRecord tempFileRecord = new FileRecord(i, new File(listOfFiles.get(i).getCanonicalPath()));
 								cd.selectedSourceFiles.put(i, tempFileRecord);
 								if (logger.isDebugEnabled()) {
 
@@ -1190,9 +1197,9 @@ else {return null;}
 
 			final Source src = (Source) sourcePairs.getKey();
 			Map<Integer, FileRecord> sourceFiles = (Map<Integer, FileRecord>) sourcePairs.getValue();
-			sourceFileGroup = getSourceFileGroup(sourceFiles, src, repo);
-		//	if (logger.isEnabledFor(Level.INFO))
-		//		logger.info("matched groups: " + sourceFileGroup.keySet().size() + " for source " + src.getSourceName());
+			sourceFileGroup = getSourceFileGroup(sourceFiles, src, repo,order);
+			if (sourceFileGroup!=null && sourceFileGroup.keySet().size()>0)
+				logger.info("matched groups: " + (sourceFileGroup!=null? sourceFileGroup.keySet().size():"") + " for source " + src.getSourceName());
 		//	logger.debug(sourceFileGroup.toString());
 			cd.setGroupFilesArrayListMap(src, sourceFileGroup);
 		}
@@ -1219,7 +1226,7 @@ else {return null;}
 			// TODO Auto-generated catch block
 		}
 		if (repo != null && repo.getBaseSourcePath() != null) {
-			ChartData cd = DataMiner.gatherSourceData(repo);
+			ChartData cd = DataMiner.gatherSourceData(repo,false);
 			ArrayList sources = repo.getSources();
 			Iterator sourceArrayListIte = sources.iterator();
 			while (sourceArrayListIte.hasNext()) {
@@ -1253,7 +1260,6 @@ else {return null;}
 							String line;
 							logger.info("matched file:" + fileName);
 							recMatch = getAllRegexSingleMap(repo, src);
-							int lineCount = 0;
 							try {
 								while ((line = buf1st.readLine()) != null) {
 									// check against one Recording pattern at a
@@ -1293,11 +1299,11 @@ else {return null;}
 		}
 	}
 
-	public static ArrayList<Map> exportData(Repository repo) {
-		gatherMineResultSet(repo, null);
+/*	public static ArrayList<Map> exportData(Repository repo) {
+		gatherMineResultSet(null,repo, null);
 		return null;
 
-	}
+	}*/
 	/*
 	 * public static ArrayList<Map> exportData(Repository repo) { PatternCache
 	 * patternCache = new PatternCache(); Matcher matcher = null; ArrayList<Map>

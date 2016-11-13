@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -214,7 +214,7 @@ public class SourceInfoPanel extends JPanel {
 				panel.add(scrollPane);
 		Highlighter h = textPane.getHighlighter();
 		if (repo != null && repo.getBaseSourcePath() != null) {
-			ChartData cd = DataMiner.gatherSourceData(repo);
+			ChartData cd = DataMiner.gatherSourceData(repo,true);
 			Map<String, ArrayList<FileRecord>> hm = cd.getGroupFilesMap(src);
 			if (hm!=null){
 			logger.debug("source: "+src.getSourceName()+",  map: "+hm+",  map size: "+ hm.size());
@@ -257,7 +257,8 @@ public class SourceInfoPanel extends JPanel {
 						filesDoc.insertString(filesDoc.getLength(),"- "+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath()+ "\n", null);
 						
 					}*/
-					Collections.sort(filesString, new AlphanumComparator());
+				//	removing sorting now that sorting based on date in files
+				// Collections.sort(filesString, new AlphanumComparator());
 					Iterator vecIt = filesString.iterator();
 					while (vecIt.hasNext()) {
 						filesDoc.insertString(filesDoc.getLength(),(String)vecIt.next(), null);

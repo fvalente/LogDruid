@@ -1,6 +1,6 @@
 /*******************************************************************************
- * LogDruid : chart statistics and events retrieved in logs files through configurable regular expressions
- * Copyright (C) 2014, 2015 Frederic Valente (frederic.valente@gmail.com)
+ * LogDruid : Generate charts and reports using data gathered in log files
+ * Copyright (C) 2016 Frederic Valente (frederic.valente@gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
@@ -19,6 +19,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -51,7 +52,9 @@ import logdruid.data.record.MetadataRecording;
 import logdruid.data.record.Recording;
 import logdruid.ui.editor.StatRecordingEditor;
 import logdruid.util.DataMiner;
+
 import javax.swing.JScrollPane;
+import java.awt.Dialog.ModalityType;
 
 public class DateSelector extends JDialog {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -72,11 +75,18 @@ public class DateSelector extends JDialog {
 	private JTextField textField;
 	private final JPanel contentPanel = new JPanel();
 	private JDialog thiis=this;
+	private DateFormat selectedDataFormat;
 
 	/**
 	 * Create the dialog.
+	 * @wbp.parser.constructor
 	 */
+
+	public DateSelector(final Repository rep){
+		this( rep, (JTextField) null,(Recording)null);
+	}
 	public DateSelector(final Repository rep, final JTextField txtDate, final Recording re) {
+		setModalityType(ModalityType.DOCUMENT_MODAL);
 		setBounds(100, 100, 729, 567);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setLayout(new FlowLayout());
@@ -90,15 +100,21 @@ public class DateSelector extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						txtDate.setText(((DateFormat) rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow())
-								: -1))).getDateFormat());
+						selectedDataFormat=(DateFormat) rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow())
+								: -1));
+						if (txtDate!=null){
+							txtDate.setText(((DateFormat) rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow())
+									: -1))).getDateFormat());
+						}
+								
 						// re.setRegexp(textFieldPattern.getText());
 						// logger.info("dateFormat: "+rep.getDateFormat(((table.getSelectedRow()!=-1)?table.convertRowIndexToModel(table.getSelectedRow()):-1)));
-						re.setDateFormatID(rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1))
+						if (re!=null){re.setDateFormatID(rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1))
 								.getId());
 						logger.info("dateFormat Id: "
 								+ rep.getDateFormat(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1)).getId());
 						logger.info("recording df: " + re.getDateFormatID());
+						}
 						thiis.dispose();
 
 					}
@@ -400,6 +416,10 @@ public class DateSelector extends JDialog {
 		}
 	}
 
+	public DateFormat getDateFormat() {
+		return selectedDataFormat;
+	}
+
 	class MyTableModel2 extends AbstractTableModel {
 		private String[] header;
 		private ArrayList<Object[]> data;
@@ -525,19 +545,7 @@ public class DateSelector extends JDialog {
 		repository.deleteRecording(((table.getSelectedRow() != -1) ? table.convertRowIndexToModel(table.getSelectedRow()) : -1));
 		table.repaint();
 	}
-
-	/*
-	 * private ArrayList<DateFormat> findRecordItems(String theLine) {
-	 * FastDateFormat FastDateFormat = new FastDateFormat(
-	 * "EEE MM/dd/yy HH:mm:ss"); String[] rIString = theLine.split(", ");
-	 * ArrayList<RecordingItem> rI = new ArrayList<RecordingItem>(); for (int i
-	 * = 0; i < rIString.length; i++) { if (i == 0) { String[] splitted =
-	 * rIString[i].split(": "); String date = splitted[0]; try {
-	 * FastDateFormat.parse(date); } catch (ParseException e) { // TODO
-	 * Auto-generated catch block e.printStackTrace(); } } else { if
-	 * (rIString[i].contains("=")) { String[] splitted = rIString[i].split("=");
-	 * String name = splitted[0]; String value = splitted[1]; // rI.add(new
-	 * RecordingItem(name,value,true)); logger.info(name + " " + value); } } }
-	 * return rI; }
-	 */
+	public boolean isValidate() {
+		return (getDateFormat()!=null);
+	}
 }
