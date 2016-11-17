@@ -208,6 +208,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 				//	textPane_1.getStyledDocument().setCharacterAttributes(currGroupIndex , groupString.length()-1, sas, false);
 					
 			//		h.addHighlight(currIndex , currIndex + groupString.length()-1,  DefaultHighlighter.DefaultPainter);
+					if (files!=null){
 					Iterator vecIt = files.iterator();
 					while (vecIt.hasNext()) {
 						 String filePath=new File(rep.getBaseSourcePath()).toURI().relativize(new File(((FileRecord)vecIt.next()).getCompletePath()).toURI()).getPath();		 
@@ -222,7 +223,7 @@ public class MetadataRecordingEditorTable extends JPanel {
 						}
 						currIndex += filePath.length()+3 ;
 						*/
-					}
+					}}
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

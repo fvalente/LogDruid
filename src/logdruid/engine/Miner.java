@@ -93,12 +93,11 @@ public class Miner {
 		top100Report.clear();
 
 		startTime = System.currentTimeMillis();
-	/*	try {
-			cd = DataMiner.gatherSourceData(repo);
-		} catch (Exception e) {
-			return null;
-		}*/
-		
+		/*
+		 * try { cd = DataMiner.gatherSourceData(repo); } catch (Exception e) {
+		 * return null; }
+		 */
+
 		Iterator<Source> sourceIterator2 = repo.getSources().iterator();
 		int progressCount = 0;
 		while (sourceIterator2.hasNext()) {
@@ -108,15 +107,18 @@ public class Miner {
 				Iterator<Entry<String, ArrayList<FileRecord>>> it = cd.getGroupFilesMap(source).entrySet().iterator();
 				while (it.hasNext()) {
 					final Map.Entry<String, ArrayList<FileRecord>> pairs = it.next();
-					progressCount = progressCount + pairs.getValue().size();
-					logger.debug("Source:" + source.getSourceName() + ", group: " + pairs.getKey() + " = " + pairs.getValue().toString());
-					tasks.add(new Callable<MineResult>() {
-						public MineResult call() throws Exception {
-							return Miner.mine(pairs.getKey(), pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),
-									Preferences.isMatches(), mainFrame);
-						}
+					//testing as a group might have no files
+					if (pairs.getValue() != null) {
+						progressCount = progressCount + pairs.getValue().size();
+						logger.debug("Source:" + source.getSourceName() + ", group: " + pairs.getKey() + " = " + pairs.getValue().toString());
+						tasks.add(new Callable<MineResult>() {
+							public MineResult call() throws Exception {
+								return Miner.mine(pairs.getKey(), pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),
+										Preferences.isMatches(), mainFrame);
+							}
 
-					});
+						});
+					}
 
 				}
 			}
@@ -213,16 +215,16 @@ public class Miner {
 				while ((line = buf1st.readLine()) != null) {
 					matcher = null;
 					nbLines++;
-					if(source.getDateFormat()!=null){
-					 matcher = patternCache.getPattern((String)".*("+(source.getDateFormat().getPattern())+").*",false).matcher(line);
+					if (source.getDateFormat() != null) {
+						matcher = patternCache.getPattern((String) ".*(" + (source.getDateFormat().getPattern()) + ").*", false).matcher(line);
 					}
-					 if (matcher==null){
-						 dataBlock.add(new String[] {null,line});
-					 } else if  (matcher.matches()){
-					dataBlock.add(new String[] {"date",line});
-					 } else {
-						 dataBlock.add(new String[] {null,null});
-					 }
+					if (matcher == null) {
+						dataBlock.add(new String[] { null, line });
+					} else if (matcher.matches()) {
+						dataBlock.add(new String[] { "date", line });
+					} else {
+						dataBlock.add(new String[] { null, null });
+					}
 					if (nbLines == miningChunk) {
 						// logger.info("chunkMine called at line" + totaLines);
 						final ArrayList<String[]> tempBlock = new ArrayList<String[]>(dataBlock);
@@ -432,10 +434,10 @@ public class Miner {
 		boolean forceSourceDateFormat = Preferences.getBooleanPreference("ForceSourceDateFormat");
 		long recordingMatchStart = 0;
 		long recordingMatchEnd = 0;
-		if (forceSourceDateFormat==true){
-		sourceDateFormat = ThreadLocalDateFormatMap.getInstance().getDateFormat(source.getDateFormat().getDateFormat());
+		if (forceSourceDateFormat == true) {
+			sourceDateFormat = ThreadLocalDateFormatMap.getInstance().getDateFormat(source.getDateFormat().getDateFormat());
 		}
-		
+
 		logger.debug("chunkMine on " + fileRecord.getCompletePath() + " - offset:" + offset);
 		if (!occurenceReport.containsKey(source)) {
 			occurenceReport.put(source, new ConcurrentHashMap<Recording, Map<List<Object>, Long>>());
@@ -461,225 +463,205 @@ public class Miner {
 
 				line = dataBlockRecord[1];
 				if (line != null) {
-			
-				// check against one Recording pattern at a tim
-				// if (logger.isDebugEnabled()) {
-				// logger.info("lineCount " + lineCount);
-				// }
-				Iterator<Entry<Recording, String>> recMatchIte = recMatch.entrySet().iterator();
-				while (recMatchIte.hasNext()) {
-					if (timings) {
-						recordingMatchStart = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-					}
-					Entry<Recording, String> me = recMatchIte.next();
-					Recording rec = (Recording) me.getKey();
-					matcher = patternCache.getMatcher((String) (rec.getRegexp()), rec.isCaseSensitive(), line);
-					if (matcher.find()) {
-						Boolean isStatRecording = classCache.getClass(rec).equals(StatRecording.class);
-						if (stats) {
-							if (isStatRecording) {
-								statMatch++;
-								// logger.info("statMatch " );
-							} else {
-								eventMatch++;
-							}
+
+					// check against one Recording pattern at a tim
+					// if (logger.isDebugEnabled()) {
+					// logger.info("lineCount " + lineCount);
+					// }
+					Iterator<Entry<Recording, String>> recMatchIte = recMatch.entrySet().iterator();
+					while (recMatchIte.hasNext()) {
+						if (timings) {
+							recordingMatchStart = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
 						}
-						// logger.info("1**** matched: " + line);
-						ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
-						matcher2 = patternCache.getMatcher((String) me.getValue(), rec.isCaseSensitive(), line);
-						if (matcher2.find()) {
+						Entry<Recording, String> me = recMatchIte.next();
+						Recording rec = (Recording) me.getKey();
+						matcher = patternCache.getMatcher((String) (rec.getRegexp()), rec.isCaseSensitive(), line);
+						if (matcher.find()) {
+							Boolean isStatRecording = classCache.getClass(rec).equals(StatRecording.class);
 							if (stats) {
 								if (isStatRecording) {
-									statHit++;
+									statMatch++;
+									// logger.info("statMatch " );
 								} else {
-									eventHit++;
+									eventMatch++;
 								}
 							}
-							if (!classCache.getClass(rec).equals(ReportRecording.class)) {
-								int count = 1;
-								Date date1 = null;
-								// handling capture for each recording item
-								Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-								while (recItemIte2.hasNext()) {
-									RecordingItem recItem2 = recItemIte2.next();
-									// logger.info("3A**** " +
-									// recItem2.getType());
-									if (recItem2.getType().equals("date")) {
-										try {
-											if (forceSourceDateFormat || rec.getUseSourceDateFormat()){
-												date1 = sourceDateFormat.parse(matcher2.group(count));
-											} else {
-												df = repo.getDateFormat(rec.getDateFormatID());	
-												fastDateFormat = ThreadLocalDateFormatMap.getInstance().getDateFormat(df.getDateFormat());
-												date1 = fastDateFormat.parse(matcher2.group(count));
-											}									
-											if (logger.isDebugEnabled())
-												logger.debug("4**** rec name" + rec.getName() + " df: " + df.getId());
-											// fastDateFormat =
-											// FastDateFormat.getInstance(df.getDateFormat());
-											if (logger.isDebugEnabled())
-												logger.debug("4b**** " + df.getDateFormat() + " date: " + date1.toString());
-										} catch (ParseException e) {
-											// TODO Auto-generated catch
-											// block
-											e.printStackTrace();
-										}
-									} else if (date1 != null) {
-										if (recItem2.isSelected()) {
-											if (logger.isDebugEnabled()) {
-												logger.debug("FileRecord: " + offset + fileRecord.getFile().getName() + ", Source: " + source.getSourceName()
-														+ ", " + recItem2.getName() + ", " + fileRecord.getFile().getName() + ", " + ((int) offset + lineCount));
-											}
-											// recording line of match in file
-											// in map RIFileLineDateMap - note
-											// the FileLine object use an int to
-											// identify the files to save memory
-											Map<Date, FileLine> dateFileLineMap = null;
-											// change this to recItem2 to
-											// differentiate recording items
-											// with same name ?? TBD
-											// if
-											// (RIFileLineDateMap.containsKey(recItem2.getName()))
-											// {
-											dateFileLineMap = RIFileLineDateMap.get(recItem2.getName());
-											if (dateFileLineMap == null) {
-												dateFileLineMap = new HashMap<Date, FileLine>();
-											}
-											dateFileLineMap.put(date1, new FileLine(fileRecord.getId(), ((int) offset + lineCount)));
-											// if (logger.isDebugEnabled()) {
-											// logger.info(recItem2.getName()+
-											// " / " +
-											// fileRecord.getFile().getName() +
-											// " dateFileLineMap put: " + date1
-											// + "groupFileLineMap: "
-											// + fileRecord.getId() + " "
-											// +offset+ " - " +lineCount);
-											// logger.info(fileRecord.getFile().getName()
-											// + " FileRecord: " +
-											// fileRecord.getFile().getName()
-											// + ", RIFileLineDateMap.put: " +
-											// recItem2.getName() + ", line: " +
-											// offset+lineCount
-											// + " RIFileLineDateMap size: " +
-											// RIFileLineDateMap.size() +
-											// " dateFileLineMap size: "
-											// + dateFileLineMap.size());
-											// }
-											RIFileLineDateMap.put(recItem2.getName(), dateFileLineMap);
-
-											if (startDate == null) {
-												startDate = date1;
-											}
-											if (endDate == null) {
-												endDate = date1;
-											}
-											if (date1.after(startDate)) {
-												endDate = date1;
-											} else if (date1.before(startDate)) {
-												startDate = date1;
-											}
-
-											if (isStatRecording && (gatherStats)) {
-												ts = statMap.get(recItem2.getName());
-												if (ts == null) {
-													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
-													if (logger.isDebugEnabled())
-														logger.debug("5**** Adding record to Map: " + recItem2.getName());
-												}
-												fMS = new FixedMillisecond(date1);
-												if (matcher2.group(count) == null) {
-													logger.info("null in match on " + recItem2.getName() + " at " + fileRecord.getFile().getName()
-															+ " line cnt:" + offset + lineCount);
-													logger.info("line : " + line);
-												}
-												if (recItem2.getType().equals("long")) {
-													ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, Long.valueOf((String) matcher2.group(count)))));
+							// logger.info("1**** matched: " + line);
+							ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
+							matcher2 = patternCache.getMatcher((String) me.getValue(), rec.isCaseSensitive(), line);
+							if (matcher2.find()) {
+								if (stats) {
+									if (isStatRecording) {
+										statHit++;
+									} else {
+										eventHit++;
+									}
+								}
+								if (!classCache.getClass(rec).equals(ReportRecording.class)) {
+									int count = 1;
+									Date date1 = null;
+									// handling capture for each recording item
+									Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+									while (recItemIte2.hasNext()) {
+										RecordingItem recItem2 = recItemIte2.next();
+										// logger.info("3A**** " +
+										// recItem2.getType());
+										if (recItem2.getType().equals("date")) {
+											try {
+												if (forceSourceDateFormat || rec.getUseSourceDateFormat()) {
+													date1 = sourceDateFormat.parse(matcher2.group(count));
 												} else {
-													try {
+													df = repo.getDateFormat(rec.getDateFormatID());
+													fastDateFormat = ThreadLocalDateFormatMap.getInstance().getDateFormat(df.getDateFormat());
+													date1 = fastDateFormat.parse(matcher2.group(count));
+												}
+												if (logger.isDebugEnabled())
+													logger.debug("4**** rec name" + rec.getName() + " df: " + df.getId());
+												// fastDateFormat =
+												// FastDateFormat.getInstance(df.getDateFormat());
+												if (logger.isDebugEnabled())
+													logger.debug("4b**** " + df.getDateFormat() + " date: " + date1.toString());
+											} catch (ParseException e) {
+												// TODO Auto-generated catch
+												// block
+												e.printStackTrace();
+											}
+										} else if (date1 != null) {
+											if (recItem2.isSelected()) {
+												if (logger.isDebugEnabled()) {
+													logger.debug("FileRecord: " + offset + fileRecord.getFile().getName() + ", Source: "
+															+ source.getSourceName() + ", " + recItem2.getName() + ", " + fileRecord.getFile().getName() + ", "
+															+ ((int) offset + lineCount));
+												}
+												// recording line of match in
+												// file
+												// in map RIFileLineDateMap -
+												// note
+												// the FileLine object use an
+												// int to
+												// identify the files to save
+												// memory
+												Map<Date, FileLine> dateFileLineMap = null;
+												// change this to recItem2 to
+												// differentiate recording items
+												// with same name ?? TBD
+												// if
+												// (RIFileLineDateMap.containsKey(recItem2.getName()))
+												// {
+												dateFileLineMap = RIFileLineDateMap.get(recItem2.getName());
+												if (dateFileLineMap == null) {
+													dateFileLineMap = new HashMap<Date, FileLine>();
+												}
+												dateFileLineMap.put(date1, new FileLine(fileRecord.getId(), ((int) offset + lineCount)));
+												// if (logger.isDebugEnabled())
+												// {
+												// logger.info(recItem2.getName()+
+												// " / " +
+												// fileRecord.getFile().getName()
+												// +
+												// " dateFileLineMap put: " +
+												// date1
+												// + "groupFileLineMap: "
+												// + fileRecord.getId() + " "
+												// +offset+ " - " +lineCount);
+												// logger.info(fileRecord.getFile().getName()
+												// + " FileRecord: " +
+												// fileRecord.getFile().getName()
+												// + ", RIFileLineDateMap.put: "
+												// +
+												// recItem2.getName() +
+												// ", line: " +
+												// offset+lineCount
+												// + " RIFileLineDateMap size: "
+												// +
+												// RIFileLineDateMap.size() +
+												// " dateFileLineMap size: "
+												// + dateFileLineMap.size());
+												// }
+												RIFileLineDateMap.put(recItem2.getName(), dateFileLineMap);
+
+												if (startDate == null) {
+													startDate = date1;
+												}
+												if (endDate == null) {
+													endDate = date1;
+												}
+												if (date1.after(startDate)) {
+													endDate = date1;
+												} else if (date1.before(startDate)) {
+													startDate = date1;
+												}
+
+												if (isStatRecording && (gatherStats)) {
+													ts = statMap.get(recItem2.getName());
+													if (ts == null) {
+														ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
+														if (logger.isDebugEnabled())
+															logger.debug("5**** Adding record to Map: " + recItem2.getName());
+													}
+													fMS = new FixedMillisecond(date1);
+													if (matcher2.group(count) == null) {
+														logger.info("null in match on " + recItem2.getName() + " at " + fileRecord.getFile().getName()
+																+ " line cnt:" + offset + lineCount);
+														logger.info("line : " + line);
+													}
+													if (recItem2.getType().equals("long")) {
 														ts.getTimeSeries().addOrUpdate(
-																(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
-																		.parse((String) matcher2.group(count).replace(',', '.')))))));
-													} catch (Exception e) {
-														e.printStackTrace();
-													}
-
-												}
-
-												if (stats) {
-													int[] array = ts.getStat();
-													array[1] = array[1] + 1;
-													array[0] = array[0] + 1;
-													ts.setStat(array);
-													if (logger.isDebugEnabled())
-														logger.debug("stats " + array[0] + " " + array[1]);
-												}
-												statMap.put(recItem2.getName(), ts);
-												// performance: add the
-												// TmeSeriesDataItem to the
-												// TimeSeries instead of
-												// updating
-												// the TimeSeries in the Map
-
-											} else if (classCache.getClass(rec).equals(EventRecording.class) && (gatherEvents)) {
-												ts = eventMap.get(recItem2.getName());
-												if (ts == null) {
-													ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
-													if (logger.isDebugEnabled())
-														logger.debug("5**** Adding record to Map: " + recItem2.getName());
-												}
-												// SimpleTimePeriod stp = new
-												// SimpleTimePeriod(date1,DateUtils.addMilliseconds(date1,1));
-												fMS = new FixedMillisecond(date1);
-
-												if (((RecordingItem) recItem2).getProcessingType().equals("occurrences")) {
-													TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
-													if (t != null) {
-														ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, (double) t.getValue() + 1))); // +
-														// (double)t.getValue()
-														// need some way to show
-														// several occurrences
-													} else {
-														ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 1)));
-													}
-
-												} else if (((RecordingItem) recItem2).getProcessingType().equals("duration")) {
-													try {
-														ts.getTimeSeries().addOrUpdate(
-																(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2
-																		.group(count)))))));
-													} catch (ParseException e) {
-														// TODO
-														// Auto-generated
-														// catch block
-														e.printStackTrace();
-													}
-
-													// ts.addOrUpdate((new
-													// TimeSeriesDataItem(fMS,
-													// 100)));
-												} else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
-													TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
-													if (t != null) {
-														if (!recItem2.getType().equals("date")) {
-															try {
-																ts.getTimeSeries().addOrUpdate(
-																		(new TimeSeriesDataItem(fMS,
-																				Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2.group(count)))
-																						+ ts.getTimeSeries().getDataItem(fMS).getValue()))));
-																logger.info(ts.getTimeSeries().getDataItem(fMS).getValue());
-															} catch (ParseException e) {
-																// TODO
-																// Auto-generated
-																// catch block
-																e.printStackTrace();
-															}
-														}
+																(new TimeSeriesDataItem(fMS, Long.valueOf((String) matcher2.group(count)))));
 													} else {
 														try {
-															// to improve -
-															// should use the
-															// right type here
-															ts.getTimeSeries().add(
+															ts.getTimeSeries().addOrUpdate(
+																	(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
+																			.parse((String) matcher2.group(count).replace(',', '.')))))));
+														} catch (Exception e) {
+															e.printStackTrace();
+														}
+
+													}
+
+													if (stats) {
+														int[] array = ts.getStat();
+														array[1] = array[1] + 1;
+														array[0] = array[0] + 1;
+														ts.setStat(array);
+														if (logger.isDebugEnabled())
+															logger.debug("stats " + array[0] + " " + array[1]);
+													}
+													statMap.put(recItem2.getName(), ts);
+													// performance: add the
+													// TmeSeriesDataItem to the
+													// TimeSeries instead of
+													// updating
+													// the TimeSeries in the Map
+
+												} else if (classCache.getClass(rec).equals(EventRecording.class) && (gatherEvents)) {
+													ts = eventMap.get(recItem2.getName());
+													if (ts == null) {
+														ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
+														if (logger.isDebugEnabled())
+															logger.debug("5**** Adding record to Map: " + recItem2.getName());
+													}
+													// SimpleTimePeriod stp =
+													// new
+													// SimpleTimePeriod(date1,DateUtils.addMilliseconds(date1,1));
+													fMS = new FixedMillisecond(date1);
+
+													if (((RecordingItem) recItem2).getProcessingType().equals("occurrences")) {
+														TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
+														if (t != null) {
+															ts.getTimeSeries().addOrUpdate((new TimeSeriesDataItem(fMS, (double) t.getValue() + 1))); // +
+															// (double)t.getValue()
+															// need some way to
+															// show
+															// several
+															// occurrences
+														} else {
+															ts.getTimeSeries().add((new TimeSeriesDataItem(fMS, 1)));
+														}
+
+													} else if (((RecordingItem) recItem2).getProcessingType().equals("duration")) {
+														try {
+															ts.getTimeSeries().addOrUpdate(
 																	(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2
 																			.group(count)))))));
 														} catch (ParseException e) {
@@ -688,100 +670,122 @@ public class Miner {
 															// catch block
 															e.printStackTrace();
 														}
-													}
 
-												} else if (((RecordingItem) recItem2).getProcessingType().equals("capture")) {
-
-												}
-												// logger.debug(recItem2.getName()
-												// +
-												// " " +
-												// Double.parseDouble((matcher2.group(count))));
-												if (stats) {
-													int[] array = ts.getStat();
-													array[1] = array[1] + 1;
-													array[0] = array[0] + 1;
-													ts.setStat(array);
-													if (logger.isDebugEnabled())
-														logger.debug("stats " + array[0] + " " + array[1]);
-												}
-												eventMap.put(recItem2.getName(), ts);
-
-											}
-
-										}
-									} // rec.getClass().equals(ReportRecording.class)
-
-									count++;
-									// logger.info("event statistics: "+eventMatch
-									// +
-									// " and " +eventHit +
-									// " ; stat statistics: "+statMatch +
-									// " and "
-									// +statHit);
-								}
-							} else {
-								if (gatherReports) {
-									int count = 0;
-									if (((ReportRecording) rec).getSubType().equals("histogram") && rec.getIsActive()) {
-										List<Object> temp = new ArrayList<Object>();
-										Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-										while (recItemIte2.hasNext()) {
-											RecordingItem recItem2 = recItemIte2.next();
-											if (recItem2.isSelected()) {
-												temp.add(matcher2.group(count + 1));
-											}
-											count++;
-										}
-										Map<List<Object>, Long> occMap = occurenceReport.get(source).get(rec);
-										if (occMap == null) {
-											occurenceReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Long>());
-											occMap = occurenceReport.get(source).get(rec);
-										}
-										synchronized (occMap) {
-											Object occ = occMap.get(temp);
-
-											if (occ == null) {
-												occMap.put(temp, (long) 1);
-											} else {
-												occMap.put(temp, (long) occ + 1);
-											}
-										}
-									} else if (((ReportRecording) rec).getSubType().equals("top100") && rec.getIsActive()) {
-										double itemIndex = 0;
-
-										SortedMap<Double, List<Object>> t100 = top100Report.get(source).get(rec);
-										if (t100 == null) {
-											top100Report.get(source).put(rec, Collections.synchronizedSortedMap(new TreeMap<Double, List<Object>>()));
-											t100 = top100Report.get(source).get(rec);
-										}
-										try {
-											itemIndex = (double) Double.valueOf(matcher2.group(((ReportRecording) rec).getTop100RecordID() + 1));
-										} catch (NullPointerException npe) {
-											// nothing
-										} catch (NumberFormatException nfe) {
-											// nothing
-											logger.info(matcher2.group(0));
-											logger.info(matcher2.group(((ReportRecording) rec).getTop100RecordID() + 1));
-										}
-										synchronized (t100) {
-											if (t100.size() < 100) {
-												List<Object> temp = new ArrayList<Object>();
-												Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-												while (recItemIte2.hasNext()) {
-													RecordingItem recItem2 = recItemIte2.next();
-													if (recItem2.isSelected()) {
-														if (recItem2.getProcessingType().equals("top100")) {
-															itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
+														// ts.addOrUpdate((new
+														// TimeSeriesDataItem(fMS,
+														// 100)));
+													} else if (((RecordingItem) recItem2).getProcessingType().equals("sum")) {
+														TimeSeriesDataItem t = ts.getTimeSeries().getDataItem(fMS);
+														if (t != null) {
+															if (!recItem2.getType().equals("date")) {
+																try {
+																	ts.getTimeSeries().addOrUpdate(
+																			(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
+																					.parse(matcher2.group(count)))
+																					+ ts.getTimeSeries().getDataItem(fMS).getValue()))));
+																	logger.info(ts.getTimeSeries().getDataItem(fMS).getValue());
+																} catch (ParseException e) {
+																	// TODO
+																	// Auto-generated
+																	// catch
+																	// block
+																	e.printStackTrace();
+																}
+															}
 														} else {
-															temp.add(matcher2.group(count + 1));
+															try {
+																// to improve -
+																// should use
+																// the
+																// right type
+																// here
+																ts.getTimeSeries().add(
+																		(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
+																				.parse(matcher2.group(count)))))));
+															} catch (ParseException e) {
+																// TODO
+																// Auto-generated
+																// catch block
+																e.printStackTrace();
+															}
 														}
+
+													} else if (((RecordingItem) recItem2).getProcessingType().equals("capture")) {
+
 													}
-													count++;
+													// logger.debug(recItem2.getName()
+													// +
+													// " " +
+													// Double.parseDouble((matcher2.group(count))));
+													if (stats) {
+														int[] array = ts.getStat();
+														array[1] = array[1] + 1;
+														array[0] = array[0] + 1;
+														ts.setStat(array);
+														if (logger.isDebugEnabled())
+															logger.debug("stats " + array[0] + " " + array[1]);
+													}
+													eventMap.put(recItem2.getName(), ts);
+
 												}
-												t100.put(itemIndex, temp);
-											} else if (t100.size() == 100) {
-												if (itemIndex > t100.firstKey()) {
+
+											}
+										} // rec.getClass().equals(ReportRecording.class)
+
+										count++;
+										// logger.info("event statistics: "+eventMatch
+										// +
+										// " and " +eventHit +
+										// " ; stat statistics: "+statMatch +
+										// " and "
+										// +statHit);
+									}
+								} else {
+									if (gatherReports) {
+										int count = 0;
+										if (((ReportRecording) rec).getSubType().equals("histogram") && rec.getIsActive()) {
+											List<Object> temp = new ArrayList<Object>();
+											Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+											while (recItemIte2.hasNext()) {
+												RecordingItem recItem2 = recItemIte2.next();
+												if (recItem2.isSelected()) {
+													temp.add(matcher2.group(count + 1));
+												}
+												count++;
+											}
+											Map<List<Object>, Long> occMap = occurenceReport.get(source).get(rec);
+											if (occMap == null) {
+												occurenceReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Long>());
+												occMap = occurenceReport.get(source).get(rec);
+											}
+											synchronized (occMap) {
+												Object occ = occMap.get(temp);
+
+												if (occ == null) {
+													occMap.put(temp, (long) 1);
+												} else {
+													occMap.put(temp, (long) occ + 1);
+												}
+											}
+										} else if (((ReportRecording) rec).getSubType().equals("top100") && rec.getIsActive()) {
+											double itemIndex = 0;
+
+											SortedMap<Double, List<Object>> t100 = top100Report.get(source).get(rec);
+											if (t100 == null) {
+												top100Report.get(source).put(rec, Collections.synchronizedSortedMap(new TreeMap<Double, List<Object>>()));
+												t100 = top100Report.get(source).get(rec);
+											}
+											try {
+												itemIndex = (double) Double.valueOf(matcher2.group(((ReportRecording) rec).getTop100RecordID() + 1));
+											} catch (NullPointerException npe) {
+												// nothing
+											} catch (NumberFormatException nfe) {
+												// nothing
+												logger.info(matcher2.group(0));
+												logger.info(matcher2.group(((ReportRecording) rec).getTop100RecordID() + 1));
+											}
+											synchronized (t100) {
+												if (t100.size() < 100) {
 													List<Object> temp = new ArrayList<Object>();
 													Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
 													while (recItemIte2.hasNext()) {
@@ -795,112 +799,132 @@ public class Miner {
 														}
 														count++;
 													}
-													t100.remove(t100.firstKey());
 													t100.put(itemIndex, temp);
+												} else if (t100.size() == 100) {
+													if (itemIndex > t100.firstKey()) {
+														List<Object> temp = new ArrayList<Object>();
+														Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+														while (recItemIte2.hasNext()) {
+															RecordingItem recItem2 = recItemIte2.next();
+															if (recItem2.isSelected()) {
+																if (recItem2.getProcessingType().equals("top100")) {
+																	itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
+																} else {
+																	temp.add(matcher2.group(count + 1));
+																}
+															}
+															count++;
+														}
+														t100.remove(t100.firstKey());
+														t100.put(itemIndex, temp);
+													}
 												}
+
 											}
-
 										}
-									}
 
-									else if (((ReportRecording) rec).getSubType().equals("sum") && rec.getIsActive()) {
-										double itemIndex = 0;
-										List<Object> temp = new ArrayList<Object>();
-										Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-										while (recItemIte2.hasNext()) {
-											RecordingItem recItem2 = recItemIte2.next();
-											if (recItem2.isSelected()) {
-												if (recItem2.getProcessingType().equals("sum")) {
-													itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
+										else if (((ReportRecording) rec).getSubType().equals("sum") && rec.getIsActive()) {
+											double itemIndex = 0;
+											List<Object> temp = new ArrayList<Object>();
+											Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
+											while (recItemIte2.hasNext()) {
+												RecordingItem recItem2 = recItemIte2.next();
+												if (recItem2.isSelected()) {
+													if (recItem2.getProcessingType().equals("sum")) {
+														itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
+													} else {
+														temp.add(matcher2.group(count + 1));
+													}
+												}
+												count++;
+											}
+											Map<List<Object>, Double> sumMap = sumReport.get(source).get(rec);
+											if (sumMap == null) {
+												sumReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Double>());
+												sumMap = sumReport.get(source).get(rec);
+											}
+											synchronized (sumMap) {
+												Object sum = sumMap.get(temp);
+
+												if (sum == null) {
+													sumMap.put(temp, (double) itemIndex);
 												} else {
-													temp.add(matcher2.group(count + 1));
+													sumMap.put(temp, (double) sum + itemIndex);
 												}
-											}
-											count++;
-										}
-										Map<List<Object>, Double> sumMap = sumReport.get(source).get(rec);
-										if (sumMap == null) {
-											sumReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Double>());
-											sumMap = sumReport.get(source).get(rec);
-										}
-										synchronized (sumMap) {
-											Object sum = sumMap.get(temp);
-
-											if (sum == null) {
-												sumMap.put(temp, (double) itemIndex);
-											} else {
-												sumMap.put(temp, (double) sum + itemIndex);
 											}
 										}
 									}
 								}
 							}
-						}
-						if (timings || matches) {
-							arrayBefore = matchTimings.get(rec.getName());
-							if (arrayBefore != null) {
-								// logger.info(file.getName() + " contains " +
-								// arrayBefore);
-								// 0-> sum of time for success matching of given
-								// recording ; 1-> sum of time for failed
-								// matching ; 2-> count of match attempts,
-								// 3->count of success attempts
-								if (timings) {
-									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-									timing0 = arrayBefore[0] + recordingMatchEnd - recordingMatchStart;
-									timing1 = arrayBefore[1];
-								}
-								if (matches) {
-									match0 = arrayBefore[2] + 1;
-									match1 = arrayBefore[3] + 1;
-								}
-								long[] array = { timing0, timing1, match0, match1 };
-								matchTimings.put(rec.getName(), array);
-							} else {
-								if (timings) {
-									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-									long[] array = { recordingMatchEnd - recordingMatchStart, 0, 1, 1 };
+							if (timings || matches) {
+								arrayBefore = matchTimings.get(rec.getName());
+								if (arrayBefore != null) {
+									// logger.info(file.getName() + " contains "
+									// +
+									// arrayBefore);
+									// 0-> sum of time for success matching of
+									// given
+									// recording ; 1-> sum of time for failed
+									// matching ; 2-> count of match attempts,
+									// 3->count of success attempts
+									if (timings) {
+										recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+										timing0 = arrayBefore[0] + recordingMatchEnd - recordingMatchStart;
+										timing1 = arrayBefore[1];
+									}
+									if (matches) {
+										match0 = arrayBefore[2] + 1;
+										match1 = arrayBefore[3] + 1;
+									}
+									long[] array = { timing0, timing1, match0, match1 };
 									matchTimings.put(rec.getName(), array);
 								} else {
-									long[] array = { 0, 0, 1, 1 };
-									matchTimings.put(rec.getName(), array);
+									if (timings) {
+										recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+										long[] array = { recordingMatchEnd - recordingMatchStart, 0, 1, 1 };
+										matchTimings.put(rec.getName(), array);
+									} else {
+										long[] array = { 0, 0, 1, 1 };
+										matchTimings.put(rec.getName(), array);
+									}
 								}
 							}
-						}
-					} else {
-						if (timings || matches) {
-							arrayBefore = matchTimings.get(rec.getName());
-							if (arrayBefore != null) {
-								// logger.info(file.getName() + " contains " +
-								// arrayBefore);
-								// 0-> sum of time for success matching of given
-								// recording ; 1-> sum of time for failed
-								// matching ; 2-> count of match attempts,
-								// 3->count of success attempts
-								if (timings) {
-									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-									timing0 = arrayBefore[0];
-									timing1 = arrayBefore[1] + recordingMatchEnd - recordingMatchStart;
-								}
-								if (matches) {
-									match0 = arrayBefore[2] + 1;
-									match1 = arrayBefore[3];
-								}
-								long[] array = { timing0, timing1, match0, match1 };
-								matchTimings.put(rec.getName(), array);
-							} else {
-								if (timings) {
-									recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
-									long[] array = { 0, recordingMatchEnd - recordingMatchStart, 1, 0 };
+						} else {
+							if (timings || matches) {
+								arrayBefore = matchTimings.get(rec.getName());
+								if (arrayBefore != null) {
+									// logger.info(file.getName() + " contains "
+									// +
+									// arrayBefore);
+									// 0-> sum of time for success matching of
+									// given
+									// recording ; 1-> sum of time for failed
+									// matching ; 2-> count of match attempts,
+									// 3->count of success attempts
+									if (timings) {
+										recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+										timing0 = arrayBefore[0];
+										timing1 = arrayBefore[1] + recordingMatchEnd - recordingMatchStart;
+									}
+									if (matches) {
+										match0 = arrayBefore[2] + 1;
+										match1 = arrayBefore[3];
+									}
+									long[] array = { timing0, timing1, match0, match1 };
 									matchTimings.put(rec.getName(), array);
 								} else {
-									long[] array = { 0, 0, 1, 0 };
-									matchTimings.put(rec.getName(), array);
+									if (timings) {
+										recordingMatchEnd = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+										long[] array = { 0, recordingMatchEnd - recordingMatchStart, 1, 0 };
+										matchTimings.put(rec.getName(), array);
+									} else {
+										long[] array = { 0, 0, 1, 0 };
+										matchTimings.put(rec.getName(), array);
+									}
 								}
 							}
 						}
 					}
-				}
 				}
 				lineCount++;
 				// timing
