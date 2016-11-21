@@ -68,7 +68,6 @@ import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
 import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
-import logdruid.engine.Miner;
 import logdruid.ui.MainFrame;
 
 import org.jfree.data.time.SimpleTimePeriod;
@@ -1194,7 +1193,6 @@ else {return null;}
 		Iterator<Entry<Source, Map<Integer, FileRecord>>> ite = cd.sourceFileArrayListMap.entrySet().iterator();
 		while (ite.hasNext()) {
 			final Map.Entry sourcePairs = ite.next();
-
 			final Source src = (Source) sourcePairs.getKey();
 			Map<Integer, FileRecord> sourceFiles = (Map<Integer, FileRecord>) sourcePairs.getValue();
 			sourceFileGroup = getSourceFileGroup(sourceFiles, src, repo,order);

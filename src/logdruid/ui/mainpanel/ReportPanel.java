@@ -128,9 +128,8 @@ public class ReportPanel extends JPanel {
 		records = rep.getReportRecordings(mineResultSet1,true);
 		Iterator it = records.iterator();
 		while (it.hasNext()) {
-			logger.info("Report panel load");
 			Recording record = (Recording) it.next();
-			logger.info(record.getName());
+			logger.debug("Report panel load:"+record.getName());
 			stats = DataVault.getRecordingStats(record.getName());
 			if (record.getIsActive() ) {
 				//&& ((Map<Recording, Map<List<Object>, Long>>)(mineResultSet1.getOccurenceReport().values())).get(record).size()>0

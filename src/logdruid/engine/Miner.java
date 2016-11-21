@@ -20,24 +20,20 @@ import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.lang.management.ManagementFactory;
@@ -59,6 +55,8 @@ import logdruid.data.mine.FileMineResultSet;
 import logdruid.data.mine.FileRecord;
 import logdruid.data.mine.MineResult;
 import logdruid.data.mine.MineResultSet;
+import logdruid.data.mine.ReportData;
+import logdruid.data.mine.ReportItem;
 import logdruid.data.record.EventRecording;
 import logdruid.data.record.Recording;
 import logdruid.data.record.RecordingItem;
@@ -66,8 +64,8 @@ import logdruid.data.record.ReportRecording;
 import logdruid.data.record.StatRecording;
 import logdruid.ui.MainFrame;
 import logdruid.util.ClassCache;
-import logdruid.util.PatternCache;
 import logdruid.util.DataMiner;
+import logdruid.util.PatternCache;
 import logdruid.util.ThreadLocalDateFormatMap;
 
 public class Miner {
@@ -77,21 +75,22 @@ public class Miner {
 	static long estimatedTime = 0;
 	static long startTime = 0;
 	static List<File> listOfFiles = null;
-	static final Map<Source, Map<Recording, Map<List<Object>, Long>>> occurenceReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Long>>>();
-	static final Map<Source, Map<Recording, Map<List<Object>, Double>>> sumReport = new ConcurrentHashMap<Source, Map<Recording, Map<List<Object>, Double>>>();
-	static final Map<Source, Map<Recording, SortedMap<Double, List<Object>>>> top100Report = new ConcurrentHashMap<Source, Map<Recording, SortedMap<Double, List<Object>>>>();;
-
+	static ReportData reportData=new ReportData();
+	static Thread consumer;
+	static Thread consumer2;
+	static final BlockingQueue<ReportItem> reportQueue=new LinkedBlockingQueue<ReportItem>();
+	
 	public static MineResultSet gatherMineResultSet(ChartData cd, final Repository repo, final MainFrame mainFrame) {
 		String test = Preferences.getPreference("ThreadPool_Group");
 		int ini = Integer.parseInt(test);
-		logger.info("gatherMineResultSet parallelism: " + ini);
+		logger.debug("gatherMineResultSet parallelism: " + ini);
 		ThreadPool_GroupWorkers = Executors.newFixedThreadPool(ini);
 		Collection<Callable<MineResult>> tasks = new ArrayList<Callable<MineResult>>();
 		MineResultSet mineResultSet = new MineResultSet();
-		occurenceReport.clear();
-		sumReport.clear();
-		top100Report.clear();
-
+		reportData.clear();
+		ReportProcessor reportProcessor= new ReportProcessor(reportQueue, reportData);
+		consumer = new Thread(reportProcessor);
+		consumer.start();
 		startTime = System.currentTimeMillis();
 		/*
 		 * try { cd = DataMiner.gatherSourceData(repo); } catch (Exception e) {
@@ -110,7 +109,8 @@ public class Miner {
 					//testing as a group might have no files
 					if (pairs.getValue() != null) {
 						progressCount = progressCount + pairs.getValue().size();
-						logger.debug("Source:" + source.getSourceName() + ", group: " + pairs.getKey() + " = " + pairs.getValue().toString());
+						if (logger.isDebugEnabled())
+							logger.debug("Source:" + source.getSourceName() + ", group: " + pairs.getKey() + " = " + pairs.getValue().toString());
 						tasks.add(new Callable<MineResult>() {
 							public MineResult call() throws Exception {
 								return Miner.mine(pairs.getKey(), pairs.getValue(), repo, source, Preferences.isStats(), Preferences.isTimings(),
@@ -159,10 +159,10 @@ public class Miner {
 		}
 		estimatedTime = System.currentTimeMillis() - startTime;
 		logger.info("gathering time: " + estimatedTime);
-
-		mineResultSet.setOccurenceReport(occurenceReport);
-		mineResultSet.setTop100Report(top100Report);
-		mineResultSet.setSumReport(sumReport);
+		
+		mineResultSet.setOccurenceReport(reportData.occurenceReport);
+		mineResultSet.setTop100Report(reportData.top100Report);
+		mineResultSet.setSumReport(reportData.sumReport);
 		return mineResultSet;
 
 	}
@@ -170,7 +170,7 @@ public class Miner {
 	// handle gathering for ArrayList of file for one source-group
 	public static MineResult mine(String group, ArrayList<FileRecord> arrayList, final Repository repo, final Source source, final boolean stats,
 			final boolean timings, final boolean matches, final MainFrame mainFrame) {
-		logger.info("call to mine for source " + source.getSourceName() + " on group " + group);
+		long mineStartTime =ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
 		ThreadPool_FileWorkers = Executors.newFixedThreadPool(Integer.parseInt(Preferences.getPreference("ThreadPool_File")));
 		final int miningChunk = Integer.parseInt(Preferences.getPreference("MiningFileChunk"));
 		Date startDate = null;
@@ -262,7 +262,7 @@ public class Miner {
 
 		List<Future<FileMineResult>> results = null;
 		try {
-			results = ThreadPool_FileWorkers.invokeAll(tasks, 100000, TimeUnit.SECONDS);
+			results = ThreadPool_FileWorkers.invokeAll(tasks, 1000000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -288,6 +288,7 @@ public class Miner {
 			}
 
 		}
+
 		ArrayList<Object[]> fileDates = new ArrayList<Object[]>();
 		Iterator<Object> mapArrayListIterator = mapArrayList.iterator();
 		while (mapArrayListIterator.hasNext()) {
@@ -392,7 +393,9 @@ public class Miner {
 			}
 
 		}
-
+		
+		long postMineStartTime = ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
+		logger.info((postMineStartTime - mineStartTime)/1000000+"ms for source " + source.getSourceName() + " on group " + group);
 		FileMineResultSet fMRS = new FileMineResultSet(fileDates, statMap, eventMap, timingStatsMap, fileLine, startDate, endDate);
 		return new MineResult(group, fMRS, arrayList, repo, source);
 	}
@@ -400,6 +403,7 @@ public class Miner {
 	// handle gathering for a single file chunk
 	public static FileMineResult chunkMine(int offset, FileRecord fileRecord, ArrayList<String[]> dataBlock, Map<Recording, String> recMatch1, Repository repo,
 			Source source, boolean stats, boolean timings, boolean matches, final MainFrame mainFrame) {
+
 		ExtendedTimeSeries ts = null;
 		PatternCache patternCache = new PatternCache();
 		ClassCache classCache = new ClassCache();
@@ -411,7 +415,7 @@ public class Miner {
 		FileReader flstr = null;
 		BufferedReader buf1st;
 		Matcher matcher;
-		Matcher matcher2;
+
 		FixedMillisecond fMS = null;
 		DateFormat df = null;
 		int statHit = 0;
@@ -439,16 +443,7 @@ public class Miner {
 		}
 
 		logger.debug("chunkMine on " + fileRecord.getCompletePath() + " - offset:" + offset);
-		if (!occurenceReport.containsKey(source)) {
-			occurenceReport.put(source, new ConcurrentHashMap<Recording, Map<List<Object>, Long>>());
-		}
-		if (!top100Report.containsKey(source)) {
-			top100Report.put(source, new ConcurrentHashMap<Recording, SortedMap<Double, List<Object>>>());
-		}
 
-		if (!sumReport.containsKey(source)) {
-			sumReport.put(source, new ConcurrentHashMap<Recording, Map<List<Object>, Double>>());
-		}
 
 		String line;
 		try {
@@ -488,7 +483,8 @@ public class Miner {
 							}
 							// logger.info("1**** matched: " + line);
 							ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
-							matcher2 = patternCache.getMatcher((String) me.getValue(), rec.isCaseSensitive(), line);
+							Matcher matcher2 = patternCache.getNewMatcher((String) me.getValue(), rec.isCaseSensitive(), line);
+							
 							if (matcher2.find()) {
 								if (stats) {
 									if (isStatRecording) {
@@ -742,116 +738,11 @@ public class Miner {
 									}
 								} else {
 									if (gatherReports) {
-										int count = 0;
-										if (((ReportRecording) rec).getSubType().equals("histogram") && rec.getIsActive()) {
-											List<Object> temp = new ArrayList<Object>();
-											Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-											while (recItemIte2.hasNext()) {
-												RecordingItem recItem2 = recItemIte2.next();
-												if (recItem2.isSelected()) {
-													temp.add(matcher2.group(count + 1));
-												}
-												count++;
-											}
-											Map<List<Object>, Long> occMap = occurenceReport.get(source).get(rec);
-											if (occMap == null) {
-												occurenceReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Long>());
-												occMap = occurenceReport.get(source).get(rec);
-											}
-											synchronized (occMap) {
-												Object occ = occMap.get(temp);
-
-												if (occ == null) {
-													occMap.put(temp, (long) 1);
-												} else {
-													occMap.put(temp, (long) occ + 1);
-												}
-											}
-										} else if (((ReportRecording) rec).getSubType().equals("top100") && rec.getIsActive()) {
-											double itemIndex = 0;
-
-											SortedMap<Double, List<Object>> t100 = top100Report.get(source).get(rec);
-											if (t100 == null) {
-												top100Report.get(source).put(rec, Collections.synchronizedSortedMap(new TreeMap<Double, List<Object>>()));
-												t100 = top100Report.get(source).get(rec);
-											}
-											try {
-												itemIndex = (double) Double.valueOf(matcher2.group(((ReportRecording) rec).getTop100RecordID() + 1));
-											} catch (NullPointerException npe) {
-												// nothing
-											} catch (NumberFormatException nfe) {
-												// nothing
-												logger.info(matcher2.group(0));
-												logger.info(matcher2.group(((ReportRecording) rec).getTop100RecordID() + 1));
-											}
-											synchronized (t100) {
-												if (t100.size() < 100) {
-													List<Object> temp = new ArrayList<Object>();
-													Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-													while (recItemIte2.hasNext()) {
-														RecordingItem recItem2 = recItemIte2.next();
-														if (recItem2.isSelected()) {
-															if (recItem2.getProcessingType().equals("top100")) {
-																itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
-															} else {
-																temp.add(matcher2.group(count + 1));
-															}
-														}
-														count++;
-													}
-													t100.put(itemIndex, temp);
-												} else if (t100.size() == 100) {
-													if (itemIndex > t100.firstKey()) {
-														List<Object> temp = new ArrayList<Object>();
-														Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-														while (recItemIte2.hasNext()) {
-															RecordingItem recItem2 = recItemIte2.next();
-															if (recItem2.isSelected()) {
-																if (recItem2.getProcessingType().equals("top100")) {
-																	itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
-																} else {
-																	temp.add(matcher2.group(count + 1));
-																}
-															}
-															count++;
-														}
-														t100.remove(t100.firstKey());
-														t100.put(itemIndex, temp);
-													}
-												}
-
-											}
-										}
-
-										else if (((ReportRecording) rec).getSubType().equals("sum") && rec.getIsActive()) {
-											double itemIndex = 0;
-											List<Object> temp = new ArrayList<Object>();
-											Iterator<RecordingItem> recItemIte2 = recordingItem.iterator();
-											while (recItemIte2.hasNext()) {
-												RecordingItem recItem2 = recItemIte2.next();
-												if (recItem2.isSelected()) {
-													if (recItem2.getProcessingType().equals("sum")) {
-														itemIndex = (double) Double.valueOf(matcher2.group(count + 1));
-													} else {
-														temp.add(matcher2.group(count + 1));
-													}
-												}
-												count++;
-											}
-											Map<List<Object>, Double> sumMap = sumReport.get(source).get(rec);
-											if (sumMap == null) {
-												sumReport.get(source).put(rec, new ConcurrentHashMap<List<Object>, Double>());
-												sumMap = sumReport.get(source).get(rec);
-											}
-											synchronized (sumMap) {
-												Object sum = sumMap.get(temp);
-
-												if (sum == null) {
-													sumMap.put(temp, (double) itemIndex);
-												} else {
-													sumMap.put(temp, (double) sum + itemIndex);
-												}
-											}
+										try {
+											reportQueue.put(new ReportItem(source,line, matcher2,(ReportRecording)rec));
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
 										}
 									}
 								}

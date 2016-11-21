@@ -11,7 +11,6 @@
 package logdruid.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -22,18 +21,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.FlowLayout;
 
 import javax.swing.JCheckBox;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
-import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.JViewport;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.plaf.basic.BasicBorders.SplitPaneBorder;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -55,7 +50,6 @@ import logdruid.data.Repository;
 import logdruid.data.Source;
 import logdruid.data.mine.ChartData;
 import logdruid.data.mine.DataVault;
-import logdruid.data.mine.MineResultSet;
 import logdruid.engine.Miner;
 import logdruid.ui.chart.GraphPanel;
 import logdruid.ui.dialog.FileChooserDialog;
@@ -78,7 +72,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 
 import org.apache.log4j.Logger;
-import org.jfree.chart.ChartPanel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -89,7 +82,6 @@ import java.util.ArrayList;
 import java.awt.Font;
 
 import javax.swing.JProgressBar;
-import javax.swing.border.MatteBorder;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -97,8 +89,6 @@ import java.awt.GridBagConstraints;
 import javax.swing.BoxLayout;
 
 import java.awt.Insets;
-
-import javax.swing.border.LineBorder;
 
 public class MainFrame extends JFrame {
 	private static Logger logger = Logger.getLogger(DataMiner.class.getName());
@@ -689,7 +679,7 @@ public class MainFrame extends JFrame {
 						if (working==false){
 		            	working=true;
 		            	try {
-						logger.info("Reports panel loading ");				
+						logger.debug("Reports panel loading ");				
 						if (DataVault.getMineResultSet() == null) {							
 						thiis.setValueNow(0);
 						progressBarValue=0;	
@@ -707,7 +697,7 @@ public class MainFrame extends JFrame {
 						panel_1.add(reportPanel);
 						panel_1.validate();
 						panel_1.repaint();
-						logger.info("Report panel loaded ");
+						logger.debug("Report panel loaded ");
 		            	} catch (Exception e){
 							logger.error("exception: ", e);
 							working=false;
@@ -733,7 +723,7 @@ public class MainFrame extends JFrame {
 							if (working==false){
 			            	working=true;
 			            	try{
-							logger.info("Chart panel loading ");				
+							logger.debug("Chart panel loading ");				
 							if (DataVault.getMineResultSet() == null) {
 							thiis.setValueNow(0);
 							progressBarValue=0;	
@@ -750,7 +740,7 @@ public class MainFrame extends JFrame {
 							panel_1.add(graphPanel);
 							panel_1.validate();
 							panel_1.repaint();
-							logger.info("Chart panel loaded ");
+							logger.debug("Chart panel loaded ");
 		            	} catch (Exception e){
 							logger.error("exception: ", e);
 						}
