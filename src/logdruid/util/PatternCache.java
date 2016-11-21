@@ -29,25 +29,30 @@ public class PatternCache {
 			return temp;
 		} else{
 			if (caseSensitive){
-				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp));
+				pattern.put(regexp+caseSensitive, Pattern.compile(regexp));
 			}else{
-				pattern.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+				pattern.put(regexp+caseSensitive, Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
 			}			
 		}
-		return pattern.get(regexp+Boolean.toString(caseSensitive));
+		return pattern.get(regexp+caseSensitive);
 	}
 	
 	public Matcher getMatcher(String regexp, boolean caseSensitive,String str) {
-		Matcher tempMatcher=matcher.get(regexp+Boolean.toString(caseSensitive));
+		Matcher tempMatcher=matcher.get(regexp+caseSensitive);
 		if (tempMatcher!=null){
 			return tempMatcher.reset(str);
 		} else{
 			if (caseSensitive){
-				matcher.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp).matcher(str));
+				matcher.put(regexp+caseSensitive, getPattern(regexp,caseSensitive).matcher(str));
 			}else{
-				matcher.put(regexp+Boolean.toString(caseSensitive), Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(str));	
+				matcher.put(regexp+caseSensitive, getPattern(regexp,caseSensitive).matcher(str));	
 			}
 		}
-		return matcher.get(regexp+Boolean.toString(caseSensitive));
+		return matcher.get(regexp+caseSensitive);
 	}
+	
+	public Matcher getNewMatcher(String regexp, boolean caseSensitive,String str) {
+		return getPattern(regexp,caseSensitive).matcher(str);
+	}
+	
 }
