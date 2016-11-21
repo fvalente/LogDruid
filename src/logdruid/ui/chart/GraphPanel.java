@@ -151,7 +151,7 @@ public class GraphPanel extends JPanel {
 	long estimatedTime = 0;
 	long startTime = 0;
 
-	XYPlot plot = null;
+//	XYPlot plot = null;
 	JFreeChart chart = null;
 	final StandardChartTheme chartTheme = (StandardChartTheme) org.jfree.chart.StandardChartTheme.createJFreeTheme();
 	final Font oldSmallFont = chartTheme.getSmallFont();
@@ -168,7 +168,6 @@ public class GraphPanel extends JPanel {
 	 */
 
 	public GraphPanel(final Repository repo, final JPanel panel_2, final MineResultSet mineResultSet1, final ChartData cd1, final MainFrame _mainFrame) {
-	//	ArrayUtils.reverse(colors2);
 		this.repo=repo;
 		this.panel_2=panel_2;
 		mineResultSet=mineResultSet1;
@@ -316,7 +315,6 @@ public class GraphPanel extends JPanel {
 				selected=groupCheckBox.get(((Source)pairs.getKey()).getSourceName());
 			} else {
 				groupCheckBox.put(((Source)pairs.getKey()).getSourceName(),selected);
-				
 			}
 			
 			JCheckBox chckbxGroup = new JCheckBox(((Source)pairs.getKey()).getSourceName()+"("+groupCount+"/"+totalGroupCount+")");
@@ -393,9 +391,7 @@ public class GraphPanel extends JPanel {
 						
 						if (!statMap.entrySet().isEmpty() || !eventMap.entrySet().isEmpty()) {
 							JPanel checkboxPanel = new JPanel(new WrapLayout());
-
 							checkboxPanel.setBackground(Color.white);
-
 							int count = 1;
 							int countEvent = 1;
 							int countStat= 1;
@@ -411,8 +407,6 @@ public class GraphPanel extends JPanel {
 									false // url
 									);
 			//				TextTitle my_Chart_title = new TextTitle(mr.getSourceID() + " " + mr.getGroup(), new Font("Verdana", Font.BOLD, 17));
-
-							
 							final DateAxis domainAxis1 = new DateAxis();
 							domainAxis1.setTickLabelsVisible(true);
 							logger.debug("getRange: " + domainAxis1.getRange());
@@ -468,6 +462,8 @@ public class GraphPanel extends JPanel {
 							plot1.setDomainAxis(0,domainAxis);
 							plot1.setDomainCrosshairVisible(true);
 							plot1.setRangeCrosshairVisible(true);
+							plot1.setOutlineStroke(new BasicStroke((float) 1));
+					//		plot1.setOutlinePaint(Color.BLACK);
 							plot1.mapDatasetToDomainAxis(0, 1);
 
 							Iterator eventMapIterator = eventMap.entrySet().iterator();
