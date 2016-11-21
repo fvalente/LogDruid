@@ -80,10 +80,9 @@ public class PreferencePanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				Component[] comp=panel_1.getComponents();
 				int i=0;
+				logger.debug(Preferences.getPreferences());
 				while (i<comp.length-1){
-					logger.info(comp.toString());
-					logger.info(Preferences.getPreferences());
-					logger.info(((JLabel)((JPanel)comp[i]).getComponents()[0]).getText()+", "+((JTextField)((JPanel)comp[i]).getComponents()[1]).getText());
+					logger.debug(((JLabel)((JPanel)comp[i]).getComponents()[0]).getText()+" = "+((JTextField)((JPanel)comp[i]).getComponents()[1]).getText());
 					Preferences.setPreference(((JLabel)((JPanel)comp[i]).getComponents()[0]).getText(), ((JTextField)((JPanel)comp[i]).getComponents()[1]).getText());
 					i++;
 				}

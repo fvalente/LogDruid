@@ -920,38 +920,36 @@ public class DataMiner {
 						// logger.info("file: "+fileName);
 						try {
 
-							if (logger.isDebugEnabled()){
-								logger.debug("patternString: " + patternString);
-								logger.debug("filename: " + fileName);
+							if (logger.isTraceEnabled()){
+								logger.trace("patternString: " + patternString);
+								logger.trace("filename: " + fileName);
 							}
 							matcher = patternCache.getMatcher(patternString + ".*",rec.isCaseSensitive(),
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(fileName.getFile().getCanonicalPath()).toURI()).getPath());
 							if (matcher.find()) {
-								if (logger.isDebugEnabled())
-									logger.debug("found filename " + fileName + " with group");
+								if (logger.isTraceEnabled())
+									logger.trace("found filename " + fileName + " with group");
 
 								key = "";
 								int i = 0;
 								for (i = 0; i < matcher.groupCount(); i++) {
-										if (logger.isDebugEnabled())
-											logger.debug("group matched : " + matcher.group(i));
+										if (logger.isTraceEnabled())
+											logger.trace("group matched : " + matcher.group(i));
 										key += matcher.group(i + 1) + " ";
 								}
-								if (logger.isDebugEnabled())
-									logger.debug("i : " + i + " nbRec: " + nbRec);
+								if (logger.isTraceEnabled())
+									logger.trace("i : " + i + " nbRec: " + nbRec);
 								if (i == nbRec) {
-									if (logger.isDebugEnabled())
-										logger.debug(" passed!");
 									if (!sourceFileGroup.containsKey(key)) {
 										ArrayList<FileRecord> v = new ArrayList<FileRecord>();
 										v.add(fileName);
 										sourceFileGroup.put(key, v);
-										if (logger.isDebugEnabled())
-											logger.debug(" to key: " + key + " added : " + fileName);
+										if (logger.isTraceEnabled())
+											logger.trace(" to key: " + key + " added : " + fileName);
 									} else {
 										sourceFileGroup.get(key).add(fileName);
-										if (logger.isDebugEnabled())
-											logger.debug(" to key: " + key + " added : " + fileName);
+										if (logger.isTraceEnabled())
+											logger.trace(" to key: " + key + " added : " + fileName);
 
 									}
 
@@ -1041,8 +1039,8 @@ else {return null;}
 				if (rec.getIsActive() == true) {
 					ArrayList<RecordingItem> recordingItem = ((Recording) rec).getRecordingItem();
 					Iterator<RecordingItem> recItemIte = recordingItem.iterator();
-					if (logger.isDebugEnabled()) {
-						logger.debug("Record: " + rec.getName());
+					if (logger.isTraceEnabled()) {
+						logger.trace("Record: " + rec.getName());
 					}
 					sb.setLength(0);
 					// processing each line of the table
@@ -1063,9 +1061,9 @@ else {return null;}
 						sb.append(stAfter);				
 					}
 						recMatch.put(rec, sb.toString());
-					if (logger.isDebugEnabled()) {
-						logger.debug("2**** regexp: " +rec.getRegexp());
-						logger.debug("Pattern: " + sb.toString());
+					if (logger.isTraceEnabled()) {
+						logger.trace("regexp: " +rec.getRegexp());
+						logger.trace("Pattern: " + sb.toString());
 					}
 				}
 			}
@@ -1157,8 +1155,8 @@ else {return null;}
 							Matcher matcher = patternCache.getMatcher(s1,true,
 									new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI()).getPath());
 
-							if (logger.isDebugEnabled()) {
-								logger.debug(i
+							if (logger.isTraceEnabled()) {
+								logger.trace(i
 										+ " matching file: "
 										+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI())
 												.getPath() + " with pattern: " + s1);
@@ -1168,13 +1166,13 @@ else {return null;}
 
 								FileRecord tempFileRecord = new FileRecord(i, new File(listOfFiles.get(i).getCanonicalPath()));
 								cd.selectedSourceFiles.put(i, tempFileRecord);
-								if (logger.isDebugEnabled()) {
+								if (logger.isTraceEnabled()) {
 
-									logger.debug("Source: " + source.getSourceName() + " file: " + listOfFiles.get(i).getCanonicalPath());
-									logger.debug(" Graphpanel file: "
+									logger.trace("Source: " + source.getSourceName() + " file: " + listOfFiles.get(i).getCanonicalPath());
+									logger.trace(" Graphpanel file: "
 											+ new File(repo.getBaseSourcePath()).toURI().relativize(new File(listOfFiles.get(i).getCanonicalPath()).toURI())
 													.getPath());
-									logger.debug(tempFileRecord.getCompletePath());
+									logger.trace(tempFileRecord.getCompletePath());
 								}
 
 							}

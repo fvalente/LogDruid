@@ -306,8 +306,8 @@ public class Miner {
 				} else if (fMR.getStartDate().before(startDate)) {
 					startDate = fMR.getStartDate();
 				}
-				if (logger.isDebugEnabled()) {
-					logger.debug("1: " + fMR.getStartDate() + "2: " + fMR.getEndDate() + "3: " + fMR.getFile());
+				if (logger.isTraceEnabled()) {
+					logger.trace("1: " + fMR.getStartDate() + "2: " + fMR.getEndDate() + "3: " + fMR.getFile());
 				}
 				fileDates.add(new Object[] { fMR.getStartDate(), fMR.getEndDate(), fMR.getFile() });
 			}
@@ -368,13 +368,13 @@ public class Miner {
 			it = fMR.fileLineDateMap.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, Map<Date, FileLine>> pairs = (Map.Entry<String, Map<Date, FileLine>>) it.next();
-				if (logger.isDebugEnabled()) {
-					logger.debug("Entry<String,Map<Date, FileLine>> : " + pairs);
+				if (logger.isTraceEnabled()) {
+					logger.trace("Entry<String,Map<Date, FileLine>> : " + pairs);
 				}
 				if (!fileLine.containsKey(pairs.getKey())) {
 					fileLine.put(pairs.getKey(), pairs.getValue());
-					if (logger.isDebugEnabled()) {
-						logger.debug("groupFileLineMap.put " + pairs.getKey() + " -> " + pairs.getValue());
+					if (logger.isTraceEnabled()) {
+						logger.trace("groupFileLineMap.put " + pairs.getKey() + " -> " + pairs.getValue());
 					}
 				} else {
 					Map<Date, FileLine> ts = fileLine.get(pairs.getKey());
@@ -383,8 +383,8 @@ public class Miner {
 					while (it2.hasNext()) {
 						Map.Entry<Date, FileLine> pairs2 = (Map.Entry<Date, FileLine>) it2.next();
 						fileLine.get(pairs.getKey()).put(pairs2.getKey(), pairs2.getValue());
-						if (logger.isDebugEnabled()) {
-							logger.debug("groupFileLineMap.put " + pairs2.getKey() + " -> " + pairs2.getValue().getFileId() + ":"
+						if (logger.isTraceEnabled()) {
+							logger.trace("groupFileLineMap.put " + pairs2.getKey() + " -> " + pairs2.getValue().getFileId() + ":"
 									+ pairs2.getValue().getLineNumber());
 						}
 					}
@@ -441,8 +441,10 @@ public class Miner {
 		if (forceSourceDateFormat == true) {
 			sourceDateFormat = ThreadLocalDateFormatMap.getInstance().getDateFormat(source.getDateFormat().getDateFormat());
 		}
-
-		logger.debug("chunkMine on " + fileRecord.getCompletePath() + " - offset:" + offset);
+		if (logger.isTraceEnabled()){
+			logger.trace("chunkMine on " + fileRecord.getCompletePath() + " - offset:" + offset);	
+		}
+		
 
 
 		String line;
@@ -511,12 +513,10 @@ public class Miner {
 													fastDateFormat = ThreadLocalDateFormatMap.getInstance().getDateFormat(df.getDateFormat());
 													date1 = fastDateFormat.parse(matcher2.group(count));
 												}
-												if (logger.isDebugEnabled())
-													logger.debug("4**** rec name" + rec.getName() + " df: " + df.getId());
-												// fastDateFormat =
-												// FastDateFormat.getInstance(df.getDateFormat());
-												if (logger.isDebugEnabled())
-													logger.debug("4b**** " + df.getDateFormat() + " date: " + date1.toString());
+												if (logger.isTraceEnabled()){
+													logger.trace("4**** rec name: " + rec.getName());
+													logger.trace("4b*** date: " + date1.toString());
+												}
 											} catch (ParseException e) {
 												// TODO Auto-generated catch
 												// block
@@ -524,9 +524,9 @@ public class Miner {
 											}
 										} else if (date1 != null) {
 											if (recItem2.isSelected()) {
-												if (logger.isDebugEnabled()) {
-													logger.debug("FileRecord: " + offset + fileRecord.getFile().getName() + ", Source: "
-															+ source.getSourceName() + ", " + recItem2.getName() + ", " + fileRecord.getFile().getName() + ", "
+												if (logger.isTraceEnabled()) {
+													logger.trace("Offset: "+ offset + " FileRecord: " + fileRecord.getFile().getName() + ", Source: "
+															+ source.getSourceName() + ", RecordingItem: " + recItem2.getName() + ", offset+linecount"
 															+ ((int) offset + lineCount));
 												}
 												// recording line of match in
@@ -592,8 +592,8 @@ public class Miner {
 													ts = statMap.get(recItem2.getName());
 													if (ts == null) {
 														ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
-														if (logger.isDebugEnabled())
-															logger.debug("5**** Adding record to Map: " + recItem2.getName());
+														if (logger.isTraceEnabled())
+															logger.trace("5**** Adding record to Map: " + recItem2.getName());
 													}
 													fMS = new FixedMillisecond(date1);
 													if (matcher2.group(count) == null) {
@@ -620,8 +620,8 @@ public class Miner {
 														array[1] = array[1] + 1;
 														array[0] = array[0] + 1;
 														ts.setStat(array);
-														if (logger.isDebugEnabled())
-															logger.debug("stats " + array[0] + " " + array[1]);
+														if (logger.isTraceEnabled())
+															logger.trace("stats " + array[0] + " " + array[1]);
 													}
 													statMap.put(recItem2.getName(), ts);
 													// performance: add the
@@ -634,8 +634,8 @@ public class Miner {
 													ts = eventMap.get(recItem2.getName());
 													if (ts == null) {
 														ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
-														if (logger.isDebugEnabled())
-															logger.debug("5**** Adding record to Map: " + recItem2.getName());
+														if (logger.isTraceEnabled())
+															logger.trace("5**** Adding record to Map: " + recItem2.getName());
 													}
 													// SimpleTimePeriod stp =
 													// new
@@ -718,8 +718,8 @@ public class Miner {
 														array[1] = array[1] + 1;
 														array[0] = array[0] + 1;
 														ts.setStat(array);
-														if (logger.isDebugEnabled())
-															logger.debug("stats " + array[0] + " " + array[1]);
+														if (logger.isTraceEnabled())
+															logger.trace("stats " + array[0] + " " + array[1]);
 													}
 													eventMap.put(recItem2.getName(), ts);
 

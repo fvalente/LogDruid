@@ -52,9 +52,9 @@ public class FileMineResult {
 		eventGroupTimeSeries = _eventGroupTimeSeries;
 		matchingStats = _matchingStats;
 		fileLineDateMap=_fileLineDateMap;
-		if (logger.isDebugEnabled()) {
-			logger.debug(file.getFile().getName()+_fileLineDateMap.toString());
-			logger.debug("start date: " + startDate2 + " end date: " + endDate2);
+		if (logger.isTraceEnabled()) {
+			logger.trace(file.getFile().getName()+_fileLineDateMap.toString());
+			logger.trace("start date: " + startDate2 + " end date: " + endDate2);
 		}
 
 	}
