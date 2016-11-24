@@ -587,7 +587,7 @@ public class Miner {
 												} else if (date1.before(startDate)) {
 													startDate = date1;
 												}
-
+												// stat Recording Processing
 												if (isStatRecording && (gatherStats)) {
 													ts = statMap.get(recItem2.getName());
 													if (ts == null) {
@@ -630,7 +630,9 @@ public class Miner {
 													// updating
 													// the TimeSeries in the Map
 
-												} else if (classCache.getClass(rec).equals(EventRecording.class) && (gatherEvents)) {
+												}
+												// Event Record Processing
+												else if (classCache.getClass(rec).equals(EventRecording.class) && (gatherEvents)) {
 													ts = eventMap.get(recItem2.getName());
 													if (ts == null) {
 														ts = new ExtendedTimeSeries(recItem2, FixedMillisecond.class);
@@ -659,7 +661,7 @@ public class Miner {
 														try {
 															ts.getTimeSeries().addOrUpdate(
 																	(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat.parse(matcher2
-																			.group(count)))))));
+																			.group(count).replace(',', '.')))))));
 														} catch (ParseException e) {
 															// TODO
 															// Auto-generated
@@ -697,7 +699,7 @@ public class Miner {
 																// here
 																ts.getTimeSeries().add(
 																		(new TimeSeriesDataItem(fMS, Double.parseDouble(String.valueOf(decimalFormat
-																				.parse(matcher2.group(count)))))));
+																				.parse(matcher2.group(count).replace(',', '.')))))));
 															} catch (ParseException e) {
 																// TODO
 																// Auto-generated
