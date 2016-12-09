@@ -37,9 +37,15 @@ Once configured for a specific type of logs set, the gathering and display of th
 Download and unzip the latest release. Launch the application using start.sh or start.bat depending on the OS. A Java JRE must be present in the system path for this to work otherwise it can be hardcoded in the files.
 
 
-<h2>Planned improvements</h2>
-- <del>ability to see which file as the information selected in any charts</del>.DONE
-- <del>addition of progress bar</del> DONE
+<h2>Sample Template</h2>
+
+A basic template (generic-template.xml) is provided with the application. It can be used to process a few log file types: 
+Java GC log
+OpenDS access log
+Apache access log
+
+
+<h2>Ideas for future improvements</h2>
 - filter in chart view
 - make it easier to configure the software for a new logs set through
 	- templates selection
@@ -50,14 +56,9 @@ Download and unzip the latest release. Launch the application using start.sh or 
 	- mass fixing when feasible (eg. Date Formats)
 - add column sorting and filtering to tables
 - allow combination in charts of recording item from different sources
-- <del>rework of multi-threaded data mining</del>
 - ability to export the representation of all the charts as shown to one PNG 
 - graphical design (icon, some buttons text replaced wit pictures)
 - One key functionality of the application is that Recording Items are being aggregated through different Recordings if they have the same name. This is useful when there are several version of a recording as it allow charting them in one graph. It is however adding confusion as the information end up as being redundant in such case. One significant improvement will be to allow several sets of RecordingItems for a given Recording.
-
-
-Other ideas:
-- <del>allow opening external text editor on selected file</del> DONE
 - export of data to csv (currently data to xml only)
 - export of chart data for light transport
 - record template exceptions (spot quickly what was custom for a log set - could be useful to merge templates for instance) 
