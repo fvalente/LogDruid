@@ -59,11 +59,14 @@ public class Preferences {
 		if (!prefData.preferences.containsKey("lastPath")) {
 			prefData.preferences.put("lastPath", ".");
 		}
-		if (!prefData.preferences.containsKey("ThreadPool_Group")) {
-			prefData.preferences.put("ThreadPool_Group", "4");
+		if (!prefData.preferences.containsKey("ThreadPool_SourceGroup")) {
+			prefData.preferences.put("ThreadPool_SourceGroup", "4");
 		}
-		if (!prefData.preferences.containsKey("ThreadPool_File")) {
-			prefData.preferences.put("ThreadPool_File", "8");
+		if (!prefData.preferences.containsKey("ThreadPool_MineProcessor")) {
+			prefData.preferences.put("ThreadPool_MineProcessor", "8");
+		}
+		if (!prefData.preferences.containsKey("ThreadPool_ProcessorByGroup")) {
+			prefData.preferences.put("ThreadPool_ProcessorByGroup", "2");
 		}
 		if (!prefData.preferences.containsKey("editorCommand")) {
 			prefData.preferences.put("editorCommand", "gvim -R +$line \"$file\"");
