@@ -84,7 +84,7 @@ public class Preferences {
 			prefData.preferences.put("eventsAsDots", "true");
 		}
 		if (!prefData.preferences.containsKey("MiningFileChunk")) {
-			prefData.preferences.put("MiningFileChunk", "10000");
+			prefData.preferences.put("MiningFileChunk", "1000");
 		}		
 		if (!prefData.preferences.containsKey("ForceSourceDateFormat")) {
 			prefData.preferences.put("ForceSourceDateFormat", "false");
