@@ -22,11 +22,7 @@ public class PreferenceData {
 			preferences.put("timings", "false");
 			preferences.put("stats", "true");
 			preferences.put("chartSize", "350");
-			preferences.put("ThreadPool_Group", "4");
-			preferences.put("ThreadPool_File", "8");
 			preferences.put("editorCommand", "gvim -R +$line \"$file\"");
-			preferences.put("MiningFileChunk","10000");
-		
 		// TODO Auto-generated constructor stub
 	}
 
